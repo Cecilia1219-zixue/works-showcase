@@ -1,0 +1,13 @@
+{
+  "name": "works-showcase",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "better-sqlite3": "^9.4.3"
+  }
+}

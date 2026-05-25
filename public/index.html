@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>优秀作品展</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f7f7f7;color:#333}
+.header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+.header h1{font-size:18px;font-weight:700}
+.btn-admin{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);padding:6px 14px;border-radius:20px;font-size:13px;cursor:pointer}
+.gallery{padding:16px;max-width:1100px;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+.card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.12)}
+.card-imgs{position:relative;background:#eee;height:220px}
+.card-imgs img{width:100%;height:220px;object-fit:cover;display:none}
+.card-imgs img.active{display:block}
+.img-nav{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:5px}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.6);border:none;cursor:pointer;padding:0}
+.dot.active{background:#fff}
+.arr{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.3);color:#fff;border:none;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.arr.l{left:8px}.arr.r{right:8px}
+.no-img{height:220px;display:flex;align-items:center;justify-content:center;font-size:48px;color:#ccc;background:#f5f5f5}
+.card-body{padding:14px}
+.card-title{font-size:16px;font-weight:700;margin-bottom:6px}
+.card-desc{font-size:14px;color:#666;line-height:1.6;margin-bottom:8px;white-space:pre-wrap;max-height:80px;overflow:hidden}
+.card-link a{color:#667eea;font-size:13px;text-decoration:none;word-break:break-all}
+.card-link a:hover{text-decoration:underline}
+.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid #f0f0f0}
+.like-btn{display:flex;align-items:center;gap:6px;background:none;border:1.5px solid #e0e0e0;padding:7px 16px;border-radius:20px;cursor:pointer;font-size:14px;color:#666;transition:all .2s}
+.like-btn.liked{border-color:#ff6b6b;color:#ff6b6b;background:#fff0f0}
+.comment-btn{background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;padding:4px 8px}
+.comment-btn:hover{color:#667eea}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center;padding:0}
+@media(min-width:600px){.modal{align-items:center;padding:16px}}
+.modal.show{display:flex}
+.modal-box{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;padding:24px}
+@media(min-width:600px){.modal-box{border-radius:20px}}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+.close-btn{background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;line-height:1}
+label{font-size:13px;color:#888;display:block;margin-bottom:4px;margin-top:12px}
+input,textarea{width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;outline:none;font-family:inherit;transition:border .2s}
+input:focus,textarea:focus{border-color:#667eea}
+textarea{resize:vertical;min-height:70px}
+.btn-primary{width:100%;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;padding:13px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:16px}
+.btn-primary:hover{opacity:.9}
+.btn-danger{background:#ff6b6b;color:#fff;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px}
+.btn-secondary{background:#f0f0f0;color:#555;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px}
+.comments-list{margin-top:12px;max-height:300px;overflow-y:auto}
+.comment-item{padding:10px 0;border-bottom:1px solid #f5f5f5}
+.comment-nick{font-size:13px;font-weight:600;color:#667eea}
+.comment-time{font-size:11px;color:#ccc;margin-left:8px}
+.comment-content{font-size:14px;color:#444;margin-top:4px;line-height:1.5}
+.comment-form{margin-top:16px;border-top:1px solid #f0f0f0;padding-top:16px}
+.empty{text-align:center;padding:60px 20px;color:#bbb}
+.empty-icon{font-size:56px;margin-bottom:12px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.admin-bar{background:#fff;border-bottom:1px solid #eee;padding:12px 16px;display:flex;gap:8px;align-items:center}
+.admin-item{background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.admin-thumb{width:52px;height:52px;object-fit:cover;border-radius:8px;background:#eee;flex-shrink:0}
+.admin-info{flex:1;min-width:0}
+.admin-title{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-meta{font-size:12px;color:#aaa;margin-top:2px}
+.admin-btns{display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+.sort-btn{background:#f5f5f5;border:none;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:13px}
+.img-previews{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.preview-item{position:relative;width:76px;height:76px}
+.preview-item img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+.preview-remove{position:absolute;top:-5px;right:-5px;background:#ff6b6b;color:#fff;border:none;width:18px;height:18px;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.upload-area{border:2px dashed #d0d0d0;border-radius:10px;padding:16px;text-align:center;cursor:pointer;color:#aaa;font-size:14px;margin-top:8px}
+.upload-area:hover{border-color:#667eea;color:#667eea}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🏆 优秀作品展</h1>
+  <button class="btn-admin" onclick="openAdmin()">后台管理</button>
+</div>
+
+<div id="frontView">
+  <div class="gallery">
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="emptyState" style="display:none">
+      <div class="empty-icon">🎨</div>
+      <div>暂无作品，敬请期待</div>
+    </div>
+  </div>
+</div>
+
+<!-- 评论弹窗 -->
+<div class="modal" id="commentModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      💬 <span id="commentTitle">评论</span>
+      <button class="close-btn" onclick="closeModal('commentModal')">×</button>
+    </div>
+    <div class="comments-list" id="commentsList"></div>
+    <div class="comment-form">
+      <label>你的昵称</label>
+      <input id="commentNick" placeholder="输入昵称">
+      <label>评论内容</label>
+      <textarea id="commentContent" placeholder="写下你的评论..." rows="3"></textarea>
+      <button class="btn-primary" onclick="submitComment()">发表评论</button>
+    </div>
+  </div>
+</div>
+
+<!-- 登录弹窗 -->
+<div class="modal" id="loginModal">
+  <div class="modal-box">
+    <div class="modal-title">🔐 后台登录 <button class="close-btn" onclick="closeModal('loginModal')">×</button></div>
+    <label>管理员密码</label>
+    <input type="password" id="loginPwd" placeholder="输入密码" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-primary" onclick="doLogin()">登录</button>
+  </div>
+</div>
+
+<!-- 后台管理弹窗 -->
+<div class="modal" id="adminModal">
+  <div class="modal-box" style="max-width:600px">
+    <div class="modal-title">
+      📂 作品管理
+      <button class="close-btn" onclick="closeModal('adminModal')">×</button>
+    </div>
+    <button class="btn-primary" style="margin-top:0;margin-bottom:14px" onclick="openUpload()">+ 上传新作品</button>
+    <div id="adminList"></div>
+  </div>
+</div>
+
+<!-- 上传/编辑弹窗 -->
+<div class="modal" id="uploadModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span id="uploadTitle">📤 上传作品</span>
+      <button class="close-btn" onclick="closeModal('uploadModal')">×</button>
+    </div>
+    <label>作品标题 *</label>
+    <input id="wTitle" placeholder="输入作品标题">
+    <label>作品描述</label>
+    <textarea id="wDesc" placeholder="介绍一下这个作品..."></textarea>
+    <label>相关链接</label>
+    <input id="wLink" placeholder="https://...">
+    <label>排序数字（数字小的排前面）</label>
+    <input id="wSort" type="number" placeholder="0" value="0">
+    <label>作品图片（最多10张）</label>
+    <div class="upload-area" onclick="document.getElementById('imgInput').click()">📷 点击选择图片（支持多选）</div>
+    <input type="file" id="imgInput" accept="image/*" multiple style="display:none" onchange="handleImgs(event)">
+    <div class="img-previews" id="imgPreviews"></div>
+    <button class="btn-primary" onclick="saveWork()">保存</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let adminPwd = '';
+let editId = null;
+let newImgFiles = [];
+let newImgPreviews = [];
+let currentCommentWorkId = null;
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+
+// 加载作品
+async function loadWorks(){
+  const res = await fetch('/api/works');
+  const works = await res.json();
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('emptyState');
+  if(!works.length){grid.innerHTML='';empty.style.display='block';return}
+  empty.style.display='none';
+  grid.innerHTML = works.map(w => cardHTML(w)).join('');
+  // 检查点赞状态
+  works.forEach(w => checkLiked(w.id));
+}
+
+function cardHTML(w){
+  const imgs = w.images||[];
+  return `<div class="card" id="card-${w.id}">
+    ${imgs.length ? `<div class="card-imgs" id="ci-${w.id}">
+      ${imgs.map((s,i)=>`<img src="${esc(s)}" class="${i===0?'active':''}">`).join('')}
+      ${imgs.length>1?`<button class="arr l" onclick="slide(${w.id},-1)">‹</button><button class="arr r" onclick="slide(${w.id},1)">›</button><div class="img-nav">${imgs.map((_,i)=>`<button class="dot ${i===0?'active':''}" onclick="goImg(${w.id},${i})"></button>`).join('')}</div>`:''}
+    </div>` : `<div class="no-img">🖼️</div>`}
+    <div class="card-body">
+      <div class="card-title">${esc(w.title)}</div>
+      ${w.description?`<div class="card-desc">${esc(w.description)}</div>`:''}
+      ${w.link?`<div class="card-link"><a href="${esc(w.link)}" target="_blank">🔗 ${esc(w.link)}</a></div>`:''}
+      <div class="card-footer">
+        <button class="like-btn" id="like-${w.id}" onclick="toggleLike(${w.id})">🤍 <span id="lc-${w.id}">${w.likes||0}</span> 赞</button>
+        <button class="comment-btn" onclick="openComments(${w.id},'${esc(w.title)}')">💬 评论</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function slide(id,dir){
+  const ci=document.getElementById('ci-'+id);
+  const imgs=ci.querySelectorAll('img'),dots=ci.querySelectorAll('.dot');
+  let cur=[...imgs].findIndex(i=>i.classList.contains('active'));
+  imgs[cur].classList.remove('active');if(dots[cur])dots[cur].classList.remove('active');
+  cur=(cur+dir+imgs.length)%imgs.length;
+  imgs[cur].classList.add('active');if(dots[cur])dots[cur].classList.add('active');
+}
+function goImg(id,idx){
+  const ci=document.getElementById('ci-'+id);
+  ci.querySelectorAll('img').forEach((im,i)=>im.classList.toggle('active',i===idx));
+  ci.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+}
+
+async function checkLiked(id){
+  const res=await fetch(`/api/works/${id}/liked`);
+  const data=await res.json();
+  const btn=document.getElementById('like-'+id);
+  if(btn&&data.liked){btn.classList.add('liked');btn.innerHTML=`❤️ <span id="lc-${id}">${document.getElementById('lc-'+id)?.textContent||0}</span> 赞`}
+}
+
+async function toggleLike(id){
+  const res=await fetch(`/api/works/${id}/like`,{method:'POST'});
+  const data=await res.json();
+  const btn=document.getElementById('like-'+id);
+  const lc=document.getElementById('lc-'+id);
+  if(data.unliked){btn.classList.remove('liked');btn.innerHTML=`🤍 <span id="lc-${id}">${data.likes}</span> 赞`}
+  else{btn.classList.add('liked');btn.innerHTML=`❤️ <span id="lc-${id}">${data.likes}</span> 赞`}
+}
+
+// 评论
+async function openComments(id,title){
+  currentCommentWorkId=id;
+  document.getElementById('commentTitle').textContent=title;
+  document.getElementById('commentModal').classList.add('show');
+  const res=await fetch(`/api/works/${id}/comments`);
+  const comments=await res.json();
+  const list=document.getElementById('commentsList');
+  if(!comments.length){list.innerHTML='<div style="text-align:center;color:#ccc;padding:20px">暂无评论，快来抢沙发！</div>';return}
+  list.innerHTML=comments.map(c=>`<div class="comment-item">
+    <span class="comment-nick">${esc(c.nickname)}</span>
+    <span class="comment-time">${c.created_at?.slice(0,16)||''}</span>
+    <div class="comment-content">${esc(c.content)}</div>
+  </div>`).join('');
+  list.scrollTop=list.scrollHeight;
+}
+
+async function submitComment(){
+  const nick=document.getElementById('commentNick').value.trim();
+  const content=document.getElementById('commentContent').value.trim();
+  if(!nick||!content){showToast('昵称和评论都不能为空');return}
+  const res=await fetch(`/api/works/${currentCommentWorkId}/comments`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nickname:nick,content})});
+  if(res.ok){
+    document.getElementById('commentContent').value='';
+    showToast('评论发表成功！');
+    openComments(currentCommentWorkId,document.getElementById('commentTitle').textContent);
+  }
+}
+
+// 后台
+function openAdmin(){
+  if(!adminPwd){document.getElementById('loginModal').classList.add('show');return}
+  loadAdmin();
+  document.getElementById('adminModal').classList.add('show');
+}
+async function doLogin(){
+  const pwd=document.getElementById('loginPwd').value;
+  const res=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});
+  if(res.ok){adminPwd=pwd;closeModal('loginModal');document.getElementById('loginPwd').value='';loadAdmin();document.getElementById('adminModal').classList.add('show');showToast('登录成功 🎉')}
+  else showToast('密码错误');
+}
+async function loadAdmin(){
+  const res=await fetch('/api/works');
+  const works=await res.json();
+  const list=document.getElementById('adminList');
+  if(!works.length){list.innerHTML='<div style="text-align:center;color:#ccc;padding:20px">还没有作品</div>';return}
+  list.innerHTML=works.map((w,i)=>`<div class="admin-item">
+    ${w.images&&w.images[0]?`<img class="admin-thumb" src="${esc(w.images[0])}">`:` <div class="admin-thumb" style="display:flex;align-items:center;justify-content:center;font-size:22px">🖼️</div>`}
+    <div class="admin-info"><div class="admin-title">${esc(w.title)}</div><div class="admin-meta">${w.images?.length||0}张图 · ❤️${w.likes||0}</div></div>
+    <div class="admin-btns">
+      <button class="sort-btn" onclick="moveWork(${i},-1,${JSON.stringify(works).replace(/"/g,'&quot;')})" ${i===0?'disabled':''}>↑</button>
+      <button class="sort-btn" onclick="moveWork(${i},1,${JSON.stringify(works).replace(/"/g,'&quot;')})" ${i===works.length-1?'disabled':''}>↓</button>
+      <button class="btn-secondary" onclick="editWork(${w.id})">编辑</button>
+      <button class="btn-danger" onclick="deleteWork(${w.id})">删除</button>
+    </div>
+  </div>`).join('');
+}
+async function moveWork(i,dir,works){
+  const j=i+dir;if(j<0||j>=works.length)return;
+  [works[i].sort_order,works[j].sort_order]=[works[j].sort_order,works[i].sort_order];
+  await Promise.all([
+    fetch(`/api/admin/works/${works[i].id}`,{method:'PUT',headers:{'Content-Type':'application/json','x-admin-password':adminPwd},body:JSON.stringify(works[i])}),
+    fetch(`/api/admin/works/${works[j].id}`,{method:'PUT',headers:{'Content-Type':'application/json','x-admin-password':adminPwd},body:JSON.stringify(works[j])})
+  ]);
+  loadAdmin();loadWorks();
+}
+async function deleteWork(id){
+  if(!confirm('确定删除？'))return;
+  await fetch(`/api/admin/works/${id}`,{method:'DELETE',headers:{'x-admin-password':adminPwd}});
+  showToast('已删除');loadAdmin();loadWorks();
+}
+
+// 上传/编辑
+function openUpload(id){
+  editId=id||null;newImgFiles=[];newImgPreviews=[];
+  document.getElementById('imgPreviews').innerHTML='';
+  document.getElementById('imgInput').value='';
+  if(id){
+    fetch('/api/works').then(r=>r.json()).then(works=>{
+      const w=works.find(x=>x.id===id);
+      document.getElementById('uploadTitle').textContent='✏️ 编辑作品';
+      document.getElementById('wTitle').value=w.title||'';
+      document.getElementById('wDesc').value=w.description||'';
+      document.getElementById('wLink').value=w.link||'';
+      document.getElementById('wSort').value=w.sort_order||0;
+      newImgPreviews=[...(w.images||[])];
+      renderPreviews();
+    });
+  }else{
+    document.getElementById('uploadTitle').textContent='📤 上传作品';
+    document.getElementById('wTitle').value='';
+    document.getElementById('wDesc').value='';
+    document.getElementById('wLink').value='';
+    document.getElementById('wSort').value='0';
+  }
+  document.getElementById('uploadModal').classList.add('show');
+}
+function editWork(id){closeModal('adminModal');openUpload(id)}
+function handleImgs(e){
+  const files=[...e.target.files];
+  const remaining=10-newImgPreviews.length;
+  if(remaining<=0){showToast('最多10张图片');return}
+  files.slice(0,remaining).forEach(f=>{newImgFiles.push(f);const r=new FileReader();r.onload=ev=>{newImgPreviews.push({file:f,url:ev.target.result});renderPreviews()};r.readAsDataURL(f)});
+  if(files.length>remaining)showToast(`最多再添加${remaining}张`);
+}
+function renderPreviews(){
+  document.getElementById('imgPreviews').innerHTML=newImgPreviews.map((p,i)=>`<div class="preview-item"><img src="${typeof p==='string'?p:p.url}"><button class="preview-remove" onclick="removeImg(${i})">×</button></div>`).join('');
+}
+function removeImg(i){newImgPreviews.splice(i,1);renderPreviews()}
+async function saveWork(){
+  const title=document.getElementById('wTitle').value.trim();
+  if(!title){showToast('请输入标题');return}
+  // 上传新图片
+  const uploadedUrls=[];
+  for(const p of newImgPreviews){
+    if(typeof p==='string'){uploadedUrls.push(p);continue}
+    const fd=new FormData();fd.append('images',p.file);
+    const res=await fetch('/api/admin/upload',{method:'POST',headers:{'x-admin-password':adminPwd},body:fd});
+    const data=await res.json();
+    uploadedUrls.push(...(data.files||[]));
+  }
+  const body={title,description:document.getElementById('wDesc').value.trim(),link:document.getElementById('wLink').value.trim(),images:uploadedUrls,sort_order:parseInt(document.getElementById('wSort').value)||0};
+  const url=editId?`/api/admin/works/${editId}`:'/api/admin/works';
+  const method=editId?'PUT':'POST';
+  const res=await fetch(url,{method,headers:{'Content-Type':'application/json','x-admin-password':adminPwd},body:JSON.stringify(body)});
+  if(res.ok){closeModal('uploadModal');showToast(editId?'保存成功 ✅':'上传成功 🎉');loadAdmin();loadWorks()}
+  else{const e=await res.json();showToast(e.error||'操作失败')}
+}
+
+loadWorks();
+</script>
+</body>
+</html>
