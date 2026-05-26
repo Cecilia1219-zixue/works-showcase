@@ -136,7 +136,7 @@ window._shareWorkIdx = null;
 
 async function init() {
   try {
-    const works = await api('works?order=sort_order.asc,created_at.desc&select=*');
+    const works = await api('works_with_counts?order=sort_order.asc,created_at.desc&select=*');
     window._works = works;
     document.getElementById('loading').style.display = 'none';
     if (!works.length) { document.getElementById('empty').style.display=''; return; }
@@ -193,12 +193,12 @@ function renderAll() {
           <div class="action-sep"></div>
           <button class="action-btn" onclick="toggleComment(${i},'${w.id}')">
             <span class="icon">💬</span>
-            <span id="cmtcount${i}">${w.comment_count||0} 评论</span>
+            <span id="cmtcount${i}">${w.real_comment_count||0} 评论</span>
           </button>
           <div class="action-sep"></div>
           <button class="action-btn" onclick="openShareModal('${w.id}',${i})">
             <span class="icon">📤</span>
-            <span id="sharecount${i}">${w.share_count||0} 转发</span>
+            <span id="sharecount${i}">${w.real_share_count||0} 转发</span>
           </button>
         </div>
         <div class="people-row hidden" id="people${i}"></div>
@@ -318,8 +318,8 @@ async function sendComment(workId, i) {
     if (!resp.ok) { const t = await resp.text(); throw new Error(t); }
     inputEl.value = '';
     const w = window._works[i];
-    const newCmtCount = (w.comment_count||0) + 1;
-    window._works[i].comment_count = newCmtCount;
+    const newCmtCount = (w.real_comment_count||0) + 1;
+    window._works[i].real_comment_count = newCmtCount;
     document.getElementById('cmtcount'+i).textContent = newCmtCount+" 评论";
     await loadComments(i, realId);
   } catch(e) { showToast('发送失败：'+e.message.slice(0,30)); console.error(e); }
@@ -351,8 +351,8 @@ async function doShare(platform) {
   // 记录转发
   try {
     await api('shares', { method:'POST', body:JSON.stringify({work_id:workId, nickname:nick}), headers:{'Prefer':'return=minimal'} });
-    const newCount = (w.share_count||0) + 1;
-    window._works[idx].share_count = newCount;
+    const newCount = (w.real_share_count||0) + 1;
+    window._works[idx].real_share_count = newCount;
     await api(`works?id=eq.${workId}`, { method:'PATCH', body:JSON.stringify({share_count:newCount}), headers:{'Prefer':'return=minimal'} });
     document.getElementById('sharecount'+idx).textContent = newCount+" 转发";
     loadPeople(idx, workId);
