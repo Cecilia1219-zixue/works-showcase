@@ -188,7 +188,7 @@ function renderAll() {
         <div class="action-bar">
           <button class="action-btn ${isLiked?'liked':''}" id="likebtn${i}" onclick="toggleLike('${w.id}',${i})">
             <span class="icon">${isLiked?'❤️':'🤍'}</span>
-            <span id="likecount${i}">${w.likes||0} 赞</span>
+            <span id="likecount${i}">${w.real_like_count||0} 赞</span>
           </button>
           <div class="action-sep"></div>
           <button class="action-btn" onclick="toggleComment(${i},'${w.id}')">
