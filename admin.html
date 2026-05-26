@@ -75,6 +75,11 @@
       <input type="text" id="f-title" placeholder="请输入标题">
       <label>作品描述</label>
       <textarea id="f-desc" placeholder="简单介绍这个作品..."></textarea>
+      <label>作品分类 *</label>
+      <select id="f-cat" style="width:100%;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:0.95rem;outline:none;background:white">
+        <option value="challenge">"医"起打擂台</option>
+        <option value="brave">"医"高人胆大</option>
+      </select>
       <label>外部链接（可选）</label>
       <input type="url" id="f-link" placeholder="https://...">
       <label>图片（最多10张）</label>
@@ -155,6 +160,7 @@ async function addWork() {
         description: document.getElementById('f-desc').value.trim(),
         link: document.getElementById('f-link').value.trim() || null,
         images: pendingImgs,
+        category: document.getElementById('f-cat').value,
         sort_order: maxOrder + 1,
         likes: 0
       })
