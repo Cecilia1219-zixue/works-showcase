@@ -188,17 +188,17 @@ function renderAll() {
         <div class="action-bar">
           <button class="action-btn ${isLiked?'liked':''}" id="likebtn${i}" onclick="toggleLike('${w.id}',${i})">
             <span class="icon">${isLiked?'❤️':'🤍'}</span>
-            <span id="likecount${i}">${(w.likes||0) > 0 ? (w.likes+'人点赞') : '点赞'}</span>
+            <span id="likecount${i}">${w.likes||0} 赞</span>
           </button>
           <div class="action-sep"></div>
           <button class="action-btn" onclick="toggleComment(${i},'${w.id}')">
             <span class="icon">💬</span>
-            <span id="cmtcount${i}">${(w.comment_count||0) > 0 ? (w.comment_count+'条评论') : '评论'}</span>
+            <span id="cmtcount${i}">${w.comment_count||0} 评论</span>
           </button>
           <div class="action-sep"></div>
           <button class="action-btn" onclick="openShareModal('${w.id}',${i})">
             <span class="icon">📤</span>
-            <span id="sharecount${i}">${(w.share_count||0) > 0 ? (w.share_count+'次转发') : '转发'}</span>
+            <span id="sharecount${i}">${w.share_count||0} 转发</span>
           </button>
         </div>
         <div class="people-row hidden" id="people${i}"></div>
@@ -244,7 +244,7 @@ async function toggleLike(id, i) {
   const btn = document.getElementById('likebtn'+i);
   btn.className = 'action-btn'+(likes[id]?' liked':'');
   btn.querySelector('.icon').textContent = likes[id]?'❤️':'🤍';
-  document.getElementById('likecount'+i).textContent = newCount > 0 ? newCount+'人点赞' : '点赞';
+  document.getElementById('likecount'+i).textContent = newCount+" 赞";
   await api(`works?id=eq.${id}`, { method:'PATCH', body:JSON.stringify({likes:newCount}), headers:{'Prefer':'return=minimal'} });
   // 刷新点赞人列表
   loadPeople(i, id);
@@ -320,7 +320,7 @@ async function sendComment(workId, i) {
     const w = window._works[i];
     const newCmtCount = (w.comment_count||0) + 1;
     window._works[i].comment_count = newCmtCount;
-    document.getElementById('cmtcount'+i).textContent = newCmtCount+'条评论';
+    document.getElementById('cmtcount'+i).textContent = newCmtCount+" 评论";
     await loadComments(i, realId);
   } catch(e) { showToast('发送失败：'+e.message.slice(0,30)); console.error(e); }
 }
@@ -354,7 +354,7 @@ async function doShare(platform) {
     const newCount = (w.share_count||0) + 1;
     window._works[idx].share_count = newCount;
     await api(`works?id=eq.${workId}`, { method:'PATCH', body:JSON.stringify({share_count:newCount}), headers:{'Prefer':'return=minimal'} });
-    document.getElementById('sharecount'+idx).textContent = newCount+'次转发';
+    document.getElementById('sharecount'+idx).textContent = newCount+" 转发";
     loadPeople(idx, workId);
   } catch(e) {}
   // 执行分享
