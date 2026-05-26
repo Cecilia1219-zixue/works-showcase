@@ -28,16 +28,14 @@
   .card-title { font-size: 1rem; font-weight: 600; line-height: 1.4; }
   .card-desc { margin-top: 8px; font-size: 0.875rem; color: #666; line-height: 1.6; white-space: pre-wrap; }
   .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
-  .card-link a { color: #667eea; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 4px; }
+  .card-link a { color: #667eea; font-size: 0.85rem; text-decoration: none; }
   .card-link a:hover { text-decoration: underline; }
   .like-btn { background: none; border: 1.5px solid #e0e0e0; border-radius: 20px; padding: 6px 14px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; color: #888; transition: all 0.2s; }
   .like-btn:hover, .like-btn.liked { border-color: #ff6b6b; color: #ff6b6b; background: #fff5f5; }
-  .like-btn.liked .heart { animation: heartbeat 0.3s; }
-  @keyframes heartbeat { 0%{transform:scale(1)} 50%{transform:scale(1.3)} 100%{transform:scale(1)} }
-  .empty { text-align: center; padding: 80px 20px; color: #aaa; }
-  .empty svg { width: 64px; opacity: 0.3; margin-bottom: 16px; }
+  .empty { text-align: center; padding: 80px 20px; color: #aaa; font-size: 1rem; }
+  .loading { text-align: center; padding: 60px 20px; color: #aaa; }
   .admin-link { text-align: center; padding: 20px; }
-  .admin-link a { color: #bbb; font-size: 0.75rem; text-decoration: none; }
+  .admin-link a { color: #ccc; font-size: 0.75rem; text-decoration: none; }
   .admin-link a:hover { color: #667eea; }
 </style>
 </head>
@@ -47,71 +45,41 @@
   <p>发现优秀，分享灵感</p>
 </header>
 <div class="container">
+  <div class="loading" id="loading">加载中...</div>
   <div class="grid" id="grid"></div>
-  <div class="empty" id="empty" style="display:none">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 16l4-4 4 4 6-8"/><circle cx="12" cy="12" r="10"/></svg>
-    <p>暂无作品，敬请期待</p>
-  </div>
+  <div class="empty" id="empty" style="display:none">暂无作品，敬请期待 🌱</div>
 </div>
 <div class="admin-link"><a href="admin.html">管理后台</a></div>
 
 <script>
-const STORAGE_KEY = 'works_data_v1';
+const SUPABASE_URL = 'https://nrukvtlujydvebfskwok.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ydWt2dGx1anlkdmViZnNrd29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3Mzc5MDUsImV4cCI6MjA5NTMxMzkwNX0.QUZLq1S8VdJjQzA8g6DxUvNj6bK06ci3lR-3KK15nk4';
 const LIKES_KEY = 'works_likes_v1';
 
-function getData() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; }
-}
-function getLikes() {
-  try { return JSON.parse(localStorage.getItem(LIKES_KEY)) || {}; } catch { return {}; }
-}
-function saveLikes(likes) {
-  localStorage.setItem(LIKES_KEY, JSON.stringify(likes));
+function getLikes() { try { return JSON.parse(localStorage.getItem(LIKES_KEY)) || {}; } catch { return {}; } }
+function saveLikes(l) { localStorage.setItem(LIKES_KEY, JSON.stringify(l)); }
+
+async function api(path, opts={}) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON, 'Content-Type': 'application/json', ...opts.headers },
+    ...opts
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.status === 204 ? null : res.json();
 }
 
-function renderCards() {
-  const works = getData();
+async function toggleLike(id, idx) {
   const likes = getLikes();
-  const grid = document.getElementById('grid');
-  const empty = document.getElementById('empty');
-  grid.innerHTML = '';
-  if (!works.length) { empty.style.display = ''; return; }
-  empty.style.display = 'none';
-  works.forEach((w, i) => {
-    const likeCount = likes[w.id] ? likes[w.id].count : 0;
-    const isLiked = likes[w.id] ? likes[w.id].byMe : false;
-    const imgs = w.images || [];
-    let carouselHtml = '';
-    if (imgs.length > 0) {
-      carouselHtml = `<div class="carousel" id="c${i}">`;
-      imgs.forEach((src, j) => {
-        carouselHtml += `<img src="${src}" class="${j===0?'active':''}" alt="">`;
-      });
-      if (imgs.length > 1) {
-        carouselHtml += `<button class="carousel-btn prev" onclick="slide(${i},-1)">&#8249;</button>`;
-        carouselHtml += `<button class="carousel-btn next" onclick="slide(${i},1)">&#8250;</button>`;
-        carouselHtml += `<div class="carousel-dots" id="dots${i}">`;
-        imgs.forEach((_, j) => carouselHtml += `<span class="${j===0?'active':''}" onclick="goSlide(${i},${j})"></span>`);
-        carouselHtml += `</div>`;
-      }
-      carouselHtml += `</div>`;
-    }
-    const linkHtml = w.link ? `<div class="card-link"><a href="${w.link}" target="_blank">🔗 查看详情</a></div>` : '<div></div>';
-    grid.innerHTML += `
-      <div class="card">
-        ${carouselHtml}
-        <div class="card-body">
-          <div class="card-title">${w.title || '未命名作品'}</div>
-          ${w.desc ? `<div class="card-desc">${w.desc}</div>` : ''}
-          <div class="card-footer">
-            ${linkHtml}
-            <button class="like-btn ${isLiked?'liked':''}" id="like${i}" onclick="toggleLike('${w.id}',${i})">
-              <span class="heart">${isLiked?'❤️':'🤍'}</span> ${likeCount}
-            </button>
-          </div>
-        </div>
-      </div>`;
-  });
+  const isLiked = likes[id];
+  // optimistic update
+  likes[id] = !isLiked;
+  saveLikes(likes);
+  // update db
+  const work = window._works[idx];
+  const newCount = isLiked ? Math.max(0, (work.likes||0)-1) : (work.likes||0)+1;
+  window._works[idx].likes = newCount;
+  await api(`works?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ likes: newCount }), headers: { 'Prefer': 'return=minimal' } });
+  renderCards(window._works);
 }
 
 window._carouselIdx = {};
@@ -121,10 +89,10 @@ function slide(i, dir) {
   const dots = document.getElementById('dots'+i);
   let idx = window._carouselIdx[i] || 0;
   imgs[idx].classList.remove('active');
-  dots && dots.children[idx].classList.remove('active');
+  dots && dots.children[idx] && dots.children[idx].classList.remove('active');
   idx = (idx + dir + imgs.length) % imgs.length;
   imgs[idx].classList.add('active');
-  dots && dots.children[idx].classList.add('active');
+  dots && dots.children[idx] && dots.children[idx].classList.add('active');
   window._carouselIdx[i] = idx;
 }
 function goSlide(i, j) {
@@ -133,27 +101,62 @@ function goSlide(i, j) {
   const dots = document.getElementById('dots'+i);
   const idx = window._carouselIdx[i] || 0;
   imgs[idx].classList.remove('active');
-  dots && dots.children[idx].classList.remove('active');
+  dots && dots.children[idx] && dots.children[idx].classList.remove('active');
   imgs[j].classList.add('active');
-  dots && dots.children[j].classList.add('active');
+  dots && dots.children[j] && dots.children[j].classList.add('active');
   window._carouselIdx[i] = j;
 }
 
-function toggleLike(id, i) {
+function renderCards(works) {
   const likes = getLikes();
-  if (!likes[id]) likes[id] = { count: 0, byMe: false };
-  if (likes[id].byMe) {
-    likes[id].count = Math.max(0, likes[id].count - 1);
-    likes[id].byMe = false;
-  } else {
-    likes[id].count++;
-    likes[id].byMe = true;
-  }
-  saveLikes(likes);
-  renderCards();
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  works.forEach((w, i) => {
+    const imgs = w.images || [];
+    const isLiked = !!likes[w.id];
+    let carouselHtml = '';
+    if (imgs.length > 0) {
+      carouselHtml = `<div class="carousel" id="c${i}">`;
+      imgs.forEach((src, j) => { carouselHtml += `<img src="${src}" class="${j===0?'active':''}" alt="">`; });
+      if (imgs.length > 1) {
+        carouselHtml += `<button class="carousel-btn prev" onclick="slide(${i},-1)">&#8249;</button>`;
+        carouselHtml += `<button class="carousel-btn next" onclick="slide(${i},1)">&#8250;</button>`;
+        carouselHtml += `<div class="carousel-dots" id="dots${i}">`;
+        imgs.forEach((_, j) => carouselHtml += `<span class="${j===0?'active':''}"></span>`);
+        carouselHtml += `</div>`;
+      }
+      carouselHtml += `</div>`;
+    }
+    grid.innerHTML += `
+      <div class="card">
+        ${carouselHtml}
+        <div class="card-body">
+          <div class="card-title">${w.title||'未命名'}</div>
+          ${w.description ? `<div class="card-desc">${w.description}</div>` : ''}
+          <div class="card-footer">
+            ${w.link ? `<div class="card-link"><a href="${w.link}" target="_blank">🔗 查看详情</a></div>` : '<div></div>'}
+            <button class="like-btn ${isLiked?'liked':''}" onclick="toggleLike('${w.id}',${i})">
+              ${isLiked?'❤️':'🤍'} ${w.likes||0}
+            </button>
+          </div>
+        </div>
+      </div>`;
+  });
 }
 
-renderCards();
+async function init() {
+  try {
+    const works = await api('works?order=sort_order.asc,created_at.desc&select=*');
+    window._works = works;
+    document.getElementById('loading').style.display = 'none';
+    if (!works.length) { document.getElementById('empty').style.display = ''; return; }
+    renderCards(works);
+  } catch(e) {
+    document.getElementById('loading').textContent = '加载失败，请刷新重试';
+    console.error(e);
+  }
+}
+init();
 </script>
 </body>
 </html>
