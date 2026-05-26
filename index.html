@@ -348,15 +348,18 @@ async function doShare(platform) {
   const base = location.origin + location.pathname.replace(/\/[^/]*$/, '/index.html');
   const url = base + '?work=' + workId;
   const text = `「${w.title}」— 优秀作品展\n${url}`;
-  // 记录转发
+  // 每次点分享都记录一次，累加统计
   try {
-    await api('shares', { method:'POST', body:JSON.stringify({work_id:workId, nickname:nick}), headers:{'Prefer':'return=minimal'} });
+    await fetch(SUPABASE_URL+'/rest/v1/shares', {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer '+SUPABASE_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({work_id: workId, nickname: nick})
+    });
     const newCount = (w.real_share_count||0) + 1;
     window._works[idx].real_share_count = newCount;
-    await api(`works?id=eq.${workId}`, { method:'PATCH', body:JSON.stringify({share_count:newCount}), headers:{'Prefer':'return=minimal'} });
-    document.getElementById('sharecount'+idx).textContent = newCount+" 转发";
+    document.getElementById('sharecount'+idx).textContent = newCount+' 转发';
     loadPeople(idx, workId);
-  } catch(e) {}
+  } catch(e) { console.error('转发记录失败', e); }
   // 执行分享
   // 统一用复制链接方式，避免手机系统分享覆盖自定义URL
   const copyText = platform === 'feishu' ? text : url;
