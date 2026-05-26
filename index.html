@@ -21,39 +21,57 @@
   .carousel-btn.prev { left: 8px; }
   .carousel-btn.next { right: 8px; }
   .carousel-dots { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; }
-  .carousel-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.6); cursor: pointer; }
+  .carousel-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.6); }
   .carousel-dots span.active { background: white; }
   .card-body { padding: 14px 16px 0; }
   .card-title { font-size: 1rem; font-weight: 600; line-height: 1.4; }
   .card-desc { margin-top: 6px; font-size: 0.875rem; color: #666; line-height: 1.6; white-space: pre-wrap; }
   .card-link { margin-top: 8px; }
   .card-link a { color: #667eea; font-size: 0.85rem; text-decoration: none; }
+
   /* 操作栏 */
-  .action-bar { display: flex; align-items: center; gap: 0; border-top: 1px solid #f0f0f0; margin-top: 12px; }
-  .action-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 11px 0; font-size: 0.85rem; color: #888; background: none; border: none; cursor: pointer; transition: color 0.2s, background 0.15s; border-radius: 0; }
+  .action-bar { display: flex; align-items: center; border-top: 1px solid #f0f0f0; margin-top: 12px; }
+  .action-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 10px 0; font-size: 0.78rem; color: #999; background: none; border: none; cursor: pointer; transition: color 0.2s, background 0.15s; }
   .action-btn:hover { background: #f8f8f8; color: #555; }
+  .action-btn .icon { font-size: 1.1rem; }
   .action-btn.liked { color: #ff6b6b; }
-  .action-btn.liked .heart { animation: hb 0.3s; }
-  @keyframes hb { 0%{transform:scale(1)} 50%{transform:scale(1.4)} 100%{transform:scale(1)} }
-  .action-sep { width: 1px; background: #f0f0f0; height: 20px; }
+  .action-sep { width: 1px; background: #f0f0f0; height: 28px; }
+
+  /* 互动人员头像列表 */
+  .people-row { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 16px 8px; min-height: 0; }
+  .people-row.hidden { display: none; }
+  .person-tag { background: #f0f4ff; color: #667eea; font-size: 0.75rem; border-radius: 12px; padding: 3px 9px; }
+
   /* 评论区 */
   .comment-section { display: none; padding: 0 16px 14px; border-top: 1px solid #f5f5f5; }
   .comment-section.open { display: block; }
-  .comment-list { margin-top: 10px; max-height: 220px; overflow-y: auto; }
-  .comment-item { padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
+  .comment-list { margin-top: 10px; max-height: 200px; overflow-y: auto; }
+  .comment-item { padding: 8px 0; border-bottom: 1px solid #f8f8f8; }
   .comment-item:last-child { border-bottom: none; }
   .comment-nick { font-size: 0.8rem; font-weight: 600; color: #667eea; }
-  .comment-text { font-size: 0.85rem; color: #444; margin-top: 2px; line-height: 1.5; }
-  .comment-time { font-size: 0.75rem; color: #ccc; margin-top: 2px; }
-  .comment-input-row { display: flex; gap: 8px; margin-top: 10px; }
-  .comment-input-row input { flex: 1; padding: 8px 12px; border: 1.5px solid #e0e0e0; border-radius: 20px; font-size: 0.85rem; outline: none; }
-  .comment-input-row input:focus { border-color: #667eea; }
-  .comment-send { background: #667eea; color: white; border: none; border-radius: 20px; padding: 8px 16px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; }
-  .nick-row { display: flex; gap: 8px; margin-top: 8px; }
-  .nick-row input { width: 100px; padding: 8px 12px; border: 1.5px solid #e0e0e0; border-radius: 20px; font-size: 0.85rem; outline: none; flex-shrink: 0; }
-  .nick-row input:focus { border-color: #667eea; }
+  .comment-text { font-size: 0.85rem; color: #444; margin-top: 2px; line-height: 1.5; word-break: break-all; }
+  .comment-time { font-size: 0.72rem; color: #ccc; margin-top: 2px; }
   .no-comment { text-align: center; color: #ccc; font-size: 0.85rem; padding: 14px 0; }
-  /* 通用 */
+  .comment-form { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .comment-form input { width: 100%; padding: 8px 12px; border: 1.5px solid #e0e0e0; border-radius: 20px; font-size: 0.85rem; outline: none; font-family: inherit; }
+  .comment-form input:focus { border-color: #667eea; }
+  .comment-send-row { display: flex; gap: 8px; }
+  .comment-send-row input { flex: 1; }
+  .comment-send { background: #667eea; color: white; border: none; border-radius: 20px; padding: 8px 16px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; }
+
+  /* 转发弹窗 */
+  .modal-mask { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: flex-end; justify-content: center; }
+  .modal-mask.open { display: flex; }
+  .modal-box { background: white; border-radius: 20px 20px 0 0; padding: 24px 20px 36px; width: 100%; max-width: 480px; }
+  .modal-title { font-weight: 600; font-size: 1rem; margin-bottom: 16px; text-align: center; }
+  .modal-box input { width: 100%; padding: 10px 14px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 0.95rem; outline: none; margin-bottom: 14px; }
+  .modal-box input:focus { border-color: #667eea; }
+  .share-btns { display: flex; flex-direction: column; gap: 10px; }
+  .share-btn { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-radius: 12px; border: 1.5px solid #e0e0e0; background: white; font-size: 0.95rem; cursor: pointer; text-align: left; transition: border-color 0.2s; }
+  .share-btn:hover { border-color: #667eea; }
+  .share-btn .sicon { font-size: 1.4rem; }
+  .modal-cancel { margin-top: 12px; width: 100%; padding: 12px; border: none; background: #f5f5f5; border-radius: 12px; font-size: 0.95rem; cursor: pointer; color: #888; }
+
   .empty { text-align: center; padding: 80px 20px; color: #aaa; }
   .loading { text-align: center; padding: 60px 20px; color: #aaa; }
   .admin-link { text-align: center; padding: 20px; }
@@ -73,6 +91,21 @@
   <div class="empty" id="empty" style="display:none">暂无作品，敬请期待 🌱</div>
 </div>
 <div class="admin-link"><a href="admin.html">管理后台</a></div>
+
+<!-- 转发弹窗 -->
+<div class="modal-mask" id="share-modal" onclick="closeShareModal(event)">
+  <div class="modal-box">
+    <div class="modal-title">📤 转发作品</div>
+    <input type="text" id="share-nick" placeholder="请输入你的名字（让大家知道是谁分享的）" maxlength="20">
+    <div class="share-btns">
+      <button class="share-btn" onclick="doShare('copy')"><span class="sicon">🔗</span><div><div style="font-weight:600">复制链接</div><div style="font-size:0.8rem;color:#aaa">可粘贴到微信、飞书等</div></div></button>
+      <button class="share-btn" onclick="doShare('feishu')"><span class="sicon">🟦</span><div><div style="font-weight:600">分享到飞书</div><div style="font-size:0.8rem;color:#aaa">打开飞书粘贴发送</div></div></button>
+      <button class="share-btn" onclick="doShare('wechat')"><span class="sicon">💚</span><div><div style="font-weight:600">分享到微信</div><div style="font-size:0.8rem;color:#aaa">打开微信粘贴发送</div></div></button>
+    </div>
+    <button class="modal-cancel" onclick="closeShareModal()">取消</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -83,8 +116,8 @@ const NICK_KEY = 'works_nickname';
 
 function getLikes() { try { return JSON.parse(localStorage.getItem(LIKES_KEY))||{}; } catch { return {}; } }
 function saveLikes(l) { localStorage.setItem(LIKES_KEY, JSON.stringify(l)); }
-function getNick() { return localStorage.getItem(NICK_KEY) || ''; }
-function saveNick(n) { localStorage.setItem(NICK_KEY, n); }
+function getNick() { return localStorage.getItem(NICK_KEY)||''; }
+function saveNick(n) { if(n) localStorage.setItem(NICK_KEY, n); }
 
 async function api(path, opts={}) {
   const res = await fetch(SUPABASE_URL+'/rest/v1/'+path, {
@@ -98,7 +131,8 @@ async function api(path, opts={}) {
 window._works = [];
 window._carouselIdx = {};
 window._commentOpen = {};
-window._comments = {};
+window._shareWorkId = null;
+window._shareWorkIdx = null;
 
 async function init() {
   try {
@@ -107,6 +141,17 @@ async function init() {
     document.getElementById('loading').style.display = 'none';
     if (!works.length) { document.getElementById('empty').style.display=''; return; }
     renderAll();
+    // 高亮指定作品（分享链接跳转）
+    const params = new URLSearchParams(location.search);
+    const wid = params.get('work');
+    if (wid) {
+      const idx = works.findIndex(w => w.id === wid);
+      if (idx >= 0) {
+        setTimeout(() => {
+          document.getElementById('card'+idx)?.scrollIntoView({behavior:'smooth', block:'center'});
+        }, 300);
+      }
+    }
   } catch(e) {
     document.getElementById('loading').textContent = '加载失败，请刷新重试';
   }
@@ -142,23 +187,29 @@ function renderAll() {
         </div>
         <div class="action-bar">
           <button class="action-btn ${isLiked?'liked':''}" id="likebtn${i}" onclick="toggleLike('${w.id}',${i})">
-            <span class="heart">${isLiked?'❤️':'🤍'}</span> <span id="likecount${i}">${w.likes||0}</span>
+            <span class="icon">${isLiked?'❤️':'🤍'}</span>
+            <span id="likecount${i}">${(w.likes||0) > 0 ? (w.likes+'人点赞') : '点赞'}</span>
           </button>
           <div class="action-sep"></div>
           <button class="action-btn" onclick="toggleComment(${i},'${w.id}')">
-            💬 <span id="cmtcount${i}">评论</span>
+            <span class="icon">💬</span>
+            <span id="cmtcount${i}">${(w.comment_count||0) > 0 ? (w.comment_count+'条评论') : '评论'}</span>
           </button>
           <div class="action-sep"></div>
-          <button class="action-btn" onclick="shareWork(${i})">
-            📤 转发
+          <button class="action-btn" onclick="openShareModal('${w.id}',${i})">
+            <span class="icon">📤</span>
+            <span id="sharecount${i}">${(w.share_count||0) > 0 ? (w.share_count+'次转发') : '转发'}</span>
           </button>
         </div>
+        <div class="people-row hidden" id="people${i}"></div>
         <div class="comment-section" id="cmtsec${i}">
-          <div class="comment-list" id="cmtlist${i}"><div class="no-comment">加载中...</div></div>
-          <div class="nick-row">
-            <input type="text" id="nick${i}" placeholder="你的昵称" value="${getNick()}" maxlength="12">
-            <input type="text" id="cmtinput${i}" placeholder="写下你的评论..." style="flex:1;padding:8px 12px;border:1.5px solid #e0e0e0;border-radius:20px;font-size:0.85rem;outline:none;" onkeydown="if(event.key==='Enter')sendComment('${w.id}',${i})">
-            <button class="comment-send" onclick="sendComment('${w.id}',${i})">发送</button>
+          <div class="comment-list" id="cmtlist${i}"></div>
+          <div class="comment-form">
+            <input type="text" id="nick${i}" placeholder="你的名字" value="${getNick()}" maxlength="12">
+            <div class="comment-send-row">
+              <input type="text" id="cmtinput${i}" placeholder="写下你的评论..." onkeydown="if(event.key==='Enter')sendComment('${w.id}',${i})">
+              <button class="comment-send" onclick="sendComment('${w.id}',${i})">发送</button>
+            </div>
           </div>
         </div>
       </div>`;
@@ -179,6 +230,9 @@ function slide(i, dir) {
 }
 
 async function toggleLike(id, i) {
+  const nick = getNick() || prompt('请输入你的名字，让大家知道是你点赞了 👍');
+  if (!nick) return;
+  saveNick(nick);
   const likes = getLikes();
   const isLiked = !!likes[id];
   likes[id] = !isLiked;
@@ -186,28 +240,52 @@ async function toggleLike(id, i) {
   const w = window._works[i];
   const newCount = isLiked ? Math.max(0,(w.likes||0)-1) : (w.likes||0)+1;
   window._works[i].likes = newCount;
-  document.getElementById('likecount'+i).textContent = newCount;
   const btn = document.getElementById('likebtn'+i);
-  btn.className = 'action-btn' + (likes[id]?' liked':'');
-  btn.querySelector('.heart').textContent = likes[id]?'❤️':'🤍';
+  btn.className = 'action-btn'+(likes[id]?' liked':'');
+  btn.querySelector('.icon').textContent = likes[id]?'❤️':'🤍';
+  document.getElementById('likecount'+i).textContent = newCount > 0 ? newCount+'人点赞' : '点赞';
   await api(`works?id=eq.${id}`, { method:'PATCH', body:JSON.stringify({likes:newCount}), headers:{'Prefer':'return=minimal'} });
+  // 刷新点赞人列表
+  loadPeople(i, id);
+}
+
+async function loadPeople(i, workId) {
+  try {
+    const [likers, commenters, sharers] = await Promise.all([
+      api(`comments?work_id=eq.${workId}&select=nickname`),
+      api(`shares?work_id=eq.${workId}&select=nickname`)
+    ]);
+    // 收集所有互动人
+    const names = new Set();
+    const likes = getLikes();
+    if (likes[workId]) names.add(getNick());
+    (likers||[]).forEach(c => names.add(c.nickname));
+    (commenters||[]).forEach(s => names.add(s.nickname));
+    const peopleEl = document.getElementById('people'+i);
+    if (names.size > 0) {
+      peopleEl.classList.remove('hidden');
+      peopleEl.innerHTML = [...names].filter(Boolean).map(n => `<span class="person-tag">${n}</span>`).join('');
+    } else {
+      peopleEl.classList.add('hidden');
+    }
+  } catch(e) {}
 }
 
 async function toggleComment(i, workId) {
   const sec = document.getElementById('cmtsec'+i);
   const isOpen = window._commentOpen[i];
   window._commentOpen[i] = !isOpen;
-  sec.className = 'comment-section' + (isOpen?'':' open');
+  sec.className = 'comment-section'+(isOpen?'':' open');
   if (!isOpen) await loadComments(i, workId);
 }
 
 async function loadComments(i, workId) {
   const list = document.getElementById('cmtlist'+i);
+  list.innerHTML = '<div class="no-comment">加载中...</div>';
   try {
     const comments = await api(`comments?work_id=eq.${workId}&order=created_at.asc&select=*`);
-    window._comments[workId] = comments;
     const countEl = document.getElementById('cmtcount'+i);
-    countEl.textContent = comments.length ? `${comments.length}条评论` : '评论';
+    countEl.textContent = comments.length > 0 ? comments.length+'条评论' : '评论';
     if (!comments.length) { list.innerHTML = '<div class="no-comment">还没有评论，来说第一句！</div>'; return; }
     list.innerHTML = comments.map(c => `
       <div class="comment-item">
@@ -216,7 +294,8 @@ async function loadComments(i, workId) {
         <div class="comment-time">${new Date(c.created_at).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
       </div>`).join('');
     list.scrollTop = list.scrollHeight;
-  } catch(e) { list.innerHTML = '<div class="no-comment">加载失败</div>'; }
+    loadPeople(i, workId);
+  } catch(e) { list.innerHTML = '<div class="no-comment">加载失败，请重试</div>'; }
 }
 
 async function sendComment(workId, i) {
@@ -224,26 +303,60 @@ async function sendComment(workId, i) {
   const inputEl = document.getElementById('cmtinput'+i);
   const nick = nickEl.value.trim();
   const content = inputEl.value.trim();
-  if (!nick) { showToast('请填写昵称'); nickEl.focus(); return; }
+  if (!nick) { showToast('请填写你的名字'); nickEl.focus(); return; }
   if (!content) { showToast('评论内容不能为空'); return; }
   saveNick(nick);
   try {
     await api('comments', { method:'POST', body:JSON.stringify({work_id:workId, nickname:nick, content}), headers:{'Prefer':'return=minimal'} });
     inputEl.value = '';
+    // 更新评论数
+    const w = window._works[i];
+    const newCmtCount = (w.comment_count||0) + 1;
+    window._works[i].comment_count = newCmtCount;
+    document.getElementById('cmtcount'+i).textContent = newCmtCount+'条评论';
     await loadComments(i, workId);
-  } catch(e) { showToast('发送失败，请重试'); }
+  } catch(e) { showToast('发送失败，请重试'); console.error(e); }
 }
 
-function shareWork(i) {
-  const w = window._works[i];
-  const url = location.href.split('?')[0] + '?work=' + w.id;
-  if (navigator.share) {
-    navigator.share({ title: w.title, text: w.description||'', url }).catch(()=>{});
-  } else {
-    navigator.clipboard.writeText(url).then(() => showToast('链接已复制，快去分享！')).catch(() => {
-      prompt('复制这个链接分享：', url);
-    });
+// 转发
+function openShareModal(workId, idx) {
+  window._shareWorkId = workId;
+  window._shareWorkIdx = idx;
+  document.getElementById('share-nick').value = getNick();
+  document.getElementById('share-modal').classList.add('open');
+}
+function closeShareModal(e) {
+  if (!e || e.target === document.getElementById('share-modal')) {
+    document.getElementById('share-modal').classList.remove('open');
   }
+}
+async function doShare(platform) {
+  const nick = document.getElementById('share-nick').value.trim();
+  if (!nick) { showToast('请先填写你的名字'); return; }
+  saveNick(nick);
+  const workId = window._shareWorkId;
+  const idx = window._shareWorkIdx;
+  const w = window._works[idx];
+  const url = location.origin + location.pathname + '?work=' + workId;
+  const text = `「${w.title}」— 优秀作品展\n${url}`;
+  // 记录转发
+  try {
+    await api('shares', { method:'POST', body:JSON.stringify({work_id:workId, nickname:nick}), headers:{'Prefer':'return=minimal'} });
+    const newCount = (w.share_count||0) + 1;
+    window._works[idx].share_count = newCount;
+    await api(`works?id=eq.${workId}`, { method:'PATCH', body:JSON.stringify({share_count:newCount}), headers:{'Prefer':'return=minimal'} });
+    document.getElementById('sharecount'+idx).textContent = newCount+'次转发';
+    loadPeople(idx, workId);
+  } catch(e) {}
+  // 执行分享
+  if (platform === 'copy') {
+    navigator.clipboard.writeText(url).then(() => showToast('链接已复制！粘贴到微信或飞书发送 🎉')).catch(() => { prompt('复制此链接：', url); });
+  } else if (platform === 'feishu') {
+    navigator.clipboard.writeText(text).then(() => { showToast('内容已复制！去飞书粘贴发送 🟦'); }).catch(() => { prompt('复制此内容发送到飞书：', text); });
+  } else if (platform === 'wechat') {
+    navigator.clipboard.writeText(url).then(() => { showToast('链接已复制！去微信粘贴发送 💚'); }).catch(() => { prompt('复制此链接发送到微信：', url); });
+  }
+  closeShareModal();
 }
 
 let _toastTimer;
@@ -251,7 +364,7 @@ function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(()=>t.classList.remove('show'), 2500);
+  _toastTimer = setTimeout(()=>t.classList.remove('show'), 3000);
 }
 
 init();
