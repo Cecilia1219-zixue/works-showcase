@@ -212,7 +212,8 @@ function renderAll() {
             </div>
           </div>
         </div>
-      </div>`;
+      </div>`;  // 存work id到dom
+      document.getElementById('card'+i).dataset.wid = w.id;;
   });
 }
 
@@ -306,16 +307,22 @@ async function sendComment(workId, i) {
   if (!nick) { showToast('请填写你的名字'); nickEl.focus(); return; }
   if (!content) { showToast('评论内容不能为空'); return; }
   saveNick(nick);
+  // 从works数组取真实id
+  const realId = window._works[i].id;
   try {
-    await api('comments', { method:'POST', body:JSON.stringify({work_id:workId, nickname:nick, content}), headers:{'Prefer':'return=minimal'} });
+    const resp = await fetch(SUPABASE_URL+'/rest/v1/comments', {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer '+SUPABASE_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({work_id: realId, nickname: nick, content: content})
+    });
+    if (!resp.ok) { const t = await resp.text(); throw new Error(t); }
     inputEl.value = '';
-    // 更新评论数
     const w = window._works[i];
     const newCmtCount = (w.comment_count||0) + 1;
     window._works[i].comment_count = newCmtCount;
     document.getElementById('cmtcount'+i).textContent = newCmtCount+'条评论';
-    await loadComments(i, workId);
-  } catch(e) { showToast('发送失败，请重试'); console.error(e); }
+    await loadComments(i, realId);
+  } catch(e) { showToast('发送失败：'+e.message.slice(0,30)); console.error(e); }
 }
 
 // 转发
@@ -337,7 +344,9 @@ async function doShare(platform) {
   const workId = window._shareWorkId;
   const idx = window._shareWorkIdx;
   const w = window._works[idx];
-  const url = location.origin + location.pathname + '?work=' + workId;
+  // 构建单作品链接，兼容GitHub Pages路径
+  const base = location.origin + location.pathname.replace(/\/[^/]*$/, '/index.html');
+  const url = base + '?work=' + workId;
   const text = `「${w.title}」— 优秀作品展\n${url}`;
   // 记录转发
   try {
@@ -349,12 +358,21 @@ async function doShare(platform) {
     loadPeople(idx, workId);
   } catch(e) {}
   // 执行分享
-  if (platform === 'copy') {
-    navigator.clipboard.writeText(url).then(() => showToast('链接已复制！粘贴到微信或飞书发送 🎉')).catch(() => { prompt('复制此链接：', url); });
-  } else if (platform === 'feishu') {
-    navigator.clipboard.writeText(text).then(() => { showToast('内容已复制！去飞书粘贴发送 🟦'); }).catch(() => { prompt('复制此内容发送到飞书：', text); });
-  } else if (platform === 'wechat') {
-    navigator.clipboard.writeText(url).then(() => { showToast('链接已复制！去微信粘贴发送 💚'); }).catch(() => { prompt('复制此链接发送到微信：', url); });
+  // 统一用复制链接方式，避免手机系统分享覆盖自定义URL
+  const copyText = platform === 'feishu' ? text : url;
+  const hint = platform === 'copy' ? '链接已复制！粘贴到任意地方发送 🎉' :
+               platform === 'feishu' ? '已复制！打开飞书粘贴发送 🟦' : '已复制！打开微信粘贴发送 💚';
+  try {
+    await navigator.clipboard.writeText(copyText);
+    showToast(hint);
+  } catch(e) {
+    // 降级方案
+    const ta = document.createElement('textarea');
+    ta.value = copyText; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast(hint);
   }
   closeShareModal();
 }
