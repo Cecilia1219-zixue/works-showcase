@@ -13,30 +13,53 @@
   .container { max-width: 900px; margin: 0 auto; padding: 20px 16px 60px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
   @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
-  .card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; }
-  .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.14); }
+  .card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
   .carousel { position: relative; width: 100%; aspect-ratio: 16/10; overflow: hidden; background: #eee; }
   .carousel img { width: 100%; height: 100%; object-fit: cover; display: none; }
   .carousel img.active { display: block; }
-  .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.35); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; z-index: 2; display: flex; align-items: center; justify-content: center; }
+  .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.35); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 18px; cursor: pointer; z-index: 2; display: flex; align-items: center; justify-content: center; }
   .carousel-btn.prev { left: 8px; }
   .carousel-btn.next { right: 8px; }
   .carousel-dots { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; }
   .carousel-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.6); cursor: pointer; }
   .carousel-dots span.active { background: white; }
-  .card-body { padding: 16px; }
+  .card-body { padding: 14px 16px 0; }
   .card-title { font-size: 1rem; font-weight: 600; line-height: 1.4; }
-  .card-desc { margin-top: 8px; font-size: 0.875rem; color: #666; line-height: 1.6; white-space: pre-wrap; }
-  .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+  .card-desc { margin-top: 6px; font-size: 0.875rem; color: #666; line-height: 1.6; white-space: pre-wrap; }
+  .card-link { margin-top: 8px; }
   .card-link a { color: #667eea; font-size: 0.85rem; text-decoration: none; }
-  .card-link a:hover { text-decoration: underline; }
-  .like-btn { background: none; border: 1.5px solid #e0e0e0; border-radius: 20px; padding: 6px 14px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; color: #888; transition: all 0.2s; }
-  .like-btn:hover, .like-btn.liked { border-color: #ff6b6b; color: #ff6b6b; background: #fff5f5; }
-  .empty { text-align: center; padding: 80px 20px; color: #aaa; font-size: 1rem; }
+  /* 操作栏 */
+  .action-bar { display: flex; align-items: center; gap: 0; border-top: 1px solid #f0f0f0; margin-top: 12px; }
+  .action-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 11px 0; font-size: 0.85rem; color: #888; background: none; border: none; cursor: pointer; transition: color 0.2s, background 0.15s; border-radius: 0; }
+  .action-btn:hover { background: #f8f8f8; color: #555; }
+  .action-btn.liked { color: #ff6b6b; }
+  .action-btn.liked .heart { animation: hb 0.3s; }
+  @keyframes hb { 0%{transform:scale(1)} 50%{transform:scale(1.4)} 100%{transform:scale(1)} }
+  .action-sep { width: 1px; background: #f0f0f0; height: 20px; }
+  /* 评论区 */
+  .comment-section { display: none; padding: 0 16px 14px; border-top: 1px solid #f5f5f5; }
+  .comment-section.open { display: block; }
+  .comment-list { margin-top: 10px; max-height: 220px; overflow-y: auto; }
+  .comment-item { padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
+  .comment-item:last-child { border-bottom: none; }
+  .comment-nick { font-size: 0.8rem; font-weight: 600; color: #667eea; }
+  .comment-text { font-size: 0.85rem; color: #444; margin-top: 2px; line-height: 1.5; }
+  .comment-time { font-size: 0.75rem; color: #ccc; margin-top: 2px; }
+  .comment-input-row { display: flex; gap: 8px; margin-top: 10px; }
+  .comment-input-row input { flex: 1; padding: 8px 12px; border: 1.5px solid #e0e0e0; border-radius: 20px; font-size: 0.85rem; outline: none; }
+  .comment-input-row input:focus { border-color: #667eea; }
+  .comment-send { background: #667eea; color: white; border: none; border-radius: 20px; padding: 8px 16px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; }
+  .nick-row { display: flex; gap: 8px; margin-top: 8px; }
+  .nick-row input { width: 100px; padding: 8px 12px; border: 1.5px solid #e0e0e0; border-radius: 20px; font-size: 0.85rem; outline: none; flex-shrink: 0; }
+  .nick-row input:focus { border-color: #667eea; }
+  .no-comment { text-align: center; color: #ccc; font-size: 0.85rem; padding: 14px 0; }
+  /* 通用 */
+  .empty { text-align: center; padding: 80px 20px; color: #aaa; }
   .loading { text-align: center; padding: 60px 20px; color: #aaa; }
   .admin-link { text-align: center; padding: 20px; }
   .admin-link a { color: #ccc; font-size: 0.75rem; text-decoration: none; }
-  .admin-link a:hover { color: #667eea; }
+  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 24px; border-radius: 20px; font-size: 0.9rem; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+  .toast.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -50,112 +73,187 @@
   <div class="empty" id="empty" style="display:none">暂无作品，敬请期待 🌱</div>
 </div>
 <div class="admin-link"><a href="admin.html">管理后台</a></div>
+<div class="toast" id="toast"></div>
 
 <script>
 const SUPABASE_URL = 'https://nrukvtlujydvebfskwok.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ydWt2dGx1anlkdmViZnNrd29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3Mzc5MDUsImV4cCI6MjA5NTMxMzkwNX0.QUZLq1S8VdJjQzA8g6DxUvNj6bK06ci3lR-3KK15nk4';
 const LIKES_KEY = 'works_likes_v1';
+const NICK_KEY = 'works_nickname';
 
-function getLikes() { try { return JSON.parse(localStorage.getItem(LIKES_KEY)) || {}; } catch { return {}; } }
+function getLikes() { try { return JSON.parse(localStorage.getItem(LIKES_KEY))||{}; } catch { return {}; } }
 function saveLikes(l) { localStorage.setItem(LIKES_KEY, JSON.stringify(l)); }
+function getNick() { return localStorage.getItem(NICK_KEY) || ''; }
+function saveNick(n) { localStorage.setItem(NICK_KEY, n); }
 
 async function api(path, opts={}) {
-  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
-    headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON, 'Content-Type': 'application/json', ...opts.headers },
+  const res = await fetch(SUPABASE_URL+'/rest/v1/'+path, {
+    headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer '+SUPABASE_ANON, 'Content-Type': 'application/json', ...opts.headers },
     ...opts
   });
   if (!res.ok) throw new Error(await res.text());
   return res.status === 204 ? null : res.json();
 }
 
-async function toggleLike(id, idx) {
-  const likes = getLikes();
-  const isLiked = likes[id];
-  // optimistic update
-  likes[id] = !isLiked;
-  saveLikes(likes);
-  // update db
-  const work = window._works[idx];
-  const newCount = isLiked ? Math.max(0, (work.likes||0)-1) : (work.likes||0)+1;
-  window._works[idx].likes = newCount;
-  await api(`works?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ likes: newCount }), headers: { 'Prefer': 'return=minimal' } });
-  renderCards(window._works);
-}
-
+window._works = [];
 window._carouselIdx = {};
-function slide(i, dir) {
-  const c = document.getElementById('c'+i);
-  const imgs = c.querySelectorAll('img');
-  const dots = document.getElementById('dots'+i);
-  let idx = window._carouselIdx[i] || 0;
-  imgs[idx].classList.remove('active');
-  dots && dots.children[idx] && dots.children[idx].classList.remove('active');
-  idx = (idx + dir + imgs.length) % imgs.length;
-  imgs[idx].classList.add('active');
-  dots && dots.children[idx] && dots.children[idx].classList.add('active');
-  window._carouselIdx[i] = idx;
-}
-function goSlide(i, j) {
-  const c = document.getElementById('c'+i);
-  const imgs = c.querySelectorAll('img');
-  const dots = document.getElementById('dots'+i);
-  const idx = window._carouselIdx[i] || 0;
-  imgs[idx].classList.remove('active');
-  dots && dots.children[idx] && dots.children[idx].classList.remove('active');
-  imgs[j].classList.add('active');
-  dots && dots.children[j] && dots.children[j].classList.add('active');
-  window._carouselIdx[i] = j;
-}
-
-function renderCards(works) {
-  const likes = getLikes();
-  const grid = document.getElementById('grid');
-  grid.innerHTML = '';
-  works.forEach((w, i) => {
-    const imgs = w.images || [];
-    const isLiked = !!likes[w.id];
-    let carouselHtml = '';
-    if (imgs.length > 0) {
-      carouselHtml = `<div class="carousel" id="c${i}">`;
-      imgs.forEach((src, j) => { carouselHtml += `<img src="${src}" class="${j===0?'active':''}" alt="">`; });
-      if (imgs.length > 1) {
-        carouselHtml += `<button class="carousel-btn prev" onclick="slide(${i},-1)">&#8249;</button>`;
-        carouselHtml += `<button class="carousel-btn next" onclick="slide(${i},1)">&#8250;</button>`;
-        carouselHtml += `<div class="carousel-dots" id="dots${i}">`;
-        imgs.forEach((_, j) => carouselHtml += `<span class="${j===0?'active':''}"></span>`);
-        carouselHtml += `</div>`;
-      }
-      carouselHtml += `</div>`;
-    }
-    grid.innerHTML += `
-      <div class="card">
-        ${carouselHtml}
-        <div class="card-body">
-          <div class="card-title">${w.title||'未命名'}</div>
-          ${w.description ? `<div class="card-desc">${w.description}</div>` : ''}
-          <div class="card-footer">
-            ${w.link ? `<div class="card-link"><a href="${w.link}" target="_blank">🔗 查看详情</a></div>` : '<div></div>'}
-            <button class="like-btn ${isLiked?'liked':''}" onclick="toggleLike('${w.id}',${i})">
-              ${isLiked?'❤️':'🤍'} ${w.likes||0}
-            </button>
-          </div>
-        </div>
-      </div>`;
-  });
-}
+window._commentOpen = {};
+window._comments = {};
 
 async function init() {
   try {
     const works = await api('works?order=sort_order.asc,created_at.desc&select=*');
     window._works = works;
     document.getElementById('loading').style.display = 'none';
-    if (!works.length) { document.getElementById('empty').style.display = ''; return; }
-    renderCards(works);
+    if (!works.length) { document.getElementById('empty').style.display=''; return; }
+    renderAll();
   } catch(e) {
     document.getElementById('loading').textContent = '加载失败，请刷新重试';
-    console.error(e);
   }
 }
+
+function renderAll() {
+  const likes = getLikes();
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  window._works.forEach((w, i) => {
+    const imgs = w.images || [];
+    const isLiked = !!likes[w.id];
+    let carousel = '';
+    if (imgs.length) {
+      carousel = `<div class="carousel" id="c${i}">`;
+      imgs.forEach((src,j) => { carousel += `<img src="${src}" class="${j===0?'active':''}" alt="">`; });
+      if (imgs.length > 1) {
+        carousel += `<button class="carousel-btn prev" onclick="slide(${i},-1)">&#8249;</button>`;
+        carousel += `<button class="carousel-btn next" onclick="slide(${i},1)">&#8250;</button>`;
+        carousel += `<div class="carousel-dots" id="dots${i}">`;
+        imgs.forEach((_,j) => carousel += `<span class="${j===0?'active':''}"></span>`);
+        carousel += `</div>`;
+      }
+      carousel += `</div>`;
+    }
+    grid.innerHTML += `
+      <div class="card" id="card${i}">
+        ${carousel}
+        <div class="card-body">
+          <div class="card-title">${w.title||'未命名'}</div>
+          ${w.description?`<div class="card-desc">${w.description}</div>`:''}
+          ${w.link?`<div class="card-link"><a href="${w.link}" target="_blank">🔗 查看详情</a></div>`:''}
+        </div>
+        <div class="action-bar">
+          <button class="action-btn ${isLiked?'liked':''}" id="likebtn${i}" onclick="toggleLike('${w.id}',${i})">
+            <span class="heart">${isLiked?'❤️':'🤍'}</span> <span id="likecount${i}">${w.likes||0}</span>
+          </button>
+          <div class="action-sep"></div>
+          <button class="action-btn" onclick="toggleComment(${i},'${w.id}')">
+            💬 <span id="cmtcount${i}">评论</span>
+          </button>
+          <div class="action-sep"></div>
+          <button class="action-btn" onclick="shareWork(${i})">
+            📤 转发
+          </button>
+        </div>
+        <div class="comment-section" id="cmtsec${i}">
+          <div class="comment-list" id="cmtlist${i}"><div class="no-comment">加载中...</div></div>
+          <div class="nick-row">
+            <input type="text" id="nick${i}" placeholder="你的昵称" value="${getNick()}" maxlength="12">
+            <input type="text" id="cmtinput${i}" placeholder="写下你的评论..." style="flex:1;padding:8px 12px;border:1.5px solid #e0e0e0;border-radius:20px;font-size:0.85rem;outline:none;" onkeydown="if(event.key==='Enter')sendComment('${w.id}',${i})">
+            <button class="comment-send" onclick="sendComment('${w.id}',${i})">发送</button>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+function slide(i, dir) {
+  const c = document.getElementById('c'+i);
+  const imgs = c.querySelectorAll('img');
+  const dots = document.getElementById('dots'+i);
+  let idx = window._carouselIdx[i]||0;
+  imgs[idx].classList.remove('active');
+  dots && dots.children[idx] && dots.children[idx].classList.remove('active');
+  idx = (idx+dir+imgs.length)%imgs.length;
+  imgs[idx].classList.add('active');
+  dots && dots.children[idx] && dots.children[idx].classList.add('active');
+  window._carouselIdx[i] = idx;
+}
+
+async function toggleLike(id, i) {
+  const likes = getLikes();
+  const isLiked = !!likes[id];
+  likes[id] = !isLiked;
+  saveLikes(likes);
+  const w = window._works[i];
+  const newCount = isLiked ? Math.max(0,(w.likes||0)-1) : (w.likes||0)+1;
+  window._works[i].likes = newCount;
+  document.getElementById('likecount'+i).textContent = newCount;
+  const btn = document.getElementById('likebtn'+i);
+  btn.className = 'action-btn' + (likes[id]?' liked':'');
+  btn.querySelector('.heart').textContent = likes[id]?'❤️':'🤍';
+  await api(`works?id=eq.${id}`, { method:'PATCH', body:JSON.stringify({likes:newCount}), headers:{'Prefer':'return=minimal'} });
+}
+
+async function toggleComment(i, workId) {
+  const sec = document.getElementById('cmtsec'+i);
+  const isOpen = window._commentOpen[i];
+  window._commentOpen[i] = !isOpen;
+  sec.className = 'comment-section' + (isOpen?'':' open');
+  if (!isOpen) await loadComments(i, workId);
+}
+
+async function loadComments(i, workId) {
+  const list = document.getElementById('cmtlist'+i);
+  try {
+    const comments = await api(`comments?work_id=eq.${workId}&order=created_at.asc&select=*`);
+    window._comments[workId] = comments;
+    const countEl = document.getElementById('cmtcount'+i);
+    countEl.textContent = comments.length ? `${comments.length}条评论` : '评论';
+    if (!comments.length) { list.innerHTML = '<div class="no-comment">还没有评论，来说第一句！</div>'; return; }
+    list.innerHTML = comments.map(c => `
+      <div class="comment-item">
+        <div class="comment-nick">${c.nickname}</div>
+        <div class="comment-text">${c.content}</div>
+        <div class="comment-time">${new Date(c.created_at).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+      </div>`).join('');
+    list.scrollTop = list.scrollHeight;
+  } catch(e) { list.innerHTML = '<div class="no-comment">加载失败</div>'; }
+}
+
+async function sendComment(workId, i) {
+  const nickEl = document.getElementById('nick'+i);
+  const inputEl = document.getElementById('cmtinput'+i);
+  const nick = nickEl.value.trim();
+  const content = inputEl.value.trim();
+  if (!nick) { showToast('请填写昵称'); nickEl.focus(); return; }
+  if (!content) { showToast('评论内容不能为空'); return; }
+  saveNick(nick);
+  try {
+    await api('comments', { method:'POST', body:JSON.stringify({work_id:workId, nickname:nick, content}), headers:{'Prefer':'return=minimal'} });
+    inputEl.value = '';
+    await loadComments(i, workId);
+  } catch(e) { showToast('发送失败，请重试'); }
+}
+
+function shareWork(i) {
+  const w = window._works[i];
+  const url = location.href.split('?')[0] + '?work=' + w.id;
+  if (navigator.share) {
+    navigator.share({ title: w.title, text: w.description||'', url }).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(url).then(() => showToast('链接已复制，快去分享！')).catch(() => {
+      prompt('复制这个链接分享：', url);
+    });
+  }
+}
+
+let _toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
 init();
 </script>
 </body>
