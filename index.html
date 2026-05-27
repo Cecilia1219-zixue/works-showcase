@@ -331,4 +331,12 @@ async function doShare(platform){
   });
   const txt=platform==='feishu'?text:url;
   const hint=platform==='copy'?'链接已复制！粘贴发送 🎉':platform==='feishu'?'已复制！打开飞书粘贴发送 🟦':'已复制！打开微信粘贴发送 💚';
-  try{await navigator.clipboard.writeText(txt);}catch(e){const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0';document.body
+  try{await navigator.clipboard.writeText(txt);}catch(e){const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);}
+  showToast(hint);closeShareModal();
+}
+let _tt;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),3000);}
+checkAuth();
+</script>
+</body>
+</html>
