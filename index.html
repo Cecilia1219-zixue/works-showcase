@@ -75,16 +75,14 @@
   .admin-link a{color:#ccc;font-size:0.75rem;text-decoration:none}
   .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:10px 24px;border-radius:20px;font-size:0.9rem;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
   .toast.show{opacity:1}
-  /* 飞书登录遮罩 */
-  .login-mask{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);z-index:200;flex-direction:column;align-items:center;justify-content:center;color:white}
+  .login-mask{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);z-index:200;flex-direction:column;align-items:center;justify-content:center}
   .login-mask.show{display:flex}
-  .login-box{text-align:center;padding:40px 32px;background:rgba(255,255,255,0.12);border-radius:24px;backdrop-filter:blur(10px);max-width:340px;width:90%}
+  .login-box{text-align:center;padding:40px 32px;background:rgba(255,255,255,0.12);border-radius:24px;backdrop-filter:blur(10px);max-width:340px;width:90%;color:white}
   .login-logo{font-size:3rem;margin-bottom:16px}
   .login-title{font-size:1.3rem;font-weight:700;margin-bottom:8px}
   .login-desc{font-size:0.9rem;opacity:0.85;margin-bottom:28px;line-height:1.6}
   .login-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:white;color:#667eea;border:none;border-radius:14px;padding:14px 28px;font-size:1rem;font-weight:600;cursor:pointer;width:100%;transition:transform 0.15s,box-shadow 0.15s}
   .login-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.15)}
-  .login-btn-icon{font-size:1.2rem}
   .user-bar{display:none;align-items:center;gap:8px;padding:8px 16px;background:rgba(255,255,255,0.15);border-radius:20px;margin-top:12px;font-size:0.85rem}
   .user-bar.show{display:flex}
   .user-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.6)}
@@ -93,19 +91,16 @@
 </style>
 </head>
 <body>
-
-<!-- 飞书登录遮罩 -->
 <div class="login-mask" id="login-mask">
   <div class="login-box">
     <div class="login-logo">🏆</div>
     <div class="login-title">"医"起AI·挑战赛</div>
     <div class="login-desc">作品广场仅对内部员工开放<br>请使用飞书账号登录后查看</div>
     <button class="login-btn" onclick="startFeishuLogin()">
-      <span class="login-btn-icon">🟦</span>飞书账号登录
+      <span style="font-size:1.2rem">🟦</span>飞书账号登录
     </button>
   </div>
 </div>
-
 <header>
   <h1>"医"起AI·挑战赛 作品广场</h1>
   <p>发现优秀，分享灵感</p>
@@ -128,7 +123,7 @@
 <div class="modal-mask" id="share-modal" onclick="closeShareModal(event)">
   <div class="modal-box">
     <div class="modal-title">📤 转发作品</div>
-    <input type="text" id="share-nick" placeholder="请输入你的名字（让大家知道是谁分享的）" maxlength="20">
+    <input type="text" id="share-nick" placeholder="请输入你的名字" maxlength="20">
     <div class="share-btns">
       <button class="share-btn" onclick="doShare('copy')"><span class="sicon">🔗</span><div><div style="font-weight:600">复制链接</div><div style="font-size:0.8rem;color:#aaa">可粘贴到微信、飞书等</div></div></button>
       <button class="share-btn" onclick="doShare('feishu')"><span class="sicon">🟦</span><div><div style="font-weight:600">分享到飞书</div><div style="font-size:0.8rem;color:#aaa">打开飞书粘贴发送</div></div></button>
@@ -143,42 +138,31 @@ const SB='https://nrukvtlujydvebfskwok.supabase.co';
 const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ydWt2dGx1anlkdmViZnNrd29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3Mzc5MDUsImV4cCI6MjA5NTMxMzkwNX0.QUZLq1S8VdJjQzA8g6DxUvNj6bK06ci3lR-3KK15nk4';
 const H={'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json'};
 const NK='works_nickname';
-const USER_KEY='feishu_user';
-// Vercel后端地址
+const USER_KEY='works_user_v1';
 const AUTH_API='https://works-auth-je2y.vercel.app/api/feishu-auth';
-// 飞书应用ID
 const FEISHU_APP_ID='cli_aa9f2a2fb6395bdf';
-
 function gn(){return localStorage.getItem(NK)||''}
 function sn(n){if(n)localStorage.setItem(NK,n)}
 function getUser(){try{return JSON.parse(localStorage.getItem(USER_KEY))||null}catch(e){return null}}
-function setUser(u){localStorage.setItem(USER_KEY,JSON.stringify(u));localStorage.setItem(NK,u.name||'')}
+function setUser(u){localStorage.setItem(USER_KEY,JSON.stringify(u));sn(u.name||'')}
 function clearUser(){localStorage.removeItem(USER_KEY)}
-
 window._works=[];window._all=[];window._tab='challenge';
 window._ci={};window._co={};window._sid=null;window._si=null;
-
 function startFeishuLogin(){
-  const redirect=encodeURIComponent(location.origin+location.pathname.replace(/\/[^/]*$/,'/index.html'));
-  const url=`https://open.feishu.cn/open-apis/authen/v1/authorize?app_id=${FEISHU_APP_ID}&redirect_uri=${redirect}&response_type=code&scope=contact:user.base:readonly`;
+  const redirect=encodeURIComponent('https://cecilia1219-zixue.github.io/works-showcase/index.html');
+  const url='https://open.feishu.cn/open-apis/authen/v1/authorize?app_id='+FEISHU_APP_ID+'&redirect_uri='+redirect+'&response_type=code&scope=contact:user.base:readonly';
   location.href=url;
 }
-
 function logout(){
   clearUser();
   document.getElementById('user-bar').className='user-bar';
   document.getElementById('login-mask').className='login-mask show';
   document.getElementById('grid').innerHTML='';
-  document.getElementById('loading').style.display='';
+  document.getElementById('loading').style.display='block';
+  document.getElementById('loading').textContent='加载中...';
 }
-
-async function handleCallback(){
-  const p=new URLSearchParams(location.search);
-  const code=p.get('code');
-  if(!code)return false;
-  // 清掉URL里的code，防止刷新重复请求
-  const clean=location.pathname+(p.get('cat')?'?cat='+p.get('cat'):'')+(p.get('work')?'&work='+p.get('work'):'');
-  history.replaceState({},'',clean||location.pathname);
+async function handleCallback(code){
+  document.getElementById('loading').style.display='block';
   document.getElementById('loading').textContent='正在验证身份...';
   try{
     const res=await fetch(AUTH_API+'?code='+code);
@@ -191,30 +175,29 @@ async function handleCallback(){
     return false;
   }
 }
-
 async function checkAuth(){
-  // 先看有没有飞书回调code
   const p=new URLSearchParams(location.search);
-  if(p.get('code')){
-    const ok=await handleCallback();
+  const code=p.get('code');
+  if(code){
+    const newUrl=location.pathname+(p.get('cat')?'?cat='+p.get('cat'):'');
+    history.replaceState({},'',newUrl||location.pathname);
+    const ok=await handleCallback(code);
     if(!ok)return;
   }
   const user=getUser();
   if(!user){
-    document.getElementById('login-mask').className='login-mask show';
     document.getElementById('loading').style.display='none';
+    document.getElementById('login-mask').className='login-mask show';
     return;
   }
-  // 已登录，显示用户信息
   document.getElementById('login-mask').className='login-mask';
   const bar=document.getElementById('user-bar');
   bar.className='user-bar show';
   document.getElementById('user-name').textContent=user.name;
-  if(user.avatar){document.getElementById('user-avatar').src=user.avatar;}
+  if(user.avatar)document.getElementById('user-avatar').src=user.avatar;
   sn(user.name);
   await init();
 }
-
 async function init(){
   try{
     const w=await fetch(SB+'/rest/v1/works_with_counts?order=hot_score.desc,sort_order.asc&select=*',{headers:H}).then(r=>r.json());
@@ -247,7 +230,6 @@ function renderAll(){
       if(imgs.length>1){car+=`<button class="carousel-btn prev" onclick="slide(${i},-1)">&#8249;</button><button class="carousel-btn next" onclick="slide(${i},1)">&#8250;</button><div class="carousel-dots" id="dots${i}">`;imgs.forEach((_,j)=>{car+=`<span class="${j===0?'active':''}"></span>`;});car+=`</div>`;}
       car+=rb+`</div>`;
     }
-    const nick=gn();
     grid.innerHTML+=`<div class="card" id="card${i}">${car||rb}
 <div class="card-body">
   <div class="card-title">${w.title||''}</div>
@@ -281,7 +263,7 @@ function slide(i,dir){
   imgs[cur].classList.remove('active');imgs[next].classList.add('active');dots[cur].classList.remove('active');dots[next].classList.add('active');
 }
 async function toggleLike(i,wid){
-  const nick=gn()||getUser()?.name||'';
+  const nick=gn();
   if(!nick){showToast('请先登录');return;}
   const btn=document.getElementById('lb'+i);const liked=btn.classList.contains('liked');
   if(liked){
@@ -324,7 +306,7 @@ async function loadCmts(i,wid){
 }
 async function sendCmt(wid,i){
   const ci=document.getElementById('ci'+i);
-  const nick=gn()||getUser()?.name||'';
+  const nick=gn();
   const content=ci.value.trim();
   if(!nick){showToast('请先登录');return;}
   if(!content){showToast('评论内容不能为空');return;}
@@ -339,23 +321,14 @@ function closeShareModal(e){if(!e||e.target===document.getElementById('share-mod
 async function doShare(platform){
   const nick=document.getElementById('share-nick').value.trim();if(!nick){showToast('请先填写你的名字');return;}sn(nick);
   const wid=window._sid,idx=window._si,w=window._works[idx];
-  const base=location.origin+location.pathname.replace(/\/[^/]*$/,'/index.html');
+  const base='https://cecilia1219-zixue.github.io/works-showcase/index.html';
   const url=base+'?work='+wid+'&cat='+window._tab;
   const text=`「${w.title}」— "医"起AI·挑战赛 作品广场\n${url}`;
-  fetch(SB+'/rest/v1/shares',{method:'POST',headers:{...H,'Prefer':'return=minimal'},body:JSON.stringify({work_id:wid,nickname:nick})}).then(()
-  =>{
+  fetch(SB+'/rest/v1/shares',{method:'POST',headers:{...H,'Prefer':'return=minimal'},body:JSON.stringify({work_id:wid,nickname:nick})}).then(()=>{
     window._works[idx].real_share_count=(w.real_share_count||0)+1;
     document.getElementById('sc'+idx).textContent=window._works[idx].real_share_count+' 转发';
     loadPeople(idx,wid);
   });
   const txt=platform==='feishu'?text:url;
   const hint=platform==='copy'?'链接已复制！粘贴发送 🎉':platform==='feishu'?'已复制！打开飞书粘贴发送 🟦':'已复制！打开微信粘贴发送 💚';
-  try{await navigator.clipboard.writeText(txt);}catch(e){const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);}
-  showToast(hint);closeShareModal();
-}
-let _tt;
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),3000);}
-checkAuth();
-</script>
-</body>
-</html>
+  try{await navigator.clipboard.writeText(txt);}catch(e){const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0';document.body
