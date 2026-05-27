@@ -113,13 +113,13 @@
   </div>
 </div>
 <div class="toast" id="toast"></div>
-<script src="https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.32.js"></script>
+<script src="https://lf-scm.cn-b1.larksuitecdn.com/fe-base/fe-base/gateway/api/authen-sdk/v1/client.min.js"></script>
 <script>
 const SB='https://nrukvtlujydvebfskwok.supabase.co';
 const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ydWt2dGx1anlkdmViZnNrd29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3Mzc5MDUsImV4cCI6MjA5NTMxMzkwNX0.QUZLq1S8VdJjQzA8g6DxUvNj6bK06ci3lR-3KK15nk4';
 const H={'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json'};
 const NK='works_nickname';
-const USER_KEY='feishu_user_v1';
+const USER_KEY='feishu_user_v2';
 function gn(){return localStorage.getItem(NK)||''}
 function sn(n){if(n)localStorage.setItem(NK,n)}
 function getUser(){try{return JSON.parse(localStorage.getItem(USER_KEY))||null}catch(e){return null}}
@@ -127,69 +127,82 @@ function setUser(u){localStorage.setItem(USER_KEY,JSON.stringify(u));sn(u.name||
 window._works=[];window._all=[];window._tab='challenge';
 window._ci={};window._co={};window._sid=null;window._si=null;
 
+// 检测是否在飞书环境
+function isFeishu(){
+  const ua = navigator.userAgent.toLowerCase();
+  return ua.includes('lark') || ua.includes('feishu') || window.tt !== undefined;
+}
+
 async function checkAuth(){
   const loading=document.getElementById('loading');
-  loading.textContent='正在获取身份信息...';
-  // 判断是否在飞书环境
-  const isFeishu = navigator.userAgent.indexOf('Lark') > -1 || navigator.userAgent.indexOf('Feishu') > -1;
-  if(!isFeishu){
-    // 非飞书环境，检查本地缓存
-    const user=getUser();
-    if(user){
-      showUserBar(user);
-      await init();
-      return;
-    }
+  // 先检查本地缓存
+  const user=getUser();
+  if(user && user.name){
+    showUserBar(user);
+    await init();
+    return;
+  }
+  if(!isFeishu()){
     loading.textContent='请在飞书中打开此页面';
     return;
   }
-  // 飞书环境，用JSSDK获取用户信息
+  // 飞书环境，尝试JSSDK获取用户信息
+  loading.textContent='正在获取身份信息...';
   try{
+    // 动态加载飞书JSSDK
+    if(!window.tt){
+      await loadScript('https://sf-scm-cn.feishucdn.com/obj/fe-eden-static-resource/pkg/lark-sdk/js/1.4.16/lark-sdk.js');
+    }
+    // 配置SDK
     await new Promise((resolve,reject)=>{
+      if(!window.tt){reject(new Error('SDK未加载'));return;}
       tt.config({
-        appId: 'cli_aa9f2a2fb6395bdf',
-        timestamp: Math.floor(Date.now()/1000),
-        nonceStr: Math.random().toString(36).slice(2),
-        signature: '',
-        jsApiList: ['getUserInfo']
+        appId:'cli_aa9f2a2fb6395bdf',
+        timestamp:Math.floor(Date.now()/1000),
+        nonceStr:Math.random().toString(36).slice(2),
+        signature:'',
+        jsApiList:['getUserInfo']
       });
       tt.ready(resolve);
-      tt.error(reject);
+      tt.error(e=>reject(new Error('config失败:'+JSON.stringify(e))));
     });
-    const userInfo = await new Promise((resolve,reject)=>{
+    // 获取用户信息
+    const info = await new Promise((resolve,reject)=>{
       tt.getUserInfo({
-        withCredentials: false,
-        success: resolve,
-        fail: reject
+        withCredentials:true,
+        success:resolve,
+        fail:e=>reject(new Error('getUserInfo失败:'+JSON.stringify(e)))
       });
     });
-    const user = {
-      name: userInfo.userInfo?.nickName || userInfo.userInfo?.name || '飞书用户',
-      avatar: userInfo.userInfo?.avatarUrl || '',
-      open_id: ''
+    console.log('飞书用户信息:',info);
+    const user={
+      name:info.userInfo?.nickName||info.userInfo?.name||'飞书用户',
+      avatar:info.userInfo?.avatarUrl||'',
+      open_id:info.userInfo?.openId||''
     };
     setUser(user);
     showUserBar(user);
     await init();
   }catch(e){
-    // JSSDK失败，尝试用本地缓存
-    const user=getUser();
-    if(user){
-      showUserBar(user);
-      await init();
-      return;
-    }
+    console.error('JSSDK获取用户信息失败:',e);
     // 降级：让用户输入名字
-    const name=prompt('请输入你的姓名（用于评论和点赞）：');
+    const name=prompt('无法自动获取你的姓名，请手动输入（仅首次）：');
     if(name && name.trim()){
       const user={name:name.trim(),avatar:'',open_id:''};
       setUser(user);
       showUserBar(user);
       await init();
     }else{
-      loading.textContent='需要登录后才能查看，请在飞书中打开';
+      loading.textContent='需要登录后才能查看作品广场，请允许授权或刷新重试';
     }
   }
+}
+
+function loadScript(src){
+  return new Promise((resolve,reject)=>{
+    const s=document.createElement('script');s.src=src;
+    s.onload=resolve;s.onerror=reject;document.head.appendChild(s);
+  });
 }
 
 function showUserBar(user){
@@ -324,13 +337,13 @@ async function doShare(platform){
   const wid=window._sid,idx=window._si,w=window._works[idx];
   const base='https://cecilia1219-zixue.github.io/works-showcase/index.html';
   const url=base+'?work='+wid+'&cat='+window._tab;
-  const text=`「${w.title}」— "医"起AI·挑战赛 作品广场\n${url}`;
+  const text=`「${w.title}」—"医"起AI·挑战赛 作品广场\n${url}`;
   fetch(SB+'/rest/v1/shares',{method:'POST',headers:{...H,'Prefer':'return=minimal'},body:JSON.stringify({work_id:wid,nickname:nick})}).then(()=>{
     window._works[idx].real_share_count=(w.real_share_count||0)+1;
     document.getElementById('sc'+idx).textContent=window._works[idx].real_share_count+' 转发';
     loadPeople(idx,wid);
   });
-  const txt=platform==='feishu'?text:url;
+  const txt=platform==='copy'?text:url;
   const hint=platform==='copy'?'链接已复制！粘贴发送 🎉':platform==='feishu'?'已复制！打开飞书粘贴发送 🟦':'已复制！打开微信粘贴发送 💚';
   try{await navigator.clipboard.writeText(txt);}catch(e){const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);}
   showToast(hint);closeShareModal();
