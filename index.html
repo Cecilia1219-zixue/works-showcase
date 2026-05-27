@@ -75,12 +75,45 @@
   .admin-link a{color:#ccc;font-size:0.75rem;text-decoration:none}
   .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:10px 24px;border-radius:20px;font-size:0.9rem;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
   .toast.show{opacity:1}
+  /* 飞书登录遮罩 */
+  .login-mask{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);z-index:200;flex-direction:column;align-items:center;justify-content:center;color:white}
+  .login-mask.show{display:flex}
+  .login-box{text-align:center;padding:40px 32px;background:rgba(255,255,255,0.12);border-radius:24px;backdrop-filter:blur(10px);max-width:340px;width:90%}
+  .login-logo{font-size:3rem;margin-bottom:16px}
+  .login-title{font-size:1.3rem;font-weight:700;margin-bottom:8px}
+  .login-desc{font-size:0.9rem;opacity:0.85;margin-bottom:28px;line-height:1.6}
+  .login-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:white;color:#667eea;border:none;border-radius:14px;padding:14px 28px;font-size:1rem;font-weight:600;cursor:pointer;width:100%;transition:transform 0.15s,box-shadow 0.15s}
+  .login-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.15)}
+  .login-btn-icon{font-size:1.2rem}
+  .user-bar{display:none;align-items:center;gap:8px;padding:8px 16px;background:rgba(255,255,255,0.15);border-radius:20px;margin-top:12px;font-size:0.85rem}
+  .user-bar.show{display:flex}
+  .user-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.6)}
+  .user-name{font-weight:600}
+  .logout-btn{margin-left:auto;background:rgba(255,255,255,0.2);border:none;color:white;border-radius:10px;padding:3px 10px;font-size:0.78rem;cursor:pointer}
 </style>
 </head>
 <body>
+
+<!-- 飞书登录遮罩 -->
+<div class="login-mask" id="login-mask">
+  <div class="login-box">
+    <div class="login-logo">🏆</div>
+    <div class="login-title">"医"起AI·挑战赛</div>
+    <div class="login-desc">作品广场仅对内部员工开放<br>请使用飞书账号登录后查看</div>
+    <button class="login-btn" onclick="startFeishuLogin()">
+      <span class="login-btn-icon">🟦</span>飞书账号登录
+    </button>
+  </div>
+</div>
+
 <header>
   <h1>"医"起AI·挑战赛 作品广场</h1>
   <p>发现优秀，分享灵感</p>
+  <div class="user-bar" id="user-bar">
+    <img class="user-avatar" id="user-avatar" src="" alt="">
+    <span class="user-name" id="user-name"></span>
+    <button class="logout-btn" onclick="logout()">退出</button>
+  </div>
   <div class="tabs">
     <div class="tab active" id="tab-challenge" onclick="switchTab('challenge')">"医"起打擂台</div>
     <div class="tab" id="tab-brave" onclick="switchTab('brave')">"医"高人胆大</div>
@@ -110,10 +143,78 @@ const SB='https://nrukvtlujydvebfskwok.supabase.co';
 const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ydWt2dGx1anlkdmViZnNrd29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3Mzc5MDUsImV4cCI6MjA5NTMxMzkwNX0.QUZLq1S8VdJjQzA8g6DxUvNj6bK06ci3lR-3KK15nk4';
 const H={'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json'};
 const NK='works_nickname';
+const USER_KEY='feishu_user';
+// Vercel后端地址
+const AUTH_API='https://works-auth-je2y.vercel.app/api/feishu-auth';
+// 飞书应用ID
+const FEISHU_APP_ID='cli_aa9f2a2fb6395bdf';
+
 function gn(){return localStorage.getItem(NK)||''}
 function sn(n){if(n)localStorage.setItem(NK,n)}
+function getUser(){try{return JSON.parse(localStorage.getItem(USER_KEY))||null}catch(e){return null}}
+function setUser(u){localStorage.setItem(USER_KEY,JSON.stringify(u));localStorage.setItem(NK,u.name||'')}
+function clearUser(){localStorage.removeItem(USER_KEY)}
+
 window._works=[];window._all=[];window._tab='challenge';
 window._ci={};window._co={};window._sid=null;window._si=null;
+
+function startFeishuLogin(){
+  const redirect=encodeURIComponent(location.origin+location.pathname.replace(/\/[^/]*$/,'/index.html'));
+  const url=`https://open.feishu.cn/open-apis/authen/v1/authorize?app_id=${FEISHU_APP_ID}&redirect_uri=${redirect}&response_type=code&scope=contact:user.base:readonly`;
+  location.href=url;
+}
+
+function logout(){
+  clearUser();
+  document.getElementById('user-bar').className='user-bar';
+  document.getElementById('login-mask').className='login-mask show';
+  document.getElementById('grid').innerHTML='';
+  document.getElementById('loading').style.display='';
+}
+
+async function handleCallback(){
+  const p=new URLSearchParams(location.search);
+  const code=p.get('code');
+  if(!code)return false;
+  // 清掉URL里的code，防止刷新重复请求
+  const clean=location.pathname+(p.get('cat')?'?cat='+p.get('cat'):'')+(p.get('work')?'&work='+p.get('work'):'');
+  history.replaceState({},'',clean||location.pathname);
+  document.getElementById('loading').textContent='正在验证身份...';
+  try{
+    const res=await fetch(AUTH_API+'?code='+code);
+    const data=await res.json();
+    if(!data.success)throw new Error(data.error||'登录失败');
+    setUser({name:data.name,avatar:data.avatar,open_id:data.open_id});
+    return true;
+  }catch(e){
+    document.getElementById('loading').textContent='登录失败：'+e.message+'，请刷新重试';
+    return false;
+  }
+}
+
+async function checkAuth(){
+  // 先看有没有飞书回调code
+  const p=new URLSearchParams(location.search);
+  if(p.get('code')){
+    const ok=await handleCallback();
+    if(!ok)return;
+  }
+  const user=getUser();
+  if(!user){
+    document.getElementById('login-mask').className='login-mask show';
+    document.getElementById('loading').style.display='none';
+    return;
+  }
+  // 已登录，显示用户信息
+  document.getElementById('login-mask').className='login-mask';
+  const bar=document.getElementById('user-bar');
+  bar.className='user-bar show';
+  document.getElementById('user-name').textContent=user.name;
+  if(user.avatar){document.getElementById('user-avatar').src=user.avatar;}
+  sn(user.name);
+  await init();
+}
+
 async function init(){
   try{
     const w=await fetch(SB+'/rest/v1/works_with_counts?order=hot_score.desc,sort_order.asc&select=*',{headers:H}).then(r=>r.json());
@@ -146,55 +247,52 @@ function renderAll(){
       if(imgs.length>1){car+=`<button class="carousel-btn prev" onclick="slide(${i},-1)">&#8249;</button><button class="carousel-btn next" onclick="slide(${i},1)">&#8250;</button><div class="carousel-dots" id="dots${i}">`;imgs.forEach((_,j)=>{car+=`<span class="${j===0?'active':''}"></span>`;});car+=`</div>`;}
       car+=rb+`</div>`;
     }
+    const nick=gn();
     grid.innerHTML+=`<div class="card" id="card${i}">${car||rb}
-      <div class="card-body">
-        <div class="card-title">${w.title||'未命名'}</div>
-        ${w.description?`<div class="card-desc">${w.description}</div>`:''}
-        ${w.link?`<div class="card-link"><a href="${w.link}" target="_blank">🔗 查看详情</a></div>`:''}
-      </div>
-      <div class="action-bar">
-        <button class="action-btn" id="lb${i}" onclick="toggleLike('${w.id}',${i})"><span class="icon">🤍</span><span id="lc${i}">${w.real_like_count||0} 赞</span></button>
-        <div class="action-sep"></div>
-        <button class="action-btn" onclick="toggleCmt(${i},'${w.id}')"><span class="icon">💬</span><span id="cc${i}">${w.real_comment_count||0} 评论</span></button>
-        <div class="action-sep"></div>
-        <button class="action-btn" onclick="openShare('${w.id}',${i})"><span class="icon">📤</span><span id="sc${i}">${w.real_share_count||0} 转发</span></button>
-      </div>
-      <div class="people-row hidden" id="pr${i}"></div>
-      <div class="comment-section" id="cs${i}">
-        <div class="comment-list" id="cl${i}"></div>
-        <div class="comment-form">
-          <input type="text" id="nk${i}" placeholder="你的名字" value="${gn()}" maxlength="12">
-          <div class="comment-send-row">
-            <input type="text" id="ci${i}" placeholder="写下你的评论..." onkeydown="if(event.key==='Enter')sendCmt('${w.id}',${i})">
-            <button class="comment-send" onclick="sendCmt('${w.id}',${i})">发送</button>
-          </div>
-        </div>
-      </div>
-    </div>`;
+<div class="card-body">
+  <div class="card-title">${w.title||''}</div>
+  ${w.description?`<div class="card-desc">${w.description}</div>`:''}
+  ${w.link?`<div class="card-link"><a href="${w.link}" target="_blank">🔗 查看作品</a></div>`:''}
+</div>
+<div class="people-row hidden" id="pr${i}"></div>
+<div class="action-bar">
+  <button class="action-btn${w.user_liked?' liked':''}" id="lb${i}" onclick="toggleLike(${i},'${w.id}')"><span class="icon">❤️</span><span id="lc${i}">${w.real_like_count||0} 点赞</span></button>
+  <div class="action-sep"></div>
+  <button class="action-btn" onclick="toggleCmt(${i},'${w.id}')"><span class="icon">💬</span><span id="cc${i}">${w.real_comment_count||0} 评论</span></button>
+  <div class="action-sep"></div>
+  <button class="action-btn" onclick="openShare('${w.id}',${i})"><span class="icon">📤</span><span id="sc${i}">${w.real_share_count||0} 转发</span></button>
+</div>
+<div class="comment-section" id="cs${i}">
+  <div class="comment-list" id="cl${i}"></div>
+  <div class="comment-form">
+    <div class="comment-send-row">
+      <input id="ci${i}" placeholder="说点什么..." maxlength="200">
+      <button class="comment-send" onclick="sendCmt('${w.id}',${i})">发送</button>
+    </div>
+  </div>
+</div>
+</div>`;
+    loadPeople(i,w.id);
   });
 }
 function slide(i,dir){
-  const c=document.getElementById('c'+i);if(!c)return;
-  const imgs=c.querySelectorAll('img'),dots=document.getElementById('dots'+i);
-  let idx=window._ci[i]||0;
-  imgs[idx].classList.remove('active');dots&&dots.children[idx]&&dots.children[idx].classList.remove('active');
-  idx=(idx+dir+imgs.length)%imgs.length;
-  imgs[idx].classList.add('active');dots&&dots.children[idx]&&dots.children[idx].classList.add('active');
-  window._ci[i]=idx;
+  const c=document.getElementById('c'+i);const imgs=[...c.querySelectorAll('img')];const dots=[...document.getElementById('dots'+i).querySelectorAll('span')];
+  const cur=imgs.findIndex(x=>x.classList.contains('active'));const next=(cur+dir+imgs.length)%imgs.length;
+  imgs[cur].classList.remove('active');imgs[next].classList.add('active');dots[cur].classList.remove('active');dots[next].classList.add('active');
 }
-async function toggleLike(id,i){
-  const nick=gn()||prompt('请输入你的名字，让大家知道是你点赞了 👍');if(!nick)return;sn(nick);
-  const btn=document.getElementById('lb'+i),liked=btn.classList.contains('liked');
+async function toggleLike(i,wid){
+  const nick=gn()||getUser()?.name||'';
+  if(!nick){showToast('请先登录');return;}
+  const btn=document.getElementById('lb'+i);const liked=btn.classList.contains('liked');
   if(liked){
-    await fetch(SB+'/rest/v1/likes?work_id=eq.'+id+'&nickname=eq.'+encodeURIComponent(nick),{method:'DELETE',headers:H});
-    const n=Math.max(0,(window._works[i].real_like_count||0)-1);
-    window._works[i].real_like_count=n;btn.className='action-btn';btn.querySelector('.icon').textContent='🤍';document.getElementById('lc'+i).textContent=n+' 赞';loadPeople(i,id);
+    await fetch(SB+'/rest/v1/likes?work_id=eq.'+wid+'&nickname=eq.'+encodeURIComponent(nick),{method:'DELETE',headers:H});
+    btn.classList.remove('liked');window._works[i].real_like_count=Math.max(0,(window._works[i].real_like_count||0)-1);
   }else{
-    const r=await fetch(SB+'/rest/v1/likes',{method:'POST',headers:{...H,'Prefer':'return=minimal'},body:JSON.stringify({work_id:id,nickname:nick})});
-    if(r.status===409){showToast('你已经点过赞了 ❤️');btn.className='action-btn liked';btn.querySelector('.icon').textContent='❤️';return;}
-    const n=(window._works[i].real_like_count||0)+1;
-    window._works[i].real_like_count=n;btn.className='action-btn liked';btn.querySelector('.icon').textContent='❤️';document.getElementById('lc'+i).textContent=n+' 赞';loadPeople(i,id);
+    await fetch(SB+'/rest/v1/likes',{method:'POST',headers:{...H,'Prefer':'return=minimal'},body:JSON.stringify({work_id:wid,nickname:nick})});
+    btn.classList.add('liked');window._works[i].real_like_count=(window._works[i].real_like_count||0)+1;
   }
+  document.getElementById('lc'+i).textContent=window._works[i].real_like_count+' 点赞';
+  loadPeople(i,wid);
 }
 async function loadPeople(i,wid){
   try{
@@ -225,11 +323,11 @@ async function loadCmts(i,wid){
   }catch(e){list.innerHTML='<div class="no-comment">加载失败</div>';}
 }
 async function sendCmt(wid,i){
-  const nk=document.getElementById('nk'+i),ci=document.getElementById('ci'+i);
-  const nick=nk.value.trim(),content=ci.value.trim();
-  if(!nick){showToast('请填写你的名字');nk.focus();return;}
+  const ci=document.getElementById('ci'+i);
+  const nick=gn()||getUser()?.name||'';
+  const content=ci.value.trim();
+  if(!nick){showToast('请先登录');return;}
   if(!content){showToast('评论内容不能为空');return;}
-  sn(nick);
   const r=await fetch(SB+'/rest/v1/comments',{method:'POST',headers:{...H,'Prefer':'return=minimal'},body:JSON.stringify({work_id:wid,nickname:nick,content})});
   if(!r.ok){showToast('发送失败，请重试');return;}
   ci.value='';window._works[i].real_comment_count=(window._works[i].real_comment_count||0)+1;
@@ -244,7 +342,8 @@ async function doShare(platform){
   const base=location.origin+location.pathname.replace(/\/[^/]*$/,'/index.html');
   const url=base+'?work='+wid+'&cat='+window._tab;
   const text=`「${w.title}」— "医"起AI·挑战赛 作品广场\n${url}`;
-  fetch(SB+'/rest/v1/shares',{method:'POST',headers:{...H,'Prefer':'return=minimal'},body:JSON.stringify({work_id:wid,nickname:nick})}).then(()=>{
+  fetch(SB+'/rest/v1/shares',{method:'POST',headers:{...H,'Prefer':'return=minimal'},body:JSON.stringify({work_id:wid,nickname:nick})}).then(()
+  =>{
     window._works[idx].real_share_count=(w.real_share_count||0)+1;
     document.getElementById('sc'+idx).textContent=window._works[idx].real_share_count+' 转发';
     loadPeople(idx,wid);
@@ -256,7 +355,7 @@ async function doShare(platform){
 }
 let _tt;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),3000);}
-init();
+checkAuth();
 </script>
 </body>
 </html>
