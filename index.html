@@ -265,8 +265,6 @@ async function loadInteractors(filtered) {
       el.innerHTML = [...names].slice(0, 6).map(n => `<span class="interactor-tag">${escHtml(n)}</span>`).join('');
     }
   }
-  document.getElementById('lc'+i).textContent=window._works[i].real_like_count+' 点赞';
-  loadPeople(i,wid);
 }
 
 async function toggleLike(workId) {
@@ -363,17 +361,17 @@ function goSlide(workId, idx) {
 function nextSlide(workId) {
   const carousel = document.getElementById('carousel-' + workId);
   if (!carousel) return;
-  const data = JSON.parse(carousel.dataset.images);
+  const images = JSON.parse(carousel.dataset.images);
   const current = parseInt(carousel.dataset.current);
-  goSlide(workId, (current + 1) % data.length);
+  goSlide(workId, (current + 1) % images.length);
 }
 
 function prevSlide(workId) {
   const carousel = document.getElementById('carousel-' + workId);
   if (!carousel) return;
-  const data = JSON.parse(carousel.dataset.images);
+  const images = JSON.parse(carousel.dataset.images);
   const current = parseInt(carousel.dataset.current);
-  goSlide(workId, (current - 1 + data.length) % data.length);
+  goSlide(workId, (current - 1 + images.length) % images.length);
 }
 
 function escHtml(s) {
@@ -389,6 +387,18 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
+// Handle URL hash to scroll to a specific work card
+function scrollToWorkFromHash() {
+  const hash = location.hash;
+  if (hash && hash.startsWith('#work-')) {
+    const workId = hash.replace('#work-', '');
+    setTimeout(() => {
+      const card = document.querySelector('[data-work-id="' + workId + '"]');
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 500);
+  }
+}
+
 async function init() {
   await initCloudBase();
   await initDeviceId();
@@ -400,7 +410,9 @@ async function init() {
   }
 }
 
-init().catch(e => {
+init().then(() => {
+  scrollToWorkFromHash();
+}).catch(e => {
   console.error('Init error:', e);
   document.getElementById('grid').innerHTML = '<div class="loading">初始化失败，请检查网络后刷新</div>';
 });
