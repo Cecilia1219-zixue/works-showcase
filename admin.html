@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>医起AI·挑战赛 - 管理后台</title>
 <script src="https://unpkg.com/@cloudbase/js-sdk@latest/dist/index.umd.js"></script>
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#0d0d1a;color:#e0e0e0;min-height:100vh}
@@ -345,7 +347,7 @@ function compressImg(file,maxW,quality){
 }
 
 async function submitWork(){
-  if(!dbReady){toast('数据库连接中，请稍候再试...');return}
+  if(!db||!db.collection){toast('数据库未就绪，请等待3秒再试');return}
   var title=document.getElementById('ul-title').value.trim();
   var desc=document.getElementById('ul-desc').value.trim();
   var cat=document.getElementById('ul-cat').value;
