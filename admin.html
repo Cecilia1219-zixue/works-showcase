@@ -161,7 +161,7 @@ async function initDB(){
     console.log('auth init OK');
     db=app.database();
     console.log('db init OK, db=',db);
-    await auth.anonymousAuthProvider().signIn();
+    await auth.signInAnonymously();
     console.log('anonymous signIn OK');
     dbReady=true;
     console.log('DB fully ready');
