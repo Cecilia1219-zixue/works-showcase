@@ -356,7 +356,7 @@ async function submitWork(){
   var images=[];
   for(var i=0;i<_ulFiles.length;i++){
     try{
-      var b64=await compressImg(_ulFiles[i],1200,0.85);
+      var b64=await compressImg(_ulFiles[i],800,0.7);
       images.push(b64);
     }catch(e){
       msg.textContent='❌ 图片处理失败: '+e.message;
