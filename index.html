@@ -29,8 +29,8 @@ a{color:var(--teal);text-decoration:none}
 #login-overlay{position:fixed;inset:0;z-index:1000;display:flex;background:var(--bg);transition:opacity .5s,visibility .5s}
 #login-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
 .login-left{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(0,172,193,0.08),rgba(21,101,192,0.06));position:relative;overflow:hidden}
-.logo-sphere{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--teal),#A8E8D8);box-shadow:0 8px 32px rgba(0,172,193,0.25),inset 0 -2px 8px rgba(255,255,255,0.15),inset 0 2px 8px rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative}
-.logo-sphere::before{content:'';position:absolute;width:35%;height:35%;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,0.6),transparent);top:12%;left:15%}
+.logo-sphere{width:120px;height:120px;border-radius:50%;overflow:hidden;box-shadow:0 8px 32px rgba(0,172,193,0.25);position:relative;flex-shrink:0}
+.logo-sphere img{width:100%;height:100%;object-fit:cover;display:block}
 .login-left h1{font-size:2.2rem;font-weight:700;margin-top:1.5rem;color:var(--text-primary);letter-spacing:-0.02em;text-align:center}
 .login-left .theme-text{font-family:'Dancing Script','Georgia',cursive;font-size:1.2rem;color:rgba(26,26,26,0.35);margin-top:.3rem;font-style:italic;letter-spacing:.03em}
 .login-right{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem}
@@ -55,7 +55,8 @@ a{color:var(--teal);text-decoration:none}
 
 /* 悬浮导航 */
 .navbar{position:sticky;top:0;z-index:100;padding:10px 1.5rem;display:flex;align-items:center;gap:12px;background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--nav-shadow);border-radius:0 0 20px 20px}
-.nav-sphere{width:36px;height:36px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--blue),var(--teal),#A8E8D8);box-shadow:0 2px 8px rgba(0,172,193,0.2),inset 0 1px 3px rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;font-size:1rem}
+.nav-sphere{width:36px;height:36px;border-radius:50%;flex-shrink:0;overflow:hidden;box-shadow:0 2px 8px rgba(0,172,193,0.2)}
+.nav-sphere img{width:100%;height:100%;object-fit:cover;display:block}
 .nav-title{font-weight:700;font-size:1.1rem;color:var(--text-primary);letter-spacing:-0.01em}
 
 /* Hero */
@@ -157,7 +158,7 @@ a{color:var(--teal);text-decoration:none}
 <!-- 登录页 -->
 <div id="login-overlay">
   <div class="login-left">
-    <div class="logo-sphere">🤖</div>
+    <div class="logo-sphere"><img src="logo.png" alt="logo" /></div>
     <h1>医起AI·挑战赛</h1>
     <div class="theme-text">"医"起追AI，赢在未来</div>
   </div>
@@ -178,7 +179,7 @@ a{color:var(--teal);text-decoration:none}
 <div id="main">
   <!-- 导航栏 -->
   <nav class="navbar">
-    <div class="nav-sphere">🤖</div>
+    <div class="nav-sphere"><img src="logo.png" alt="logo" /></div>
     <span class="nav-title">医起AI·挑战赛</span>
   </nav>
 
@@ -186,7 +187,6 @@ a{color:var(--teal);text-decoration:none}
   <header class="hero">
     <h1>医起AI·挑战赛</h1>
     <div class="theme-text">"医"起追AI，赢在未来</div>
-    <div class="subtitle">Monthly AI Arena · Quarterly AI Challenge</div>
   </header>
 
   <!-- Tabs -->
