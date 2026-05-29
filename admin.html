@@ -109,40 +109,6 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
   </div>
 
   <div id="p-upload" class="panel">
-    <div style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:24px">
-      <h3 style="font-size:14px;margin-bottom:16px;color:var(--a1)">📤 上传新作品</h3>
-      <div style="display:grid;gap:14px;max-width:600px">
-        <div><label style="display:block;font-size:12px;color:var(--txt2);margin-bottom:4px">作品标题 *</label>
-        <input id="up-title" placeholder="输入作品标题" style="width:100%;padding:10px 14px;border:1px solid var(--bdr);border-radius:8px;background:var(--input);color:var(--txt);font-size:13px;outline:none"/></div>
-        <div><label style="display:block;font-size:12px;color:var(--txt2);margin-bottom:4px">作品描述</label>
-        <textarea id="up-desc" placeholder="输入作品描述" rows="3" style="width:100%;padding:10px 14px;border:1px solid var(--bdr);border-radius:8px;background:var(--input);color:var(--txt);font-size:13px;outline:none;resize:vertical;font-family:inherit"></textarea></div>
-        <div><label style="display:block;font-size:12px;color:var(--txt2);margin-bottom:4px">所属分类 *</label>
-        <select id="up-cat" style="width:100%;padding:10px 14px;border:1px solid var(--bdr);border-radius:8px;background:var(--input);color:var(--txt);font-size:13px;outline:none">
-          <option value="0">"医"起打擂台</option>
-          <option value="1">"医"高人胆大</option>
-        </select></div>
-        <div><label style="display:block;font-size:12px;color:var(--txt2);margin-bottom:4px">图片URL（每行一个，支持多张）</label>
-        <textarea id="up-imgs" placeholder="https://example.com/image1.jpg
-https://example.com/image2.jpg" rows="4" style="width:100%;padding:10px 14px;border:1px solid var(--bdr);border-radius:8px;background:var(--input);color:var(--txt);font-size:13px;outline:none;resize:vertical;font-family:monospace"></textarea></div>
-        <div><label style="display:block;font-size:12px;color:var(--txt2);margin-bottom:4px">本地图片上传</label>
-        <input id="up-files" type="file" multiple accept="image/*" style="display:none" onchange="handleFileSelect()"/>
-        <button class="btn bs bp" onclick="document.getElementById('up-files').click()">📁 选择本地图片</button>
-        <div id="up-file-list" style="margin-top:8px;font-size:11px;color:var(--txt2)"></div>
-        <div id="up-progress" style="display:none;margin-top:8px"><div style="background:var(--input);border-radius:4px;height:4px;overflow:hidden"><div id="up-bar" style="background:linear-gradient(90deg,var(--a1),var(--a2));height:100%;width:0%;transition:width .3s"></div></div><span id="up-pct" style="font-size:11px;color:var(--txt2)">0%</span></div></div>
-        <button class="btn bp" onclick="uploadWork()" style="margin-top:8px;padding:12px 24px;font-size:14px">🚀 发布作品</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="p-export" class="panel">
-    <div class="eg">
-      <div class="ec"><div class="i">🏆</div><div><div class="h3">作品统计</div><div class="p">导出作品互动数据（CSV）</div></div><button class="btn bp bs" onclick="expWorks()" style="margin-left:auto">📥 导出</button></div>
-      <div class="ec"><div class="i">👤</div><div><div class="h3">用户行为明细</div><div class="p">导出所有用户操作记录（CSV）</div></div><button class="btn bp bs" onclick="expUsers()" style="margin-left:auto">📥 导出</button></div>
-      <div class="ec"><div class="i">👁️</div><div><div class="h3">访客列表</div><div class="p">导出访客访问记录（CSV）</div></div><button class="btn bp bs" onclick="expVisitors()" style="margin-left:auto">📥 导出</button></div>
-    </div>
-  </div>
-
-  <div id="p-upload" class="panel">
     <div style="max-width:640px;margin:0 auto">
       <div style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:24px;margin-bottom:16px">
         <h3 style="font-size:14px;margin-bottom:4px;color:var(--a1)">📤 上传作品</h3>
@@ -157,9 +123,17 @@ https://example.com/image2.jpg" rows="4" style="width:100%;padding:10px 14px;bor
             <option value="0">📋 "医"起打擂台</option>
             <option value="1">📋 "医"高人胆大</option>
           </select>
-          <label style="font-size:12px;color:var(--txt2)">图片地址（每行一个URL，或逗号分隔）</label>
-          <textarea id="ul-imgs" rows="4" style="background:var(--input);border:1px solid var(--bdr);border-radius:8px;padding:9px 14px;color:var(--txt);font-size:12px;outline:none;resize:vertical;font-family:monospace" placeholder="https://example.com/image1.jpg
-https://example.com/image2.jpg"></textarea>
+          <label style="font-size:12px;color:var(--txt2)">图片地址（每行一个URL，支持多张）</label>
+          <textarea id="ul-imgs" rows="5" style="background:var(--input);border:1px solid var(--bdr);border-radius:8px;padding:9px 14px;color:var(--txt);font-size:12px;outline:none;resize:vertical;font-family:monospace" placeholder="https://example.com/image1.jpg
+https://example.com/image2.jpg
+https://example.com/image3.jpg"></textarea>
+          <div style="background:rgba(0,172,193,.08);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--txt2);line-height:1.7">
+            💡 <b>图片上传提示</b>：<br>
+            1. 先把图片上传到免费图床（推荐 <a href="https://sm.ms/" target="_blank" style="color:var(--a1)">sm.ms</a> 或 <a href="https://imgurl.work/" target="_blank" style="color:var(--a1)">imgurl.work</a>）<br>
+            2. 复制图片的 URL 链接<br>
+            3. 粘贴到上方文本框，每行一个链接<br>
+            4. 支持多张图片，按上传顺序排列
+          </div>
           <button class="btn bp" onclick="submitWork()" style="margin-top:8px;padding:12px 24px;font-size:14px">🚀 提交作品</button>
         </div>
       </div>
@@ -337,51 +311,19 @@ async function submitWork(){
   }
 }
 
-// ===== Upload =====
-var selectedFiles=[];
-function handleFileSelect(){
-  var files=document.getElementById('up-files').files;
-  selectedFiles=Array.from(files);
-  var list=document.getElementById('up-file-list');
-  list.innerHTML=selectedFiles.map(function(f){return '📄 '+esc(f.name)+' ('+Math.round(f.size/1024)+'KB)';}).join('<br/>');
-}
-
-async function uploadToStorage(file){
-  var ext=file.name.split('.').pop();
-  var fileName='works/'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.'+ext;
-  var uploadTask=app.uploadFile({cloudPath:fileName,filePath:file});
-  return uploadTask.then(function(res){return res.fileID||res.url});
-}
-
-async function uploadWork(){
-  var title=document.getElementById('up-title').value.trim();
-  var desc=document.getElementById('up-desc').value.trim();
-  var cat=document.getElementById('up-cat').value;
-  var imgUrls=document.getElementById('up-imgs').value.trim();
+// ===== Upload Work (URL only) =====
+async function submitWork(){
+  var title=document.getElementById('ul-title').value.trim();
+  var desc=document.getElementById('ul-desc').value.trim();
+  var cat=document.getElementById('ul-cat').value;
+  var imgStr=document.getElementById('ul-imgs').value.trim();
+  var msg=document.getElementById('ul-msg');
   if(!title){toast('请填写作品标题');return}
   var images=[];
-  // Parse URL input
-  if(imgUrls){
-    images=imgUrls.split('\n').map(function(u){return u.trim()}).filter(Boolean);
+  if(imgStr){
+    images=imgStr.split(/[\n,，]/).map(function(u){return u.trim()}).filter(Boolean);
   }
-  // Upload local files
-  if(selectedFiles.length){
-    var prog=document.getElementById('up-progress');
-    var bar=document.getElementById('up-bar');
-    var pct=document.getElementById('up-pct');
-    prog.style.display='block';
-    for(var i=0;i<selectedFiles.length;i++){
-      try{
-        var url=await uploadToStorage(selectedFiles[i]);
-        images.push(url);
-      }catch(e){
-        toast('图片上传失败: '+e.message);prog.style.display='none';return;
-      }
-      var p=Math.round(((i+1)/selectedFiles.length)*100);
-      bar.style.width=p+'%';pct.textContent=p+'%';
-    }
-  }
-  if(!images.length){toast('请至少添加一张图片');prog.style.display='none';return}
+  if(!images.length){toast('请至少添加一张图片 URL');return}
   try{
     await db.collection('Work').add({
       title:title,
@@ -392,18 +334,19 @@ async function uploadWork(){
       sort_order:Date.now(),
       createdAt:new Date()
     });
-    // Reset form
-    document.getElementById('up-title').value='';
-    document.getElementById('up-desc').value='';
-    document.getElementById('up-imgs').value='';
-    document.getElementById('up-file-list').innerHTML='';
-    document.getElementById('up-progress').style.display='none';
-    selectedFiles=[];
+    document.getElementById('ul-title').value='';
+    document.getElementById('ul-desc').value='';
+    document.getElementById('ul-imgs').value='';
+    msg.textContent='✅ 作品已提交成功！刷新前台即可看到';
+    msg.style.color='#00E5A0';
+    msg.style.display='block';
     toast('作品发布成功 🎉');
-    // Refresh data
     loadAll();
   }catch(e){
-    toast('发布失败: '+e.message);
+    msg.textContent='❌ 发布失败: '+e.message;
+    msg.style.color='var(--danger)';
+    msg.style.display='block';
+    toast('发布失败');
   }
 }
 
