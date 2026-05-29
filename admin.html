@@ -123,10 +123,11 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
             <option value="0">📋 "医"起打擂台</option>
             <option value="1">📋 "医"高人胆大</option>
           </select>
-          <label style="font-size:12px;color:var(--txt2)">📁 选择图片（支持多张，直接上传）</label>
-          <input id="ul-files" type="file" multiple accept="image/*" style="background:var(--input);border:1px solid var(--bdr);border-radius:8px;padding:10px 14px;color:var(--txt);font-size:12px" onchange="previewFiles()"/>
+          <label style="font-size:12px;color:var(--txt2)">📁 选择图片（支持多张，最多10张，直接上传）</label>
+          <input id="ul-files" type="file" multiple accept="image/*" max="10" style="background:var(--input);border:1px solid var(--bdr);border-radius:8px;padding:10px 14px;color:var(--txt);font-size:12px" onchange="previewFiles()"/>
           <div id="ul-preview" style="display:flex;gap:8px;flex-wrap:wrap"></div>
           <div id="ul-img-urls" style="display:none"></div>
+          <div id="ul-status" style="font-size:11px;color:var(--txt2)"></div>
           <button class="btn bp" onclick="submitWork()" style="margin-top:8px;padding:12px 24px;font-size:14px">🚀 提交作品</button>
         </div>
       </div>
@@ -264,60 +265,46 @@ function expVisitors(){
   dlCSV(rows,'访客列表_'+fd(new Date())+'.csv');
 }
 
-// ===== Upload Work =====
-async function submitWork(){
-  var title=document.getElementById('ul-title').value.trim();
-  var desc=document.getElementById('ul-desc').value.trim();
-  var cat=document.getElementById('ul-cat').value;
-  var imgStr=document.getElementById('ul-imgs').value.trim();
-  var msg=document.getElementById('ul-msg');
-  if(!title){toast('请填写作品标题');return}
-  var images=[];
-  if(imgStr){
-    images=imgStr.split(/[\n,，]/).map(function(u){return u.trim()}).filter(Boolean);
-  }
-  try{
-    await db.collection('Work').add({
-      title:title,
-      description:desc,
-      category:cat,
-      images:images,
-      visible:true,
-      sort_order:Date.now(),
-      createdAt:new Date()
-    });
-    // Reset form
-    document.getElementById('ul-title').value='';
-    document.getElementById('ul-desc').value='';
-    document.getElementById('ul-imgs').value='';
-    msg.textContent='✅ 作品已提交，刷新前台即可看到';
-    msg.style.color='#00E5A0';
-    msg.style.display='block';
-    toast('作品上传成功 🎉');
-    // Refresh data
-    loadAll();
-  }catch(e){
-    msg.textContent='❌ 上传失败: '+e.message;
-    msg.style.color='var(--danger)';
-    msg.style.display='block';
-    toast('上传失败');
-  }
-}
-
 // ===== Upload Work (Base64) =====
 var _ulFiles=[];
 function previewFiles(){
   var input=document.getElementById('ul-files');
-  _ulFiles=Array.from(input.files);
+  var newFiles=Array.from(input.files);
+  // 限制最多10张
+  if(_ulFiles.length+newFiles.length>10){
+    toast('最多只能上传10张图片，当前已有'+_ulFiles.length+'张');
+    return;
+  }
+  _ulFiles=_ulFiles.concat(newFiles);
+  renderPreview();
+  input.value='';
+}
+
+function removeImg(idx){
+  _ulFiles.splice(idx,1);
+  renderPreview();
+}
+
+function renderPreview(){
   var preview=document.getElementById('ul-preview');
+  var status=document.getElementById('ul-status');
   preview.innerHTML='';
-  _ulFiles.forEach(function(f){
+  status.textContent=_ulFiles.length?'已选择 '+_ulFiles.length+' 张图片（点击 × 可移除）':'';
+  _ulFiles.forEach(function(f,i){
+    var idx=i;
     var reader=new FileReader();
     reader.onload=function(e){
-      var div=document.createElement('div');
-      div.style.cssText='width:80px;height:80px;border-radius:8px;overflow:hidden;border:2px solid var(--bdr)';
-      div.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover"/>';
-      preview.appendChild(div);
+      var wrap=document.createElement('div');
+      wrap.style.cssText='position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:2px solid var(--bdr)';
+      var img=document.createElement('img');
+      img.src=e.target.result;img.style.cssText='width:100%;height:100%;object-fit:cover';
+      wrap.appendChild(img);
+      var btn=document.createElement('div');
+      btn.style.cssText='position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:14px;line-height:20px;text-align:center;cursor:pointer;';
+      btn.textContent='×';
+      btn.onclick=function(){removeImg(idx)};
+      wrap.appendChild(btn);
+      preview.appendChild(wrap);
     };
     reader.readAsDataURL(f);
   });
@@ -347,7 +334,7 @@ async function submitWork(){
   var cat=document.getElementById('ul-cat').value;
   var msg=document.getElementById('ul-msg');
   if(!title){toast('请填写作品标题');return}
-  if(!_ulFiles.length){toast('请选择至少一张图片');return}
+  if(!_ulFiles.length){toast('请至少选择一张图片');return}
   // Show loading
   msg.textContent='正在处理图片（'+_ulFiles.length+'张），请稍候...';
   msg.style.color='var(--txt2)';
@@ -379,6 +366,7 @@ async function submitWork(){
     document.getElementById('ul-desc').value='';
     document.getElementById('ul-files').value='';
     document.getElementById('ul-preview').innerHTML='';
+    document.getElementById('ul-status').textContent='';
     _ulFiles=[];
     msg.textContent='✅ 作品已提交成功！刷新前台即可看到';
     msg.style.color='#00E5A0';
@@ -387,7 +375,7 @@ async function submitWork(){
   }catch(e){
     msg.textContent='❌ 发布失败: '+e.message;
     msg.style.color='var(--danger)';
-    toast('发布失败');
+    toast('发布失败: '+e.message);
   }
 }
 
