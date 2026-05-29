@@ -5,33 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>医起AI·挑战赛</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#F5F5F4;--bg-alt:rgba(255,255,255,0.75);--surface:rgba(255,255,255,0.88);
+  --bg:#F5F5F4;--bg-alt:rgba(255,255,255,0.75);--surface:rgba(255,255,255,0.92);
   --text-primary:#1A1A1A;--text-secondary:#666;--text-dim:#999;
   --accent:#1A1A1A;--accent-h:#333;
-  --card-shadow:0 2px 12px rgba(0,0,0,0.06);
+  --card-shadow:0 2px 16px rgba(0,0,0,0.06);
   --card-radius:16px;--chip-bg:rgba(0,0,0,0.06);
   --nav-bg:rgba(255,255,255,0.82);--nav-shadow:0 2px 12px rgba(0,0,0,0.06);
-  --border:rgba(0,0,0,0.08);--border-h:rgba(0,0,0,0.12);
-  --sheet-tab:#E8E8E8;--sheet-tab-active:#fff;--sheet-header:#F0F0F0;--sheet-row-h:rgba(0,0,0,0.03);
+  --border:rgba(0,0,0,0.08);
+  --sheet-tab:#E8E8E8;--sheet-tab-active:#fff;
 }
 html{scroll-behavior:smooth}
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;line-height:1.6;overflow-x:hidden}
 a{color:var(--text-secondary);text-decoration:none}
+
+/* 全局背景 */
 .site-bg{position:fixed;inset:0;z-index:-2;overflow:hidden}
 .site-bg img{width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(0.88) saturate(0.9);opacity:.12}
 .site-bg::after{content:'';position:absolute;inset:0;background:rgba(245,245,244,0.55)}
+
+/* 登录页 */
 #login-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;transition:opacity .5s,visibility .5s;overflow:hidden}
 #login-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
 .login-card{position:relative;z-index:1;background:var(--surface);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--border);border-radius:24px;padding:2.5rem 2rem;width:90%;max-width:420px;box-shadow:0 16px 48px rgba(0,0,0,0.08);text-align:center}
 .login-card .logo-sphere{width:80px;height:80px;margin:0 auto 1.2rem;border-radius:50%;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
 .login-card .logo-sphere img{width:100%;height:100%;object-fit:cover;display:block}
 .login-card h1{font-size:1.6rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.02em;margin-bottom:.2rem}
-.login-card .theme-text{font-family:'Orbitron','Rajdhani','Courier New',monospace;font-size:.95rem;color:rgba(26,26,26,0.4);margin-bottom:1.5rem;letter-spacing:.15em;text-transform:uppercase}
+.login-card .theme-text{font-family:'Orbitron','Courier New',monospace;font-size:.95rem;color:rgba(26,26,26,0.4);margin-bottom:1.5rem;letter-spacing:.15em;text-transform:uppercase}
 .login-card .login-form{text-align:left}
 .login-card .login-form>p{text-align:center;color:var(--text-dim);margin-bottom:1.5rem;font-size:.85rem}
 .form-input{width:100%;padding:14px 16px;margin-bottom:1rem;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,0.7);color:var(--text-primary);font-size:1rem;outline:none;transition:border-color .2s,box-shadow .2s}
@@ -45,54 +48,82 @@ a{color:var(--text-secondary);text-decoration:none}
 .login-error{color:#E53935;font-size:.82rem;margin-top:.25rem;display:none}
 .login-hint{color:var(--text-dim);font-size:.75rem;margin-top:.75rem;text-align:center}
 @media(max-width:768px){.login-card{padding:2rem 1.5rem;width:92%;max-width:360px;border-radius:20px}.login-card h1{font-size:1.3rem}.login-card .theme-text{font-size:.8rem}}
+
+/* 主内容 */
 #main{position:relative;z-index:1;display:none}
 #main.show{display:block}
-.navbar{position:sticky;top:0;z-index:100;padding:10px 1.5rem;display:flex;align-items:center;gap:12px;background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--nav-shadow);border-radius:0 0 20px 20px}
+
+/* 导航 */
+.navbar{position:sticky;top:0;z-index:100;padding:10px 1.5rem;display:flex;align-items:center;justify-content:space-between;background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--nav-shadow);border-radius:0 0 20px 20px}
+.nav-left{display:flex;align-items:center;gap:12px}
 .nav-sphere{width:36px;height:36px;border-radius:50%;flex-shrink:0;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
 .nav-sphere img{width:100%;height:100%;object-fit:cover;display:block}
 .nav-title{font-weight:700;font-size:1.1rem;color:var(--text-primary);letter-spacing:-0.01em}
-.hero{text-align:center;padding:2.5rem 1.5rem 1rem}
+.nav-admin{font-size:.75rem;color:var(--text-dim);padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .2s}
+.nav-admin:hover{color:var(--text-primary);background:rgba(0,0,0,0.04)}
+
+/* Hero */
+.hero{text-align:center;padding:2rem 1.5rem 1rem}
 .hero h1{font-size:2.2rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.03em}
-.hero .theme-text{font-family:'Orbitron','Rajdhani','Courier New',monospace;font-size:1rem;color:rgba(26,26,26,0.35);margin-top:.5rem;letter-spacing:.2em;text-transform:uppercase}
-.sheet-bar{max-width:1100px;margin:0 auto;padding:0 1.5rem;position:relative}
+.hero .theme-text{font-family:'Orbitron','Courier New',monospace;font-size:1rem;color:rgba(26,26,26,0.35);margin-top:.5rem;letter-spacing:.2em;text-transform:uppercase}
+
+/* Sheet Tabs */
+.sheet-bar{max-width:1100px;margin:0 auto;padding:0 1.5rem}
 .sheet-tabs{display:flex;align-items:flex-end;gap:0}
 .sheet-tab{padding:8px 24px;font-size:.85rem;font-weight:500;cursor:pointer;background:var(--sheet-tab);color:var(--text-secondary);border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;transition:all .2s;user-select:none;position:relative;bottom:-1px}
 .sheet-tab:hover{background:rgba(255,255,255,0.6);color:var(--text-primary)}
 .sheet-tab.active{background:var(--sheet-tab-active);color:var(--text-primary);font-weight:600;border-bottom-color:var(--sheet-tab-active)}
-.sheet-content{background:var(--surface);border:1px solid var(--border);border-radius:0 var(--card-radius) var(--card-radius) var(--card-radius);box-shadow:var(--card-shadow);overflow:hidden}
-.sheet-table{width:100%;border-collapse:collapse}
-.sheet-table thead th{background:var(--sheet-header);padding:10px 14px;font-size:.8rem;font-weight:600;color:var(--text-secondary);text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:2}
-.sheet-table thead th:first-child{width:40px;text-align:center}
-.sheet-table thead th:nth-child(4){width:200px;text-align:center}
-.sheet-table thead th:last-child{width:220px;text-align:center}
-.sheet-table tbody tr{transition:background .15s}
-.sheet-table tbody tr:hover{background:var(--sheet-row-h)}
-.sheet-table tbody td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:.85rem}
-.sheet-table tbody td:first-child{text-align:center;color:var(--text-dim);font-weight:500}
-.sheet-table tbody td:last-child{text-align:center}
-.work-title{font-weight:600;color:var(--text-primary);margin-bottom:2px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.work-desc{color:var(--text-dim);font-size:.78rem;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.work-stats{display:flex;gap:12px;justify-content:center;align-items:center}
-.stat-item{display:flex;align-items:center;gap:3px;font-size:.8rem;color:var(--text-secondary);white-space:nowrap}
-.stat-item .icon{font-size:.9rem}
-.row-actions{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
-.row-btn{display:inline-flex;align-items:center;gap:3px;padding:5px 10px;border:none;background:var(--chip-bg);color:var(--text-secondary);font-size:.75rem;cursor:pointer;border-radius:6px;transition:all .15s;white-space:nowrap}
-.row-btn:hover{background:rgba(0,0,0,0.1);color:var(--text-primary)}
-.row-btn.liked{color:#E53935;background:rgba(229,57,53,0.08)}
-.row-btn .icon{font-size:.85rem}
-.comment-panel{padding:10px 14px;background:var(--bg-alt)}
+
+/* 卡片瀑布流（小红书风格） */
+.cards-container{max-width:1100px;margin:0 auto;padding:1rem 1.5rem 2rem}
+.masonry{column-count:2;column-gap:14px}
+@media(max-width:640px){.masonry{column-count:1}}
+@media(min-width:900px){.masonry{column-count:3}}
+@media(min-width:1200px){.masonry{column-count:4}}
+
+/* 卡片 */
+.card{break-inside:avoid;margin-bottom:14px;background:var(--surface);border-radius:var(--card-radius);overflow:hidden;box-shadow:var(--card-shadow);border:1px solid var(--border);transition:transform .2s,box-shadow .2s;cursor:pointer}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.1)}
+.card-image{width:100%;display:block;position:relative;overflow:hidden;background:#f0f0f0}
+.card-image img{width:100%;display:block;object-fit:cover}
+.card-carousel{position:relative;overflow:hidden}
+.card-carousel .carousel-track{display:flex;transition:transform .3s ease}
+.card-carousel .carousel-slide{min-width:100%;flex-shrink:0}
+.card-carousel .carousel-slide img{width:100%;display:block;object-fit:cover;aspect-ratio:3/4}
+.card-carousel .carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);color:#333;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:transform .15s}
+.card-carousel .carousel-btn:hover{transform:translateY(-50%) scale(1.1)}
+.card-carousel .carousel-btn.prev{left:8px}
+.card-carousel .carousel-btn.next{right:8px}
+.card-carousel .carousel-dots{display:flex;justify-content:center;gap:5px;padding:6px 0}
+.card-carousel .carousel-dots .dot{width:6px;height:6px;border-radius:50%;background:var(--text-dim);transition:all .2s}
+.card-carousel .carousel-dots .dot.active{background:var(--accent);width:14px;border-radius:3px}
+.card-body{padding:12px}
+.card-title{font-size:.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-desc{font-size:.78rem;color:var(--text-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* 卡片底部操作栏 */
+.card-actions{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid rgba(0,0,0,0.04)}
+.card-action{display:flex;align-items:center;gap:4px;background:transparent;border:none;cursor:pointer;padding:4px 6px;border-radius:8px;transition:all .15s;color:var(--text-secondary);font-size:.78rem}
+.card-action:hover{background:rgba(0,0,0,0.04);color:var(--text-primary)}
+.card-action.liked{color:#E53935}
+.card-action .icon{font-size:1rem}
+
+/* 评论面板 */
+.comment-panel{display:none;padding:10px 12px;border-top:1px solid rgba(0,0,0,0.06);background:var(--bg-alt)}
 .comment-panel.show{display:block}
 .comment-input-row{display:flex;gap:8px;margin-bottom:8px}
-.comment-input-row input{flex:1;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-primary);font-size:.8rem;outline:none}
+.comment-input-row input{flex:1;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-primary);font-size:.82rem;outline:none}
 .comment-input-row input:focus{border-color:var(--accent)}
-.comment-input-row button{padding:6px 14px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-size:.75rem;cursor:pointer;font-weight:500}
-.comment-list{max-height:120px;overflow-y:auto;padding:0 0 4px}
-.comment-item{padding:4px 0;font-size:.75rem;border-bottom:1px solid rgba(0,0,0,0.04)}
+.comment-input-row button{padding:8px 16px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:.82rem;cursor:pointer;font-weight:500}
+.comment-list{max-height:150px;overflow-y:auto}
+.comment-item{padding:6px 0;font-size:.78rem;border-bottom:1px solid rgba(0,0,0,0.04)}
 .comment-item:last-child{border-bottom:none}
 .comment-author{color:var(--text-primary);font-weight:500}
 .comment-dept{display:inline-block;padding:1px 6px;border-radius:8px;background:rgba(0,0,0,0.06);color:var(--text-secondary);font-size:.65rem;margin-left:4px;vertical-align:middle}
 .comment-time{color:var(--text-dim);margin-left:6px;font-size:.7rem}
 .comment-text{margin-top:2px;color:var(--text-secondary)}
+
+/* 分享弹窗 */
 .modal-overlay{position:fixed;inset:0;z-index:998;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
 .modal-overlay.show{opacity:1;visibility:visible}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);padding:1.5rem;width:90%;max-width:400px;box-shadow:0 16px 48px rgba(0,0,0,0.12);transform:translateY(20px);transition:transform .25s;position:relative}
@@ -102,26 +133,24 @@ a{color:var(--text-secondary);text-decoration:none}
 .share-buttons{display:flex;gap:1rem;justify-content:center;margin-bottom:1rem}
 .share-btn{width:56px;height:56px;border-radius:50%;border:none;background:var(--chip-bg);color:var(--text-primary);font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s,background .15s}
 .share-btn:hover{transform:scale(1.1)}
-.share-btn.feishu:hover{background:rgba(0,0,0,0.1);color:var(--text-primary)}
 .share-btn.wechat:hover{background:rgba(7,193,96,0.12);color:#07C160}
 .share-link{display:flex;gap:8px}
 .share-link input{flex:1;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text-primary);font-size:.8rem;outline:none}
 .share-link button{padding:8px 14px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:.8rem;cursor:pointer;font-weight:500}
+
+/* Toast */
 .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(26,26,26,0.9);backdrop-filter:blur(8px);color:#fff;padding:10px 20px;border-radius:12px;font-size:.9rem;z-index:9999;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,0.15)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.empty-state{display:flex!important;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;text-align:center;min-height:300px}
+
+/* 空状态 */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;text-align:center;min-height:300px;grid-column:1/-1}
 .empty-state .icon{font-size:3rem;margin-bottom:1rem;opacity:.5}
 .empty-state p{font-size:1rem;color:var(--text-secondary)}
+
+/* Loading */
 .loading{display:flex;align-items:center;justify-content:center;padding:1rem;color:var(--text-dim)}
 .loading .spinner{width:20px;height:20px;border:2px solid var(--chip-bg);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:768px){
-  .hero{padding:2rem 1rem 1rem}.hero h1{font-size:1.5rem}.hero .theme-text{font-size:.8rem}
-  .sheet-bar{padding:0 .75rem}
-  .sheet-tab{padding:6px 16px;font-size:.8rem}
-  .sheet-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .work-desc{max-width:150px}
-}
 </style>
 </head>
 <body>
@@ -148,11 +177,16 @@ a{color:var(--text-secondary);text-decoration:none}
 
 <!-- 主内容 -->
 <div id="main">
+  <!-- 导航栏 -->
   <nav class="navbar">
-    <div class="nav-sphere"><img src="logo.png" alt="logo" /></div>
-    <span class="nav-title">医起AI·挑战赛</span>
+    <div class="nav-left">
+      <div class="nav-sphere"><img src="logo.png" alt="logo" /></div>
+      <span class="nav-title">医起AI·挑战赛</span>
+    </div>
+    <button class="nav-admin" onclick="window.open('admin.html','_blank')" title="管理后台">⚙️ 管理</button>
   </nav>
 
+  <!-- Hero -->
   <header class="hero">
     <h1>医起AI·挑战赛</h1>
     <div class="theme-text">"医"起追AI，赢在未来</div>
@@ -166,14 +200,9 @@ a{color:var(--text-secondary);text-decoration:none}
     </div>
   </div>
 
-  <!-- Sheet Content -->
-  <div class="sheet-content">
-    <table class="sheet-table">
-      <thead><tr>
-        <th>#</th><th>作品名称</th><th>描述</th><th>互动</th><th>操作</th>
-      </tr></thead>
-      <tbody id="sheet-body"></tbody>
-    </table>
+  <!-- 卡片瀑布流 -->
+  <div class="cards-container">
+    <div class="masonry" id="cards"></div>
   </div>
 </div>
 
@@ -237,7 +266,6 @@ async function doLogin(){
 }
 
 async function loadData(){
-  
   try{
     const col=db.collection('works');
     const res=await col.where({category:currentTab,visible:true}).orderBy('createdAt','desc').get();
@@ -248,46 +276,52 @@ async function loadData(){
 
 function switchTab(idx){
   currentTab=idx;
-  document.querySelectorAll('.sheet-tab').forEach(function(t){t.classList.toggle('active',parseInt(t.dataset.tab)===idx)});
+  document.querySelectorAll('.sheet-tab').forEach(t=>t.classList.toggle('active',parseInt(t.dataset.tab)===idx));
   loadData();
 }
 
 function renderWorks(){
-  var tbody=document.getElementById('sheet-body');
+  const container=document.getElementById('cards');
   if(!allWorks.length){
-    tbody.innerHTML='<tr><td colspan="5"><div class="empty-state"><div class="icon">\u2728</div><p>\u6682\u65e0\u4f5c\u54c1\uff0c\u656c\u8bf7\u671f\u5f85</p></div></td></tr>';
+    container.innerHTML='<div class="empty-state"><div class="icon">✨</div><p>暂无作品，敬请期待</p></div>';
     return;
   }
-  var html='';
-  for(var ri=0;ri<allWorks.length;ri++){
-    var w=allWorks[ri];
-    var stats=w._stats||{likes:0,comments:0,shares:0};
-    var liked=interactors[w._id]&&interactors[w._id].liked;
-    var num=ri+1;
-    html+='<tr class="work-row" data-wid="'+w._id+'">';
-    html+='<td>'+num+'</td>';
-    html+='<td><div class="work-title" title="'+escHtml(w.title||'')+'">'+escHtml(w.title||'\u672a\u547d\u540d\u4f5c\u54c1')+'</div></td>';
-    html+='<td><div class="work-desc" title="'+escHtml(w.description||'')+'">'+escHtml(w.description||'')+'</div></td>';
-    html+='<td><div class="work-stats">';
-    html+='<span class="stat-item">\u2764\ufe0f '+stats.likes+'</span>';
-    html+='<span class="stat-item">\ud83d\udcac '+stats.comments+'</span>';
-    html+='<span class="stat-item">\u2197\ufe0f '+stats.shares+'</span>';
-    html+='</div></td>';
-    html+='<td><div class="row-actions">';
-    html+='<button class="row-btn'+(liked?' liked':'')+'" onclick="toggleLike(\''+w._id+'\')"><span class="icon">'+(liked?'\u2764\ufe0f':'\ud83e\udd0d')+'</span> '+(liked?'\u5df2\u8d5e':'\u70b9\u8d5e')+'</button>';
-    html+='<button class="row-btn" onclick="toggleComment(\''+w._id+'\')"><span class="icon">\ud83d\udcac</span> \u8bc4\u8bba</button>';
-    html+='<button class="row-btn" onclick="openShareModal(\''+w._id+'\')"><span class="icon">\u2197\ufe0f</span> \u5206\u4eab</button>';
-    html+='</div></td>';
-    html+='</tr>';
-    if(interactors[w._id]&&interactors[w._id].commentOpen){
-      html+='<tr class="comment-row" data-cp="'+w._id+'">';
-      html+='<td colspan="5"><div class="comment-panel show">';
-      html+='<div class="comment-input-row"><input type="text" placeholder="\u5199\u8bc4\u8bba\u2026" id="comment-input-'+w._id+'" onkeydown="if(event.key===\'Enter\')submitComment(\''+w._id+'\')"><button onclick="submitComment(\''+w._id+'\')">\u53d1\u9001</button></div>';
-      html+='<div class="comment-list" id="comment-list-'+w._id+'"><div class="loading"><div class="spinner"></div></div></div>';
-      html+='</div></td></tr>';
-    }
+  let html='';
+  for(const w of allWorks){
+    const stats=w._stats||{likes:0,comments:0,shares:0};
+    const liked=interactors[w._id]&&interactors[w._id].liked;
+    const imgs=w.images||[];
+    const slide=interactors[w._id]&&interactors[w._id].slide?interactors[w._id].slide:0;
+
+    // Carousel
+    const slides=imgs.length?imgs.map((src,i)=>'<div class="carousel-slide"><img src="'+escHtml(src)+'" alt="" onerror="this.parentElement.innerHTML=\'<div style=\'aspect-ratio:3/4;background:#f0f0f0;display:flex;align-items:center;justify-content:center\'><span style=\'font-size:2rem;opacity:.4\'>🖼️</span></div>\'"></div>').join(''):'<div class="carousel-slide"><div style="aspect-ratio:3/4;background:linear-gradient(135deg,#f5f5f4,#e8e8e8);display:flex;align-items:center;justify-content:center"><span style="font-size:2rem;opacity:.4">🖼️</span></div></div>';
+    const dots=imgs.length>1?'<div class="carousel-dots" id="dots-'+w._id+'">'+imgs.map((_,i)=>'<div class="dot'+(i===slide?' active':'')+'"></div>').join('')+'</div>':'';
+    const arrows=imgs.length>1?'<button class="carousel-btn prev" onclick="event.stopPropagation();prevSlide(\''+w._id+'\')">‹</button><button class="carousel-btn next" onclick="event.stopPropagation();nextSlide(\''+w._id+'\')">›</button>':'';
+
+    html+='<div class="card" id="card-'+w._id+'" data-wid="'+w._id+'" onclick="openShareModal(\''+w._id+'\')">';
+    // Image
+    html+='<div class="card-carousel" id="carousel-'+w._id+'" data-wid="'+w._id+'"><div class="carousel-track" id="track-'+w._id+'" style="transform:translateX(-'+slide*100+'%)">'+slides+'</div>';
+    if(arrows)html+=arrows;
+    if(dots)html+=dots;
+    html+='</div>';
+    // Body
+    html+='<div class="card-body"><div class="card-title">'+escHtml(w.title||'未命名作品')+'</div>';
+    if(w.description)html+='<div class="card-desc">'+escHtml(w.description)+'</div>';
+    html+='</div>';
+    // Actions
+    html+='<div class="card-actions">';
+    html+='<button class="card-action'+(liked?' liked':'')+'" onclick="event.stopPropagation();toggleLike(\''+w._id+'\')" title="点赞"><span class="icon">'+(liked?'❤️':'🤍')+'</span><span>'+stats.likes+'</span></button>';
+    html+='<button class="card-action" onclick="event.stopPropagation();toggleComment(\''+w._id+'\')" title="评论"><span class="icon">💬</span><span id="comments-count-'+w._id+'">'+stats.comments+'</span></button>';
+    html+='<button class="card-action" onclick="event.stopPropagation();openShareModal(\''+w._id+'\')" title="分享"><span class="icon">↗️</span><span>'+stats.shares+'</span></button>';
+    html+='</div>';
+    // Comment panel
+    html+='<div class="comment-panel'+(interactors[w._id]&&interactors[w._id].commentOpen?' show':'')+'" id="comments-'+w._id+'">';
+    html+='<div class="comment-input-row"><input type="text" placeholder="写评论…" id="comment-input-'+w._id+'" onkeydown="if(event.key===\'Enter\')submitComment(\''+w._id+'\')"><button onclick="submitComment(\''+w._id+'\')">发送</button></div>';
+    html+='<div class="comment-list" id="comment-list-'+w._id+'"><div class="loading"><div class="spinner"></div></div></div>';
+    html+='</div>';
+    html+='</div>';
   }
-  tbody.innerHTML=html;
+  container.innerHTML=html;
   loadVisibleComments();
 }
 
@@ -297,17 +331,16 @@ function saveInteractors(){localStorage.setItem('works_interactors',JSON.stringi
 async function toggleLike(workId){
   if(!interactors[workId])interactors[workId]={};
   interactors[workId].liked=!interactors[workId].liked;saveInteractors();
-  var w=allWorks.find(function(x){return x._id===workId});
+  const w=allWorks.find(x=>x._id===workId);
   if(w&&w._stats){w._stats.likes+=interactors[workId].liked?1:-1}
-  try{await db.collection('likes').add({workId:workId,user_nickname:visitorName,user_department:visitorDepartment,deviceId:deviceId,timestamp:new Date()})}catch(e){}
+  try{await db.collection('likes').add({workId,user_nickname:visitorName,user_department:visitorDepartment,deviceId,timestamp:new Date()})}catch(e){}
   try{
-    var sc=db.collection('work_stats');
-    var res=await sc.where({workId:workId}).get();
+    const sc=db.collection('work_stats');
+    const res=await sc.where({workId}).get();
     if(res.data&&res.data.length>0){await sc.doc(res.data[0]._id).update({likes:res.data[0].likes+(interactors[workId].liked?1:-1)})}
-    else{await sc.add({workId:workId,likes:interactors[workId].liked?1:0,comments:0,shares:0})}
+    else{await sc.add({workId,likes:interactors[workId].liked?1:0,comments:0,shares:0})}
   }catch(e){}
   renderWorks();
-  if(interactors[workId].liked&&interactors[workId].commentOpen){loadComments(workId)}
 }
 
 function toggleComment(workId){
@@ -342,41 +375,12 @@ async function submitComment(workId){
     if(res.data&&res.data.length>0){await sc.doc(res.data[0]._id).update({comments:db.command.inc(1)})}
     else{await sc.add({workId,likes:0,comments:1,shares:0})}
     const w=allWorks.find(x=>x._id===workId);if(w&&w._stats)w._stats.comments++;
-    const cnt=document.getElementById('comments-count-'+workId);if(cnt)cnt.textContent=w&&w._stats?w._stats.comments:0;
-    loadComments(workId);showToast('评论成功 \u{1f389}');
+    renderWorks();loadComments(workId);showToast('评论成功 🎉');
   }catch(e){console.error('[submitComment] error:',e);showToast('评论失败，请重试')}
 }
 
 let visibleCommentsLoaded={};
-function loadVisibleComments(){allWorks.forEach(function(w){if(interactors[w._id]&&interactors[w._id].commentOpen&&!visibleCommentsLoaded[w._id]){visibleCommentsLoaded[w._id]=true;loadComments(w._id)}})}
-
-function openShareModal(workId){
-  shareWorkId=workId;const w=allWorks.find(x=>x._id===workId);
-  const url=w?(window.location.origin+window.location.pathname+'#'+workId):window.location.href;
-  document.getElementById('share-url').value=url;document.getElementById('share-modal').classList.add('show');
-}
-function closeShareModal(){document.getElementById('share-modal').classList.remove('show');shareWorkId=''}
-
-function shareCopy(){
-  const input=document.getElementById('share-url');input.select();
-  navigator.clipboard.writeText(input.value).then(()=>{showToast('链接已复制 \u{1f517}');recordShare(shareWorkId,'link');closeShareModal()}).catch(()=>{document.execCommand('copy');showToast('链接已复制 \u{1f517}');recordShare(shareWorkId,'link');closeShareModal()});
-}
-function shareFeishu(){
-  const url=document.getElementById('share-url').value;const w=allWorks.find(x=>x._id===shareWorkId);
-  const title=w?w.title:'医起AI\u00b7挑战赛作品';
-  navigator.clipboard.writeText('\u6765\u770b\u770b\u300c'+title+'\u300d\u5427\uff01'+url).then(()=>{showToast('已复制到剪贴板，请在飞书中粘贴发送');recordShare(shareWorkId,'feishu');closeShareModal()}).catch(()=>{showToast('复制失败，请手动复制链接')});
-}
-function shareWechat(){recordShare(shareWorkId,'wechat');shareCopy();showToast('链接已复制，请在微信中粘贴分享')}
-
-async function recordShare(workId,platform){
-  try{await db.collection('shares').add({workId,user_nickname:visitorName,user_department:visitorDepartment,deviceId,platform:platform||'link',timestamp:new Date()})}catch(e){}
-  try{
-    const sc=db.collection('work_stats');const res=await sc.where({workId}).get();
-    if(res.data&&res.data.length>0){await sc.doc(res.data[0]._id).update({shares:db.command.inc(1)})}
-    else{await sc.add({workId,likes:0,comments:0,shares:1})}
-    const w=allWorks.find(x=>x._id===workId);if(w&&w._stats)w._stats.shares++;
-  }catch(e){}
-}
+function loadVisibleComments(){allWorks.forEach(w=>{if(interactors[w._id]&&interactors[w._id].commentOpen&&!visibleCommentsLoaded[w._id]){visibleCommentsLoaded[w._id]=true;loadComments(w._id)}})}
 
 function goSlide(workId,idx){
   const w=allWorks.find(x=>x._id===workId);if(!w)return;
@@ -390,14 +394,39 @@ function goSlide(workId,idx){
 function nextSlide(workId){const w=allWorks.find(x=>x._id===workId);if(!w)return;const idx=(interactors[workId]&&interactors[workId].slide||0)+1;goSlide(workId,idx%(w.images||[]).length)}
 function prevSlide(workId){const w=allWorks.find(x=>x._id===workId);if(!w)return;const imgs=w.images||[];const idx=(interactors[workId]&&interactors[workId].slide||0)-1;goSlide(workId,idx<0?imgs.length-1:idx)}
 
-function scrollToWorkFromHash(){var hash=window.location.hash.slice(1);if(!hash)return;var row=document.querySelector('.work-row[data-wid="'+hash+'"]');if(row)setTimeout(function(){row.scrollIntoView({behavior:'smooth',block:'center'})},300)}
+function openShareModal(workId){
+  shareWorkId=workId;const w=allWorks.find(x=>x._id===workId);
+  const url=w?(window.location.origin+window.location.pathname+'#'+workId):window.location.href;
+  document.getElementById('share-url').value=url;document.getElementById('share-modal').classList.add('show');
+}
+function closeShareModal(){document.getElementById('share-modal').classList.remove('show');shareWorkId=''}
+
+function shareCopy(){
+  const input=document.getElementById('share-url');input.select();
+  navigator.clipboard.writeText(input.value).then(()=>{showToast('链接已复制 🔗');recordShare(shareWorkId,'link');closeShareModal()}).catch(()=>{document.execCommand('copy');showToast('链接已复制 🔗');recordShare(shareWorkId,'link');closeShareModal()});
+}
+function shareFeishu(){
+  const url=document.getElementById('share-url').value;const w=allWorks.find(x=>x._id===shareWorkId);
+  const title=w?w.title:'医起AI·挑战赛作品';
+  navigator.clipboard.writeText('来看看「'+title+'」吧！'+url).then(()=>{showToast('已复制到剪贴板，请在飞书中粘贴发送');recordShare(shareWorkId,'feishu');closeShareModal()}).catch(()=>{showToast('复制失败，请手动复制链接')});
+}
+function shareWechat(){recordShare(shareWorkId,'wechat');shareCopy();showToast('链接已复制，请在微信中粘贴分享')}
+
+async function recordShare(workId,platform){
+  try{await db.collection('shares').add({workId,user_nickname:visitorName,user_department:visitorDepartment,deviceId,platform:platform||'link',timestamp:new Date()})}catch(e){}
+  try{
+    const sc=db.collection('work_stats');const res=await sc.where({workId}).get();
+    if(res.data&&res.data.length>0){await sc.doc(res.data[0]._id).update({shares:db.command.inc(1)})}
+    else{await sc.add({workId,likes:0,comments:0,shares:1})}
+    const w=allWorks.find(x=>x._id===workId);if(w&&w._stats)w._stats.shares++;
+  }catch(e){}
+}
+
+function scrollToWorkFromHash(){const hash=window.location.hash.slice(1);if(!hash)return;const card=document.getElementById('card-'+hash);if(card)setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'center'}),300)}
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),2500)}
 function escHtml(s){if(!s)return '';const d=document.createElement('div');d.textContent=String(s);return d.innerHTML}
 function formatTime(v){if(v instanceof Date)return v.toLocaleString('zh-CN');if(typeof v==='string'){try{return new Date(v).toLocaleString('zh-CN')}catch(e){return v}}if(v&&v.$date)return new Date(v.$date).toLocaleString('zh-CN');return ''}
-
-// 粒子生成（已弃用，保留函数定义避免引用报错）
-function createParticles(){}
 
 async function init(){
   await initCloudBase();initDeviceId();
