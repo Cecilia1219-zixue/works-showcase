@@ -401,6 +401,8 @@ async function submitWork(){
 
 // ===== Init =====
 if(isAuth()){initDB().then(loadAll)}else{document.getElementById('pwIn').focus()}
+// Bind submit button
+setTimeout(function(){var btn=document.getElementById('btn-submit');if(btn)btn.onclick=submitWork},500)
 </script>
 </body>
 </html>
