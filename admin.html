@@ -153,7 +153,23 @@ function toast(m){var t=document.getElementById('toast');t.textContent=m;t.class
 
 function switchT(t){document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.toggle('active',b.dataset.t===t)});document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});document.getElementById('p-'+t).classList.add('active')}
 
-async function initDB(){app=cloudbase.init({env:EI,publishableKey:PK});auth=app.auth({persistence:'local'});db=app.database();await auth.anonymousAuthProvider().signIn();dbReady=true}
+async function initDB(){
+  try{
+    app=cloudbase.init({env:EI,publishableKey:PK});
+    console.log('cloudbase.init OK');
+    auth=app.auth({persistence:'local'});
+    console.log('auth init OK');
+    db=app.database();
+    console.log('db init OK');
+    await auth.anonymousAuthProvider().signIn();
+    console.log('anonymous signIn OK');
+    dbReady=true;
+    console.log('DB fully ready');
+  }catch(e){
+    console.error('DB init failed:',e);
+    toast('数据库初始化失败: '+e.message);
+  }
+}
 
 async function loadAll(){try{await loadD();rDash();rWT();rUT();rVT()}catch(e){toast('数据加载失败: '+e.message)}}
 
