@@ -26,17 +26,19 @@ body{
 a{color:var(--teal);text-decoration:none}
 
 /* ── 登录页 ── */
-#login-overlay{position:fixed;inset:0;z-index:1000;display:flex;background:var(--bg);transition:opacity .5s,visibility .5s}
+#login-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:var(--bg);transition:opacity .5s,visibility .5s;overflow:hidden}
 #login-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
-.login-left{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(0,172,193,0.08),rgba(21,101,192,0.06));position:relative;overflow:hidden}
-.logo-sphere{width:120px;height:120px;border-radius:50%;overflow:hidden;box-shadow:0 8px 32px rgba(0,172,193,0.25);position:relative;flex-shrink:0}
-.logo-sphere img{width:100%;height:100%;object-fit:cover;display:block}
-.login-left h1{font-size:2.2rem;font-weight:700;margin-top:1.5rem;color:var(--text-primary);letter-spacing:-0.02em;text-align:center}
-.login-left .theme-text{font-family:'Dancing Script','Georgia',cursive;font-size:1.2rem;color:rgba(26,26,26,0.35);margin-top:.3rem;font-style:italic;letter-spacing:.03em}
-.login-right{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem}
-.login-form{width:100%;max-width:380px}
-.login-form h2{font-size:1.6rem;font-weight:700;color:var(--text-primary);margin-bottom:.5rem;letter-spacing:-0.02em}
-.login-form>p{color:var(--text-dim);margin-bottom:2rem;font-size:.9rem}
+.login-hero{position:absolute;inset:0;z-index:0;overflow:hidden}
+.login-hero img{width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(0.92);opacity:.18}
+.login-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,var(--bg) 0%,transparent 20%,transparent 80%,var(--bg) 100%)}
+.login-card{position:relative;z-index:1;background:rgba(255,255,255,0.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(0,0,0,0.06);border-radius:24px;padding:2.5rem 2rem;width:90%;max-width:420px;box-shadow:0 16px 48px rgba(0,0,0,0.08);text-align:center}
+.login-card .logo-sphere{width:80px;height:80px;margin:0 auto 1.2rem;border-radius:50%;overflow:hidden;box-shadow:0 4px 20px rgba(0,172,193,0.15)}
+.login-card .logo-sphere img{width:100%;height:100%;object-fit:cover;display:block}
+.login-card h1{font-size:1.6rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.02em;margin-bottom:.2rem}
+.login-card .theme-text{font-family:'Dancing Script','Georgia',cursive;font-size:1rem;color:rgba(26,26,26,0.3);margin-bottom:1.5rem;font-style:italic}
+.login-card .login-form{text-align:left}
+.login-card .login-form h2{display:none}
+.login-card .login-form>p{text-align:center;color:var(--text-dim);margin-bottom:1.5rem;font-size:.85rem}
 .form-input{width:100%;padding:14px 16px;margin-bottom:1rem;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-primary);font-size:1rem;outline:none;transition:border-color .2s,box-shadow .2s}
 .form-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,172,193,0.1)}
 .form-input::placeholder{color:var(--text-dim)}
@@ -47,7 +49,7 @@ a{color:var(--teal);text-decoration:none}
 .btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
 .login-error{color:#E53935;font-size:.82rem;margin-top:.25rem;display:none}
 .login-hint{color:var(--text-dim);font-size:.75rem;margin-top:.75rem;text-align:center}
-@media(max-width:768px){#login-overlay{flex-direction:column}.login-left{padding:2rem 1.5rem;min-height:30vh}.login-left h1{font-size:1.5rem}.login-left .theme-text{font-size:1rem}.logo-sphere{width:90px;height:90px;font-size:2.2rem}.login-right{padding:1.5rem}}
+@media(max-width:768px){.login-card{padding:2rem 1.5rem;width:92%;max-width:360px;border-radius:20px}.login-card h1{font-size:1.3rem}.login-card .theme-text{font-size:.9rem}}
 
 /* ── 主内容 ── */
 #main{position:relative;z-index:1;display:none}
@@ -157,14 +159,12 @@ a{color:var(--teal);text-decoration:none}
 
 <!-- 登录页 -->
 <div id="login-overlay">
-  <div class="login-left">
+  <div class="login-hero"><img src="hero.jpg" alt="hero" /></div>
+  <div class="login-card">
     <div class="logo-sphere"><img src="logo.png" alt="logo" /></div>
     <h1>医起AI·挑战赛</h1>
     <div class="theme-text">"医"起追AI，赢在未来</div>
-  </div>
-  <div class="login-right">
     <div class="login-form">
-      <h2>欢迎加入</h2>
       <p>填写昵称和部门，30天内免重复登录</p>
       <input class="form-input" id="name-input" placeholder="你的昵称" autocomplete="nickname" />
       <input class="form-input" id="dept-input" placeholder="所属部门" autocomplete="organization-title" />
@@ -202,16 +202,17 @@ a{color:var(--teal);text-decoration:none}
 </div>
 
 <!-- 分享弹窗 -->
-<div class="modal-overlay" id="share-modal">
+<div class="modal-overlay" id="share-modal" onclick="if(event.target===this)closeShareModal()">
   <div class="modal">
+    <button onclick="closeShareModal()" style="position:absolute;top:12px;right:12px;background:transparent;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-dim);line-height:1">&times;</button>
     <h3>分享给朋友</h3>
     <div class="share-buttons">
-      <button class="share-btn feishu" title="飞书" onclick="shareAction('feishu')">📎</button>
-      <button class="share-btn wechat" title="微信" onclick="shareAction('wechat')">💬</button>
+      <button class="share-btn feishu" title="飞书" onclick="shareFeishu()">📎</button>
+      <button class="share-btn wechat" title="微信" onclick="shareWechat()">💬</button>
     </div>
     <div class="share-link">
       <input id="share-url" readonly />
-      <button onclick="copyShareLink()">复制</button>
+      <button onclick="shareCopy()">复制</button>
     </div>
   </div>
 </div>
@@ -261,7 +262,7 @@ async function doLogin(){
 }
 
 async function loadData(){
-  const container=document.getElementById('cards-container');
+  const container=document.getElementById('cards');
   try{
     const col=db.collection('works');
     const res=await col.where({category:currentTab,visible:true}).orderBy('createdAt','desc').get();
@@ -277,7 +278,7 @@ function switchTab(idx){
 }
 
 function renderWorks(){
-  const container=document.getElementById('cards-container');
+  const container=document.getElementById('cards');
   if(!allWorks.length){
     container.innerHTML='<div class="empty-state"><div class="icon">✨</div><p>暂无作品，敬请期待</p></div>';
     return;
