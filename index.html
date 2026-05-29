@@ -14,25 +14,17 @@
   --text-primary:#1A1A1A;--text-secondary:#666;--text-dim:#999;
   --accent:#1A1A1A;--accent-h:#333;
   --card-shadow:0 2px 12px rgba(0,0,0,0.06);
-  --card-shadow-h:0 8px 32px rgba(0,0,0,0.10);
   --card-radius:16px;--chip-bg:rgba(0,0,0,0.06);
   --nav-bg:rgba(255,255,255,0.82);--nav-shadow:0 2px 12px rgba(0,0,0,0.06);
   --border:rgba(0,0,0,0.08);--border-h:rgba(0,0,0,0.12);
+  --sheet-tab:#E8E8E8;--sheet-tab-active:#fff;--sheet-header:#F0F0F0;--sheet-row-h:rgba(0,0,0,0.03);
 }
 html{scroll-behavior:smooth}
-body{
-  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
-  background:var(--bg);color:var(--text-primary);min-height:100vh;line-height:1.6;overflow-x:hidden;
-}
-
-/* ── 全局背景 ── */
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;line-height:1.6;overflow-x:hidden}
+a{color:var(--text-secondary);text-decoration:none}
 .site-bg{position:fixed;inset:0;z-index:-2;overflow:hidden}
 .site-bg img{width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(0.88) saturate(0.9);opacity:.12}
 .site-bg::after{content:'';position:absolute;inset:0;background:rgba(245,245,244,0.55)}
-
-a{color:var(--text-secondary);text-decoration:none}
-
-/* ── 登录页 ── */
 #login-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;transition:opacity .5s,visibility .5s;overflow:hidden}
 #login-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
 .login-card{position:relative;z-index:1;background:var(--surface);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--border);border-radius:24px;padding:2.5rem 2rem;width:90%;max-width:420px;box-shadow:0 16px 48px rgba(0,0,0,0.08);text-align:center}
@@ -53,71 +45,54 @@ a{color:var(--text-secondary);text-decoration:none}
 .login-error{color:#E53935;font-size:.82rem;margin-top:.25rem;display:none}
 .login-hint{color:var(--text-dim);font-size:.75rem;margin-top:.75rem;text-align:center}
 @media(max-width:768px){.login-card{padding:2rem 1.5rem;width:92%;max-width:360px;border-radius:20px}.login-card h1{font-size:1.3rem}.login-card .theme-text{font-size:.8rem}}
-
-/* ── 主内容 ── */
 #main{position:relative;z-index:1;display:none}
 #main.show{display:block}
-
-/* 导航 */
 .navbar{position:sticky;top:0;z-index:100;padding:10px 1.5rem;display:flex;align-items:center;gap:12px;background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--nav-shadow);border-radius:0 0 20px 20px}
 .nav-sphere{width:36px;height:36px;border-radius:50%;flex-shrink:0;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
 .nav-sphere img{width:100%;height:100%;object-fit:cover;display:block}
 .nav-title{font-weight:700;font-size:1.1rem;color:var(--text-primary);letter-spacing:-0.01em}
-
-/* Hero */
-.hero{text-align:center;padding:2.5rem 1.5rem 1.5rem}
+.hero{text-align:center;padding:2.5rem 1.5rem 1rem}
 .hero h1{font-size:2.2rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.03em}
 .hero .theme-text{font-family:'Orbitron','Rajdhani','Courier New',monospace;font-size:1rem;color:rgba(26,26,26,0.35);margin-top:.5rem;letter-spacing:.2em;text-transform:uppercase}
-.hero .subtitle{color:var(--text-dim);font-size:.85rem;margin-top:.4rem}
-
-/* Tabs */
-.tabs-wrap{max-width:1100px;margin:0 auto;padding:0 1.5rem}
-.tabs{display:flex;gap:4px;margin-bottom:1.5rem;overflow-x:auto;padding:4px;background:var(--chip-bg);border-radius:14px;width:fit-content}
-.tab{padding:10px 20px;cursor:pointer;font-size:.9rem;color:var(--text-secondary);border-radius:10px;transition:all .2s;white-space:nowrap;user-select:none;font-weight:500}
-.tab:hover{color:var(--text-primary)}
-.tab.active{background:var(--surface);color:var(--text-primary);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
-
-/* ── 作品卡片 ── */
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem;max-width:1100px;margin:0 auto;padding:0 1.5rem 3rem}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);overflow:hidden;box-shadow:var(--card-shadow);transition:transform .25s,box-shadow .25s}
-.card:hover{transform:translateY(-4px);box-shadow:var(--card-shadow-h)}
-.carousel{position:relative;height:200px;overflow:hidden;background:#F0F0F0}
-.carousel-track{display:flex;height:100%;transition:transform .35s cubic-bezier(.25,.1,.25,1)}
-.carousel-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-.carousel-slide img{width:100%;height:100%;object-fit:cover}
-.carousel-slide .placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(0,0,0,0.02),rgba(0,0,0,0.04));font-size:2.5rem}
-.carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,0.9);color:var(--text-primary);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;box-shadow:0 2px 8px rgba(0,0,0,0.1);z-index:2}
-.carousel-btn:hover{background:#fff}
-.carousel-btn.prev{left:8px}.carousel-btn.next{right:8px}
-.carousel-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:2}
-.dot{width:8px;height:8px;border-radius:50%;background:rgba(0,0,0,0.15);cursor:pointer;transition:background .2s,transform .2s}
-.dot.active{background:var(--accent);transform:scale(1.3)}
-.card-body{padding:1.25rem}
-.card-title{font-size:1.05rem;font-weight:600;margin-bottom:.4rem;color:var(--text-primary)}
-.card-desc{font-size:.85rem;color:var(--text-secondary);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.card-actions{display:flex;gap:.25rem;padding:.5rem 1rem;border-top:1px solid var(--border)}
-.action-btn{display:flex;align-items:center;gap:4px;padding:6px 12px;border:none;background:transparent;color:var(--text-dim);font-size:.8rem;cursor:pointer;border-radius:8px;transition:color .15s,background .15s}
-.action-btn:hover{background:rgba(0,0,0,0.04);color:var(--text-primary)}
-.action-btn.active{color:var(--accent)}
-.action-btn .icon{font-size:1rem}
-
-/* ── 评论 ── */
-.comments-section{display:none;padding:.75rem 1rem 1rem;border-top:1px solid var(--border);background:var(--bg-alt)}
-.comments-section.show{display:block}
-.comment-input-wrap{display:flex;gap:8px;margin-bottom:.75rem}
-.comment-input-wrap input{flex:1;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-primary);font-size:.85rem;outline:none;transition:border-color .2s}
-.comment-input-wrap input:focus{border-color:var(--accent)}
-.comment-input-wrap button{padding:8px 16px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:.8rem;cursor:pointer;white-space:nowrap;font-weight:500;transition:opacity .2s}
-.comment-input-wrap button:hover{opacity:.85}
-.comment-list{max-height:200px;overflow-y:auto}
-.comment-item{padding:8px 0;font-size:.8rem;border-bottom:1px solid var(--border)}
+.sheet-bar{max-width:1100px;margin:0 auto;padding:0 1.5rem;position:relative}
+.sheet-tabs{display:flex;align-items:flex-end;gap:0}
+.sheet-tab{padding:8px 24px;font-size:.85rem;font-weight:500;cursor:pointer;background:var(--sheet-tab);color:var(--text-secondary);border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;transition:all .2s;user-select:none;position:relative;bottom:-1px}
+.sheet-tab:hover{background:rgba(255,255,255,0.6);color:var(--text-primary)}
+.sheet-tab.active{background:var(--sheet-tab-active);color:var(--text-primary);font-weight:600;border-bottom-color:var(--sheet-tab-active)}
+.sheet-content{background:var(--surface);border:1px solid var(--border);border-radius:0 var(--card-radius) var(--card-radius) var(--card-radius);box-shadow:var(--card-shadow);overflow:hidden}
+.sheet-table{width:100%;border-collapse:collapse}
+.sheet-table thead th{background:var(--sheet-header);padding:10px 14px;font-size:.8rem;font-weight:600;color:var(--text-secondary);text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:2}
+.sheet-table thead th:first-child{width:40px;text-align:center}
+.sheet-table thead th:nth-child(4){width:200px;text-align:center}
+.sheet-table thead th:last-child{width:220px;text-align:center}
+.sheet-table tbody tr{transition:background .15s}
+.sheet-table tbody tr:hover{background:var(--sheet-row-h)}
+.sheet-table tbody td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:.85rem}
+.sheet-table tbody td:first-child{text-align:center;color:var(--text-dim);font-weight:500}
+.sheet-table tbody td:last-child{text-align:center}
+.work-title{font-weight:600;color:var(--text-primary);margin-bottom:2px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.work-desc{color:var(--text-dim);font-size:.78rem;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.work-stats{display:flex;gap:12px;justify-content:center;align-items:center}
+.stat-item{display:flex;align-items:center;gap:3px;font-size:.8rem;color:var(--text-secondary);white-space:nowrap}
+.stat-item .icon{font-size:.9rem}
+.row-actions{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.row-btn{display:inline-flex;align-items:center;gap:3px;padding:5px 10px;border:none;background:var(--chip-bg);color:var(--text-secondary);font-size:.75rem;cursor:pointer;border-radius:6px;transition:all .15s;white-space:nowrap}
+.row-btn:hover{background:rgba(0,0,0,0.1);color:var(--text-primary)}
+.row-btn.liked{color:#E53935;background:rgba(229,57,53,0.08)}
+.row-btn .icon{font-size:.85rem}
+.comment-panel{padding:10px 14px;background:var(--bg-alt)}
+.comment-panel.show{display:block}
+.comment-input-row{display:flex;gap:8px;margin-bottom:8px}
+.comment-input-row input{flex:1;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-primary);font-size:.8rem;outline:none}
+.comment-input-row input:focus{border-color:var(--accent)}
+.comment-input-row button{padding:6px 14px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-size:.75rem;cursor:pointer;font-weight:500}
+.comment-list{max-height:120px;overflow-y:auto;padding:0 0 4px}
+.comment-item{padding:4px 0;font-size:.75rem;border-bottom:1px solid rgba(0,0,0,0.04)}
 .comment-item:last-child{border-bottom:none}
 .comment-author{color:var(--text-primary);font-weight:500}
-.comment-dept{display:inline-block;padding:1px 8px;border-radius:10px;background:rgba(0,0,0,0.06);color:var(--text-secondary);font-size:.7rem;margin-left:4px;vertical-align:middle}
-.comment-time{color:var(--text-dim);margin-left:8px;font-size:.75rem}
-.comment-text{margin-top:3px;color:var(--text-secondary)}
-
-/* ── 分享弹窗 ── */
+.comment-dept{display:inline-block;padding:1px 6px;border-radius:8px;background:rgba(0,0,0,0.06);color:var(--text-secondary);font-size:.65rem;margin-left:4px;vertical-align:middle}
+.comment-time{color:var(--text-dim);margin-left:6px;font-size:.7rem}
+.comment-text{margin-top:2px;color:var(--text-secondary)}
 .modal-overlay{position:fixed;inset:0;z-index:998;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
 .modal-overlay.show{opacity:1;visibility:visible}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);padding:1.5rem;width:90%;max-width:400px;box-shadow:0 16px 48px rgba(0,0,0,0.12);transform:translateY(20px);transition:transform .25s;position:relative}
@@ -132,29 +107,21 @@ a{color:var(--text-secondary);text-decoration:none}
 .share-link{display:flex;gap:8px}
 .share-link input{flex:1;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text-primary);font-size:.8rem;outline:none}
 .share-link button{padding:8px 14px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:.8rem;cursor:pointer;font-weight:500}
-
-/* ── Toast ── */
 .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(26,26,26,0.9);backdrop-filter:blur(8px);color:#fff;padding:10px 20px;border-radius:12px;font-size:.9rem;z-index:9999;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,0.15)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* ── 空状态 ── */
-.empty-state{display:flex!important;flex-direction:column;align-items:center;justify-content:center;padding:5rem 2rem;text-align:center;grid-column:1/-1;min-height:50vh}
+.empty-state{display:flex!important;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;text-align:center;min-height:300px}
 .empty-state .icon{font-size:3rem;margin-bottom:1rem;opacity:.5}
 .empty-state p{font-size:1rem;color:var(--text-secondary)}
-
-/* ── Loading ── */
-.loading{display:flex;align-items:center;justify-content:center;padding:3rem;color:var(--text-dim)}
-.loading .spinner{width:24px;height:24px;border:2px solid var(--chip-bg);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-right:10px}
+.loading{display:flex;align-items:center;justify-content:center;padding:1rem;color:var(--text-dim)}
+.loading .spinner{width:20px;height:20px;border:2px solid var(--chip-bg);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
-
 @media(max-width:768px){
   .hero{padding:2rem 1rem 1rem}.hero h1{font-size:1.5rem}.hero .theme-text{font-size:.8rem}
-  .cards{grid-template-columns:1fr;gap:1rem;padding:0 1rem 2rem}
-  .carousel{height:180px}
-  .navbar{padding:10px 1rem;border-radius:0 0 16px 16px}
-  .tabs-wrap{padding:0 1rem}
+  .sheet-bar{padding:0 .75rem}
+  .sheet-tab{padding:6px 16px;font-size:.8rem}
+  .sheet-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .work-desc{max-width:150px}
 }
-
 </style>
 </head>
 <body>
@@ -181,28 +148,33 @@ a{color:var(--text-secondary);text-decoration:none}
 
 <!-- 主内容 -->
 <div id="main">
-  <!-- 导航栏 -->
   <nav class="navbar">
     <div class="nav-sphere"><img src="logo.png" alt="logo" /></div>
     <span class="nav-title">医起AI·挑战赛</span>
   </nav>
 
-  <!-- Hero -->
   <header class="hero">
     <h1>医起AI·挑战赛</h1>
     <div class="theme-text">"医"起追AI，赢在未来</div>
   </header>
 
-  <!-- Tabs -->
-  <div class="tabs-wrap">
-    <div class="tabs" id="tab-bar">
-      <div class="tab active" data-tab="0">"医"起打擂台</div>
-      <div class="tab" data-tab="1">"医"高人胆大</div>
+  <!-- Sheet Tabs -->
+  <div class="sheet-bar">
+    <div class="sheet-tabs" id="tab-bar">
+      <div class="sheet-tab active" data-tab="0" onclick="switchTab(0)">📋 "医"起打擂台</div>
+      <div class="sheet-tab" data-tab="1" onclick="switchTab(1)">📋 "医"高人胆大</div>
     </div>
   </div>
 
-  <!-- 作品列表 -->
-  <div class="cards" id="cards"></div>
+  <!-- Sheet Content -->
+  <div class="sheet-content">
+    <table class="sheet-table">
+      <thead><tr>
+        <th>#</th><th>作品名称</th><th>描述</th><th>互动</th><th>操作</th>
+      </tr></thead>
+      <tbody id="sheet-body"></tbody>
+    </table>
+  </div>
 </div>
 
 <!-- 分享弹窗 -->
@@ -215,8 +187,7 @@ a{color:var(--text-secondary);text-decoration:none}
       <button class="share-btn wechat" title="微信" onclick="shareWechat()">💬</button>
     </div>
     <div class="share-link">
-      <input id="share-url" readonly />
-      <button onclick="shareCopy()">复制</button>
+      <input id="share-url" readonly /><button onclick="shareCopy()">复制</button>
     </div>
   </div>
 </div>
@@ -266,7 +237,7 @@ async function doLogin(){
 }
 
 async function loadData(){
-  const container=document.getElementById('cards');
+  
   try{
     const col=db.collection('works');
     const res=await col.where({category:currentTab,visible:true}).orderBy('createdAt','desc').get();
@@ -277,45 +248,47 @@ async function loadData(){
 
 function switchTab(idx){
   currentTab=idx;
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',parseInt(t.dataset.tab)===idx));
+  document.querySelectorAll('.sheet-tab').forEach(function(t){t.classList.toggle('active',parseInt(t.dataset.tab)===idx)});
   loadData();
 }
 
 function renderWorks(){
-  const container=document.getElementById('cards');
+  var tbody=document.getElementById('sheet-body');
   if(!allWorks.length){
-    container.innerHTML='<div class="empty-state"><div class="icon">✨</div><p>暂无作品，敬请期待</p></div>';
+    tbody.innerHTML='<tr><td colspan="5"><div class="empty-state"><div class="icon">\u2728</div><p>\u6682\u65e0\u4f5c\u54c1\uff0c\u656c\u8bf7\u671f\u5f85</p></div></td></tr>';
     return;
   }
-  container.innerHTML=allWorks.map(w=>{
-    const imgs=w.images||[];
-    const hasCarousel=imgs.length>1;
-    const slides=imgs.length?imgs.map((src,i)=>'<div class="carousel-slide"><img src="'+escHtml(src)+'" alt="" onerror="this.parentElement.innerHTML=\'<div class=placeholder>\u{1f5bc}\u{fe0f}</div>\'"></div>').join(''):'<div class="carousel-slide"><div class="placeholder">\u{1f5bc}\u{fe0f}</div></div>';
-    const dots=imgs.length>1?imgs.map((_,i)=>'<div class="dot'+(i===0?' active':'')+'" data-w="'+w._id+'" onclick="goSlide(\''+w._id+'\','+i+')"></div>').join(''):'';
-    const arrows=hasCarousel?'<button class="carousel-btn prev" onclick="prevSlide(\''+w._id+'\')">\u2039</button><button class="carousel-btn next" onclick="nextSlide(\''+w._id+'\')">\u203a</button>':'';
-    const stats=w._stats||{likes:0,comments:0,shares:0};
-    const liked=interactors[w._id]&&interactors[w._id].liked;
-    const commentOpen=interactors[w._id]&&interactors[w._id].commentOpen;
-    return '<div class="card" id="card-'+w._id+'">'+
-      '<div class="carousel" data-wid="'+w._id+'"><div class="carousel-track" id="track-'+w._id+'">'+slides+'</div>'+arrows+
-      '<div class="carousel-dots" id="dots-'+w._id+'">'+dots+'</div></div>'+
-      '<div class="card-body"><div class="card-title">'+escHtml(w.title||'未命名作品')+'</div><div class="card-desc">'+escHtml(w.description||'')+'</div></div>'+
-      '<div class="card-actions">'+
-      '<button class="action-btn'+(liked?' active':'')+'" onclick="toggleLike(\''+w._id+'\')"><span class="icon">'+(liked?'\u2764\u{fe0f}':'\u{1f90d}')+'</span><span id="likes-'+w._id+'">'+stats.likes+'</span></button>'+
-      '<button class="action-btn'+(commentOpen?' active':'')+'" onclick="toggleComment(\''+w._id+'\')"><span class="icon">\u{1f4ac}</span><span id="comments-count-'+w._id+'">'+stats.comments+'</span></button>'+
-      '<button class="action-btn" onclick="openShareModal(\''+w._id+'\')"><span class="icon">\u{2197}\u{fe0f}</span><span>'+stats.shares+'</span></button>'+
-      '</div>'+
-      '<div class="comments-section'+(commentOpen?' show':'')+'" id="comments-'+w._id+'">'+
-      '<div class="comment-input-wrap"><input type="text" placeholder="写评论\u2026" id="comment-input-'+w._id+'" onkeydown="if(event.key===\'Enter\')submitComment(\''+w._id+'\')"><button onclick="submitComment(\''+w._id+'\')">发送</button></div>'+
-      '<div class="comment-list" id="comment-list-'+w._id+'"><div class="loading"><div class="spinner"></div></div></div>'+
-      '</div></div>';
-  }).join('');
-  allWorks.forEach(w=>{
-    if(!interactors[w._id])interactors[w._id]={slide:0};
-    if(!interactors[w._id].slide)interactors[w._id].slide=0;
-    goSlide(w._id,interactors[w._id].slide);
-  });
-  scrollToWorkFromHash();loadVisibleComments();
+  var html='';
+  for(var ri=0;ri<allWorks.length;ri++){
+    var w=allWorks[ri];
+    var stats=w._stats||{likes:0,comments:0,shares:0};
+    var liked=interactors[w._id]&&interactors[w._id].liked;
+    var num=ri+1;
+    html+='<tr class="work-row" data-wid="'+w._id+'">';
+    html+='<td>'+num+'</td>';
+    html+='<td><div class="work-title" title="'+escHtml(w.title||'')+'">'+escHtml(w.title||'\u672a\u547d\u540d\u4f5c\u54c1')+'</div></td>';
+    html+='<td><div class="work-desc" title="'+escHtml(w.description||'')+'">'+escHtml(w.description||'')+'</div></td>';
+    html+='<td><div class="work-stats">';
+    html+='<span class="stat-item">\u2764\ufe0f '+stats.likes+'</span>';
+    html+='<span class="stat-item">\ud83d\udcac '+stats.comments+'</span>';
+    html+='<span class="stat-item">\u2197\ufe0f '+stats.shares+'</span>';
+    html+='</div></td>';
+    html+='<td><div class="row-actions">';
+    html+='<button class="row-btn'+(liked?' liked':'')+'" onclick="toggleLike(\''+w._id+'\')"><span class="icon">'+(liked?'\u2764\ufe0f':'\ud83e\udd0d')+'</span> '+(liked?'\u5df2\u8d5e':'\u70b9\u8d5e')+'</button>';
+    html+='<button class="row-btn" onclick="toggleComment(\''+w._id+'\')"><span class="icon">\ud83d\udcac</span> \u8bc4\u8bba</button>';
+    html+='<button class="row-btn" onclick="openShareModal(\''+w._id+'\')"><span class="icon">\u2197\ufe0f</span> \u5206\u4eab</button>';
+    html+='</div></td>';
+    html+='</tr>';
+    if(interactors[w._id]&&interactors[w._id].commentOpen){
+      html+='<tr class="comment-row" data-cp="'+w._id+'">';
+      html+='<td colspan="5"><div class="comment-panel show">';
+      html+='<div class="comment-input-row"><input type="text" placeholder="\u5199\u8bc4\u8bba\u2026" id="comment-input-'+w._id+'" onkeydown="if(event.key===\'Enter\')submitComment(\''+w._id+'\')"><button onclick="submitComment(\''+w._id+'\')">\u53d1\u9001</button></div>';
+      html+='<div class="comment-list" id="comment-list-'+w._id+'"><div class="loading"><div class="spinner"></div></div></div>';
+      html+='</div></td></tr>';
+    }
+  }
+  tbody.innerHTML=html;
+  loadVisibleComments();
 }
 
 function loadInteractors(){try{const s=localStorage.getItem('works_interactors');if(s)interactors={...interactors,...JSON.parse(s)}}catch(e){}}
@@ -324,25 +297,24 @@ function saveInteractors(){localStorage.setItem('works_interactors',JSON.stringi
 async function toggleLike(workId){
   if(!interactors[workId])interactors[workId]={};
   interactors[workId].liked=!interactors[workId].liked;saveInteractors();
-  const w=allWorks.find(x=>x._id===workId);
+  var w=allWorks.find(function(x){return x._id===workId});
   if(w&&w._stats){w._stats.likes+=interactors[workId].liked?1:-1}
-  try{await db.collection('likes').add({workId,user_nickname:visitorName,user_department:visitorDepartment,deviceId,timestamp:new Date()})}catch(e){}
+  try{await db.collection('likes').add({workId:workId,user_nickname:visitorName,user_department:visitorDepartment,deviceId:deviceId,timestamp:new Date()})}catch(e){}
   try{
-    const sc=db.collection('work_stats');
-    const res=await sc.where({workId}).get();
+    var sc=db.collection('work_stats');
+    var res=await sc.where({workId:workId}).get();
     if(res.data&&res.data.length>0){await sc.doc(res.data[0]._id).update({likes:res.data[0].likes+(interactors[workId].liked?1:-1)})}
-    else{await sc.add({workId,likes:interactors[workId].liked?1:0,comments:0,shares:0})}
+    else{await sc.add({workId:workId,likes:interactors[workId].liked?1:0,comments:0,shares:0})}
   }catch(e){}
-  const btn=document.querySelector('#card-'+workId+' .card-actions .action-btn:first-child');
-  if(btn){btn.classList.toggle('active',interactors[workId].liked);btn.querySelector('.icon').textContent=interactors[workId].liked?'\u2764\u{fe0f}':'\u{1f90d}';
-    const c=document.getElementById('likes-'+workId);if(c)c.textContent=w&&w._stats?w._stats.likes:0}
+  renderWorks();
+  if(interactors[workId].liked&&interactors[workId].commentOpen){loadComments(workId)}
 }
 
 function toggleComment(workId){
   if(!interactors[workId])interactors[workId]={};
   interactors[workId].commentOpen=!interactors[workId].commentOpen;saveInteractors();
-  const s=document.getElementById('comments-'+workId);
-  if(s){s.classList.toggle('show',interactors[workId].commentOpen);if(interactors[workId].commentOpen)loadComments(workId)}
+  renderWorks();
+  if(interactors[workId].commentOpen){loadComments(workId)}
 }
 
 async function loadComments(workId){
@@ -376,7 +348,7 @@ async function submitComment(workId){
 }
 
 let visibleCommentsLoaded={};
-function loadVisibleComments(){allWorks.forEach(w=>{if(interactors[w._id]&&interactors[w._id].commentOpen&&!visibleCommentsLoaded[w._id]){visibleCommentsLoaded[w._id]=true;loadComments(w._id)}})}
+function loadVisibleComments(){allWorks.forEach(function(w){if(interactors[w._id]&&interactors[w._id].commentOpen&&!visibleCommentsLoaded[w._id]){visibleCommentsLoaded[w._id]=true;loadComments(w._id)}})}
 
 function openShareModal(workId){
   shareWorkId=workId;const w=allWorks.find(x=>x._id===workId);
@@ -418,7 +390,7 @@ function goSlide(workId,idx){
 function nextSlide(workId){const w=allWorks.find(x=>x._id===workId);if(!w)return;const idx=(interactors[workId]&&interactors[workId].slide||0)+1;goSlide(workId,idx%(w.images||[]).length)}
 function prevSlide(workId){const w=allWorks.find(x=>x._id===workId);if(!w)return;const imgs=w.images||[];const idx=(interactors[workId]&&interactors[workId].slide||0)-1;goSlide(workId,idx<0?imgs.length-1:idx)}
 
-function scrollToWorkFromHash(){const hash=window.location.hash.slice(1);if(!hash)return;const card=document.getElementById('card-'+hash);if(card)setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'center'}),300)}
+function scrollToWorkFromHash(){var hash=window.location.hash.slice(1);if(!hash)return;var row=document.querySelector('.work-row[data-wid="'+hash+'"]');if(row)setTimeout(function(){row.scrollIntoView({behavior:'smooth',block:'center'})},300)}
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),2500)}
 function escHtml(s){if(!s)return '';const d=document.createElement('div');d.textContent=String(s);return d.innerHTML}
