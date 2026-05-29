@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>医起AI·挑战赛</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -19,7 +18,7 @@
   --sheet-tab:#E8E8E8;--sheet-tab-active:#fff;
 }
 html{scroll-behavior:smooth}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;line-height:1.6;overflow-x:hidden}
+body{font-family:'Noto Sans SC',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;line-height:1.6;overflow-x:hidden}
 a{color:var(--text-secondary);text-decoration:none}
 
 /* 全局背景 */
@@ -34,7 +33,7 @@ a{color:var(--text-secondary);text-decoration:none}
 .login-card .logo-sphere{width:80px;height:80px;margin:0 auto 1.2rem;border-radius:50%;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
 .login-card .logo-sphere img{width:100%;height:100%;object-fit:cover;display:block}
 .login-card h1{font-size:1.6rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.02em;margin-bottom:.2rem}
-.login-card .theme-text{font-family:'Orbitron','Courier New',monospace;font-size:.95rem;color:rgba(26,26,26,0.4);margin-bottom:1.5rem;letter-spacing:.15em;text-transform:uppercase}
+.login-card .theme-text{font-family:'Noto Sans SC',sans-serif;font-size:.95rem;color:rgba(26,26,26,0.4);margin-bottom:1.5rem;letter-spacing:.15em;text-transform:uppercase}
 .login-card .login-form{text-align:left}
 .login-card .login-form>p{text-align:center;color:var(--text-dim);margin-bottom:1.5rem;font-size:.85rem}
 .form-input{width:100%;padding:14px 16px;margin-bottom:1rem;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,0.7);color:var(--text-primary);font-size:1rem;outline:none;transition:border-color .2s,box-shadow .2s}
@@ -65,7 +64,7 @@ a{color:var(--text-secondary);text-decoration:none}
 /* Hero */
 .hero{text-align:center;padding:2rem 1.5rem 1rem}
 .hero h1{font-size:2.2rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.03em}
-.hero .theme-text{font-family:'Orbitron','Courier New',monospace;font-size:1rem;color:rgba(26,26,26,0.35);margin-top:.5rem;letter-spacing:.2em;text-transform:uppercase}
+.hero .theme-text{font-family:'Noto Sans SC',sans-serif;font-size:1rem;color:rgba(26,26,26,0.35);margin-top:.5rem;letter-spacing:.2em;text-transform:uppercase}
 
 /* Sheet Tabs */
 .sheet-bar{max-width:1100px;margin:0 auto;padding:0 1.5rem}
@@ -146,6 +145,12 @@ a{color:var(--text-secondary);text-decoration:none}
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;text-align:center;min-height:400px;width:100%;column-span:all}
 .empty-state .icon{font-size:3rem;margin-bottom:1rem;opacity:.5}
 .empty-state p{font-size:1rem;color:var(--text-secondary)}
+
+/* 页脚 */
+.footer{text-align:center;padding:3rem 1.5rem 2rem;color:var(--text-dim);font-size:.85rem}
+.footer .brand{font-family:'Noto Sans SC',sans-serif;font-size:.95rem;font-weight:700;color:var(--text-secondary);letter-spacing:.1em;margin-bottom:.5rem}
+.footer .admin-link{display:inline-block;margin-top:.5rem;padding:6px 16px;border-radius:8px;border:1px solid var(--border);color:var(--text-dim);font-size:.78rem;text-decoration:none;transition:all .2s;cursor:pointer}
+.footer .admin-link:hover{color:var(--text-primary);background:rgba(0,0,0,0.04);border-color:var(--border-h)}
 
 /* Loading */
 .loading{display:flex;align-items:center;justify-content:center;padding:1rem;color:var(--text-dim)}
