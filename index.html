@@ -3,143 +3,266 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>医起AI·挑战赛 作品广场</title>
+<title>"医"起AI·挑战赛 作品广场</title>
 <script src="https://unpkg.com/@cloudbase/js-sdk@latest/dist/index.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f6fa;color:#333;min-height:100vh}
-.header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:24px 20px 16px;text-align:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(102,126,234,.4)}
-.header h1{font-size:22px;margin-bottom:12px;letter-spacing:2px}
-.tabs{display:flex;justify-content:center;gap:12px;margin-top:8px}
-.tab-btn{padding:8px 24px;border-radius:20px;border:2px solid rgba(255,255,255,.6);background:transparent;color:#fff;font-size:14px;cursor:pointer;transition:.3s}
-.tab-btn.active,.tab-btn:hover{background:rgba(255,255,255,.25);border-color:#fff;font-weight:600}
-.container{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
-.card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);transition:transform .2s,box-shadow .2s;position:relative}
-.card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.12)}
-.rank-badge{position:absolute;top:12px;left:12px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;z-index:10;color:#fff}
+:root{
+  --mint:#A8E8D8;--teal:#00ACC1;--blue:#1565C0;
+  --grad-hero:linear-gradient(135deg,#C8F0E8 0%,#E0F5F0 30%,#F0F4FF 70%,#fff 100%);
+  --card-bg:#fff;--shadow:0 2px 16px rgba(0,172,193,.10);
+  --shadow-hover:0 8px 32px rgba(0,172,193,.18);
+  --radius:14px;--text-primary:#1a1a2e;--text-secondary:#5a6a7a;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',Roboto,sans-serif;
+  background:var(--grad-hero);min-height:100vh;color:var(--text-primary);
+}
+
+/* ===== 顶部 Hero ===== */
+.hero{
+  background:linear-gradient(160deg,#D4F2EC 0%,#E8FAF6 40%,#f0f4ff 100%);
+  padding:32px 20px 28px;text-align:center;
+  position:relative;overflow:hidden;
+  box-shadow:0 4px 20px rgba(0,172,193,.12);
+}
+.hero::before{
+  content:'';position:absolute;top:-60px;right:-40px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(21,101,192,.18),rgba(0,172,193,.10) 60%,transparent 70%);
+  pointer-events:none;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(0,172,193,.08);border:1px solid rgba(0,172,193,.15);
+  border-radius:20px;padding:4px 14px;font-size:12px;color:var(--teal);
+  margin-bottom:12px;
+}
+.hero h1{
+  font-size:26px;font-weight:800;letter-spacing:3px;
+  background:linear-gradient(135deg,var(--blue),var(--teal));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero .subtitle{font-size:13px;color:var(--text-secondary);margin-top:4px;letter-spacing:1px}
+
+/* ===== Excel Sheet 标签 ===== */
+.sheet-bar{
+  display:flex;align-items:flex-end;gap:0;
+  max-width:1200px;margin:0 auto;padding:0 16px;
+  position:relative;
+}
+.sheet-tab{
+  padding:10px 28px;font-size:14px;font-weight:600;
+  border:1px solid #d0e8e4;border-bottom:none;
+  border-radius:10px 10px 0 0;cursor:pointer;
+  transition:all .2s;color:var(--text-secondary);
+  background:rgba(255,255,255,.6);margin-right:-1px;
+  position:relative;z-index:1;
+}
+.sheet-tab:first-child{margin-left:0}
+.sheet-tab:hover{background:rgba(255,255,255,.9);color:var(--teal)}
+.sheet-tab.active{
+  background:#fff;color:var(--blue);
+  border-color:#b8e0d8;z-index:2;
+  box-shadow:0 -2px 8px rgba(0,172,193,.08);
+}
+.sheet-tab .dot{
+  display:inline-block;width:8px;height:8px;border-radius:50%;
+  margin-right:6px;vertical-align:middle;
+}
+.sheet-tab[data-tab="battle"] .dot{background:#00ACC1}
+.sheet-tab[data-tab="bold"] .dot{background:#1565C0}
+
+/* ===== 内容区 ===== */
+.sheet-content{
+  background:#fff;border:1px solid #d0e8e4;border-top:2px solid var(--teal);
+  margin:0 auto;max-width:1200px;padding:20px 16px 40px;
+  border-radius:0 0 var(--radius) var(--radius);
+  box-shadow:var(--shadow);
+}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+
+/* ===== 作品卡片 ===== */
+.card{
+  background:#fff;border-radius:var(--radius);overflow:hidden;
+  box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s;
+  position:relative;border:1px solid rgba(0,172,193,.06);
+}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover)}
+.rank-badge{
+  position:absolute;top:12px;left:12px;width:30px;height:30px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;z-index:10;color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
 .rank-1{background:linear-gradient(135deg,#FFD700,#FFA500)}
 .rank-2{background:linear-gradient(135deg,#C0C0C0,#A0A0A0)}
 .rank-3{background:linear-gradient(135deg,#CD7F32,#B87333)}
-.carousel{position:relative;height:200px;overflow:hidden;background:#eee}
+.carousel{position:relative;height:200px;overflow:hidden;background:linear-gradient(135deg,#e0f5f0,#f0f4ff)}
 .carousel img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:opacity .4s}
 .carousel-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
 .carousel-dots span{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;transition:.2s}
 .carousel-dots span.active{background:#fff;width:16px;border-radius:4px}
 .card-body{padding:16px}
-.card-title{font-size:16px;font-weight:600;margin-bottom:6px}
-.card-desc{font-size:13px;color:#666;line-height:1.5;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.card-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.action-btn{display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:16px;border:1px solid #e0e0e0;background:#fafafa;font-size:13px;cursor:pointer;transition:.2s;user-select:none}
-.action-btn:hover{background:#f0f0f0}
-.action-btn.liked{color:#e74c3c;border-color:#e74c3c;background:#fef0ef}
-.action-btn .icon{font-size:16px}
-.external-link{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:16px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:13px;text-decoration:none;transition:.2s;margin-left:auto}
-.external-link:hover{opacity:.85}
+.card-title{font-size:15px;font-weight:700;margin-bottom:6px;color:var(--text-primary)}
+.card-desc{font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.action-btn{
+  display:flex;align-items:center;gap:4px;padding:6px 12px;
+  border-radius:20px;border:1px solid #e8f0ee;background:#f8fcfb;
+  font-size:13px;cursor:pointer;transition:.2s;user-select:none;color:var(--text-secondary);
+}
+.action-btn:hover{background:#e0f5f0;border-color:var(--teal);color:var(--teal)}
+.action-btn.liked{color:#e74c3c;border-color:#fde2e0;background:#fef5f4}
+.action-btn .icon{font-size:15px}
+.external-link{
+  display:inline-flex;align-items:center;gap:4px;padding:6px 14px;
+  border-radius:20px;background:linear-gradient(135deg,var(--teal),var(--blue));
+  color:#fff;font-size:13px;text-decoration:none;transition:.2s;margin-left:auto;
+}
+.external-link:hover{opacity:.85;transform:scale(1.02)}
 .interactors{padding:0 16px 12px;display:flex;flex-wrap:wrap;gap:4px}
-.interactor-tag{padding:2px 8px;border-radius:10px;background:#f0e6ff;font-size:11px;color:#764ba2}
-.comment-section{display:none;border-top:1px solid #eee;padding:12px 16px;max-height:300px;overflow-y:auto}
+.interactor-tag{
+  padding:2px 8px;border-radius:10px;background:rgba(0,172,193,.06);
+  font-size:11px;color:var(--teal);
+}
+
+/* ===== 评论区 ===== */
+.comment-section{display:none;border-top:1px solid #e8f0ee;padding:12px 16px;max-height:280px;overflow-y:auto}
 .comment-section.show{display:block}
-.comment-item{padding:8px 0;border-bottom:1px solid #f5f5f5;font-size:13px}
+.comment-item{padding:8px 0;border-bottom:1px solid #f5f8f7;font-size:13px}
 .comment-item:last-child{border-bottom:none}
-.comment-nickname{font-weight:600;color:#764ba2;margin-right:6px}
-.comment-text{color:#555}
-.comment-time{color:#999;font-size:11px;float:right}
+.comment-nickname{font-weight:600;color:var(--teal);margin-right:6px}
+.comment-text{color:var(--text-secondary)}
+.comment-time{color:#b0b8b8;font-size:11px;float:right}
 .comment-input-row{display:flex;gap:8px;margin-top:8px}
-.comment-input{flex:1;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;outline:none}
-.comment-input:focus{border-color:#764ba2}
-.comment-send{padding:8px 16px;border:none;border-radius:8px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:13px;cursor:pointer}
-.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.comment-input{flex:1;padding:8px 12px;border:1px solid #d8e8e4;border-radius:10px;font-size:13px;outline:none;background:#f8fcfb}
+.comment-input:focus{border-color:var(--teal);background:#fff}
+.comment-send{padding:8px 16px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff;font-size:13px;cursor:pointer;font-weight:600}
+.comment-send:hover{opacity:.85}
+
+/* ===== 模态框 ===== */
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
 .modal-overlay.show{display:flex}
-.modal{background:#fff;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:500px;animation:slideUp .3s ease}
+.modal{
+  background:#fff;border-radius:20px 20px 0 0;padding:28px 24px 24px;
+  width:100%;max-width:480px;animation:slideUp .3s ease;
+}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.modal h3{text-align:center;margin-bottom:16px;font-size:18px}
-.modal input{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font-size:15px;outline:none;margin-bottom:12px}
-.modal input:focus{border-color:#764ba2}
-.modal-btn{width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:15px;cursor:pointer;font-weight:600}
+.modal h3{text-align:center;margin-bottom:6px;font-size:18px;color:var(--text-primary)}
+.modal>p{text-align:center;color:var(--text-secondary);font-size:13px;margin-bottom:16px}
+.modal input{width:100%;padding:12px 14px;border:1px solid #d0e8e4;border-radius:10px;font-size:15px;outline:none;margin-bottom:12px;background:#f8fcfb}
+.modal input:focus{border-color:var(--teal);background:#fff}
+.modal-btn{width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff;font-size:15px;cursor:pointer;font-weight:600}
+.modal-btn:hover{opacity:.9}
 .share-modal{text-align:center}
 .share-btns{display:flex;flex-direction:column;gap:10px;margin-top:16px}
-.share-btn{padding:12px;border-radius:10px;border:1px solid #e0e0e0;background:#fff;font-size:14px;cursor:pointer;transition:.2s}
-.share-btn:hover{background:#f5f0ff}
-.share-copy{color:#333}
-.share-feishu{color:#00d6e4}
-.share-wechat{color:#07c160}
-.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;padding:10px 24px;border-radius:8px;font-size:14px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none}
+.share-btn{padding:12px;border-radius:10px;border:1px solid #e0e8e8;background:#f8fcfb;font-size:14px;cursor:pointer;transition:.2s;text-align:left}
+.share-btn:hover{background:#e0f5f0;border-color:var(--teal)}
+
+/* ===== Toast ===== */
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(26,26,46,.8);color:#fff;padding:10px 24px;border-radius:10px;font-size:14px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;backdrop-filter:blur(4px)}
 .toast.show{opacity:1}
-.admin-link{text-align:center;padding:20px;font-size:13px}
-.admin-link a{color:#999;text-decoration:none}
-.loading{text-align:center;padding:40px;color:#999}
+
+/* ===== 页脚 ===== */
+.footer{text-align:center;padding:24px 16px;font-size:12px;color:var(--text-secondary)}
+.footer a{color:var(--teal);text-decoration:none;opacity:.6}
+.footer a:hover{opacity:1}
+
+/* ===== Loading ===== */
+.loading{text-align:center;padding:40px;color:var(--text-secondary)}
+.loading .spinner{display:inline-block;width:24px;height:24px;border:3px solid #e0e8e4;border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== 响应式 ===== */
+@media(max-width:640px){
+  .hero{padding:24px 16px 20px}
+  .hero h1{font-size:22px}
+  .sheet-tab{padding:8px 18px;font-size:13px}
+  .grid{grid-template-columns:1fr}
+  .sheet-content{padding:16px 12px 32px}
+}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>🏥 医起AI·挑战赛 作品广场</h1>
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('battle')">"医"起打擂台</button>
-    <button class="tab-btn" onclick="switchTab('bold')">医高人胆大</button>
+<!-- Hero 区域 -->
+<div class="hero">
+  <div class="hero-badge">🚀 Powered by AI</div>
+  <h1>"医"起AI·挑战赛</h1>
+  <div class="subtitle">Monthly AI Arena · Quarterly AI Challenge</div>
+</div>
+
+<!-- Sheet 标签栏 -->
+<div class="sheet-bar">
+  <div class="sheet-tab active" data-tab="battle" onclick="switchTab('battle')"><span class="dot"></span>"医"起打擂台</div>
+  <div class="sheet-tab" data-tab="bold" onclick="switchTab('bold')"><span class="dot"></span>"医"高人胆大</div>
+</div>
+
+<!-- Sheet 内容区 -->
+<div class="sheet-content">
+  <div id="grid" class="grid">
+    <div class="loading"><div class="spinner"></div><div>加载中...</div></div>
   </div>
 </div>
 
-<div class="container">
-  <div id="grid" class="grid"></div>
+<div class="footer">
+  <a href="admin.html">管理后台</a> · 翼帆医药
 </div>
 
-<div class="admin-link"><a href="admin.html">管理后台</a></div>
-
+<!-- 姓名输入弹窗 -->
 <div id="nameModal" class="modal-overlay">
   <div class="modal">
-    <h3>👋 欢迎来到医起AI作品广场</h3>
-    <p style="text-align:center;color:#999;font-size:13px;margin-bottom:16px">请留下您的姓名，开始浏览吧~</p>
-    <input id="nicknameInput" placeholder="请输入您的姓名" />
+    <h3>👋 欢迎来到作品广场</h3>
+    <p>请留下您的姓名，开始浏览吧~</p>
+    <input id="nicknameInput" placeholder="请输入您的姓名" onkeydown="if(event.key==='Enter')submitNickname()" />
     <button class="modal-btn" onclick="submitNickname()">进入广场</button>
   </div>
 </div>
 
+<!-- 分享弹窗 -->
 <div id="shareModal" class="modal-overlay" onclick="closeShareModal(event)">
   <div class="modal share-modal" onclick="event.stopPropagation()">
     <h3>📤 分享作品</h3>
     <div class="share-btns">
-      <button class="share-btn share-copy" onclick="shareCopy()">🔗 复制链接</button>
-      <button class="share-btn share-feishu" onclick="shareFeishu()">💬 分享到飞书</button>
-      <button class="share-btn share-wechat" onclick="shareWechat()">🟢 分享到微信</button>
+      <button class="share-btn" onclick="shareCopy()">🔗 复制链接</button>
+      <button class="share-btn" onclick="shareFeishu()">💬 分享到飞书</button>
+      <button class="share-btn" onclick="shareWechat()">🟢 分享到微信</button>
     </div>
   </div>
 </div>
 
+<!-- Toast -->
 <div id="toast" class="toast"></div>
 
 <script>
 const ENV_ID = 'works-showcase-d2giub4pr5d687848';
 const PUB_KEY = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjlkMWRjMzFlLWI0ZDAtNDQ4Yi1hNzZmLWIwY2M2M2Q4MTQ5OCJ9.eyJpc3MiOiJodHRwczovL3dvcmtzLXNob3djYXNlLWQyZ2l1YjRwcjVkNjg3ODQ4LmFwLXNoYW5naGFpLnRjYi1hcGkudGVuY2VudGNsb3VkYXBpLmNvbSIsInN1YiI6ImFub24iLCJhdWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsImV4cCI6NDA4MzY2MDYyNiwiaWF0IjoxNzc5OTc3NDI2LCJub25jZSI6IlBSdHgtMm1GUlZ1OXFkM0p5ejU1aWciLCJhdF9oYXNoIjoiUFJ0eC0ybUZSVnU5cWQzSnl6NTVpZyIsIm5hbWUiOiJBbm9ueW1vdXMiLCJzY29wZSI6ImFub255bW91cyIsInByb2plY3RfaWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsIm1ldGEiOnsicGxhdGZvcm0iOiJQdWJsaXNoYWJsZUtleSJ9LCJ1c2VyX3R5cGUiOiIiLCJjbGllbnRfdHlwZSI6ImNsaWVudF91c2VyIiwiaXNfc3lzdGVtX2FkbWluIjpmYWxzZX0.hbLxMthyDPhSvGwtKo-PpjGfyejWQir39akNphU_pxYr5aW_MRC-crr-g2nznaTWcnvkjDLlXrJAxd8qjRQ7y5H6S_s8QOZ9LllWmEbDGU2IDV9-Z9F6R_-I3AFy80O6l-vVqEH2V3uTV7gOkGDHq9Rebf0adPIWs3Iv9Lgp-sU5MhZoXgluu-rkxDQPr3Lmaw1GL2O2t7QCp4fmfAJjBkBwgEY3hloe8LdO6_xe8fzAKRzMkc9o1D9ZgPplOARhj-lIQK6JVPjHpGYelYJmlMEq_ePQWzQ7HWKwucoPnspi11hnVP9-NQzesOYRMpjww7sIO5QWhTbyIat60TQbOw';
-let device_id = null;
-let nickname = null;
-let works = [];
-let currentTab = 'battle';
-let currentShareWorkId = null;
+let device_id = null, nickname = null, works = [], currentTab = 'battle', currentShareWorkId = null;
 let app, auth, db;
 
-async function initCloudBase() {
+async function initCloudBase(){
   app = cloudbase.init({ env: ENV_ID, publishableKey: PUB_KEY });
   auth = app.auth({ persistence: 'local' });
   db = app.database();
   await auth.anonymousAuthProvider().signIn();
 }
 
-async function initDeviceId() {
-  try {
+async function initDeviceId(){
+  try{
     const fp = await FingerprintJS.load();
     const result = await fp.get();
     device_id = result.visitorId;
-  } catch (e) {
+  }catch(e){
     device_id = 'anon_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
   }
 }
 
-async function checkVisitor() {
+async function checkVisitor(){
   const { data } = await db.collection('Visitor').where({ device_id }).get();
-  if (data && data.length > 0) {
+  if(data && data.length > 0){
     nickname = data[0].nickname;
     await db.collection('Visitor').doc(data[0]._id).update({ last_seen: new Date() });
     return true;
@@ -147,17 +270,12 @@ async function checkVisitor() {
   return false;
 }
 
-function showNameModal() {
-  document.getElementById('nameModal').classList.add('show');
-}
+function showNameModal(){ document.getElementById('nameModal').classList.add('show'); }
+function closeNameModal(){ document.getElementById('nameModal').classList.remove('show'); }
 
-function closeNameModal() {
-  document.getElementById('nameModal').classList.remove('show');
-}
-
-async function submitNickname() {
+async function submitNickname(){
   const val = document.getElementById('nicknameInput').value.trim();
-  if (!val) return showToast('请输入姓名');
+  if(!val) return showToast('请输入姓名');
   nickname = val;
   await db.collection('Visitor').add({ device_id, nickname, created_at: new Date(), last_seen: new Date() });
   closeNameModal();
@@ -165,18 +283,18 @@ async function submitNickname() {
   await loadData();
 }
 
-async function loadData() {
-  try {
+async function loadData(){
+  try{
     const { data } = await db.collection('Work').orderBy('sort_order', 'asc').get();
     works = data || [];
     renderWorks();
-  } catch (e) {
+  }catch(e){
     console.error('Load works failed:', e);
     document.getElementById('grid').innerHTML = '<div class="loading">加载失败，请刷新重试</div>';
   }
 }
 
-async function getWorkStats(workId) {
+async function getWorkStats(workId){
   const [{ data: likes }, { data: comments }, { data: shares }] = await Promise.all([
     db.collection('Like').where({ work_id: workId }).get(),
     db.collection('Comment').where({ work_id: workId }).get(),
@@ -185,55 +303,45 @@ async function getWorkStats(workId) {
   return { likeCount: (likes||[]).length, commentCount: (comments||[]).length, shareCount: (shares||[]).length };
 }
 
-function switchTab(tab) {
+function switchTab(tab){
   currentTab = tab;
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
-    b.classList.toggle('active', (i === 0 && tab === 'battle') || (i === 1 && tab === 'bold'));
+  document.querySelectorAll('.sheet-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tab);
   });
   renderWorks();
 }
 
-function getFilteredWorks() {
-  return works.filter(w => w.category === currentTab);
-}
+function getFilteredWorks(){ return works.filter(w => w.category === currentTab); }
 
-async function renderWorks() {
+async function renderWorks(){
   const filtered = getFilteredWorks();
-  if (filtered.length === 0) {
-    document.getElementById('grid').innerHTML = '<div class="loading">暂无作品</div>';
+  if(filtered.length === 0){
+    document.getElementById('grid').innerHTML = '<div class="loading" style="padding:60px;color:#999">暂无作品，敬请期待 ✨</div>';
     return;
   }
   const statsMap = {};
-  await Promise.all(filtered.map(async w => {
-    statsMap[w._id] = await getWorkStats(w._id);
-  }));
+  await Promise.all(filtered.map(async w => { statsMap[w._id] = await getWorkStats(w._id); }));
+
   const html = filtered.map((w, i) => {
     const images = (w.images || '').split(',').map(s => s.trim()).filter(Boolean);
-    const s = statsMap[w._id] || { likeCount: 0, commentCount: 0, shareCount: 0 };
-    const rankBadge = i < 3 ? `<div class="rank-badge rank-${i + 1}">${i + 1}</div>` : '';
+    const s = statsMap[w._id] || { likeCount:0, commentCount:0, shareCount:0 };
+    const rankBadge = i < 3 ? `<div class="rank-badge rank-${i+1}">${i+1}</div>` : '';
     const carousel = images.length > 0 ? `
       <div class="carousel" id="carousel-${w._id}" data-images='${JSON.stringify(images)}' data-current="0">
-        ${images.map((img, j) => `<img src="${img}" style="opacity:${j === 0 ? 1 : 0}">`).join('')}
-        ${images.length > 1 ? `<div class="carousel-dots">${images.map((_, j) => `<span class="${j === 0 ? 'active' : ''}" onclick="goSlide('${w._id}',${j})"></span>`).join('')}</div>` : ''}
-        ${images.length > 1 ? `<div style="position:absolute;top:50%;left:8px;transform:translateY(-50%);width:28px;height:28px;background:rgba(0,0,0,.3);border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px" onclick="prevSlide('${w._id}')">&#8249;</div><div style="position:absolute;top:50%;right:8px;transform:translateY(-50%);width:28px;height:28px;background:rgba(0,0,0,.3);border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px" onclick="nextSlide('${w._id}')">&#8250;</div>` : ''}
+        ${images.map((img,j) => `<img src="${img}" style="opacity:${j===0?1:0}">`).join('')}
+        ${images.length>1 ? `<div class="carousel-dots">${images.map((_,j) => `<span class="${j===0?'active':''}" onclick="goSlide('${w._id}',${j})"></span>`).join('')}</div>` : ''}
+        ${images.length>1 ? `<div style="position:absolute;top:50%;left:8px;transform:translateY(-50%);width:28px;height:28px;background:rgba(0,0,0,.25);border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px" onclick="prevSlide('${w._id}')">&#8249;</div><div style="position:absolute;top:50%;right:8px;transform:translateY(-50%);width:28px;height:28px;background:rgba(0,0,0,.25);border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px" onclick="nextSlide('${w._id}')">&#8250;</div>` : ''}
       </div>` : '';
     return `
     <div class="card" data-work-id="${w._id}">
-      ${rankBadge}
-      ${carousel}
+      ${rankBadge}${carousel}
       <div class="card-body">
-        <div class="card-title">${escHtml(w.title || '')}</div>
-        <div class="card-desc">${escHtml(w.description || '')}</div>
+        <div class="card-title">${escHtml(w.title||'')}</div>
+        <div class="card-desc">${escHtml(w.description||'')}</div>
         <div class="card-actions">
-          <div class="action-btn" id="like-btn-${w._id}" onclick="toggleLike('${w._id}')">
-            <span class="icon">♥</span><span id="like-count-${w._id}">${s.likeCount}</span>
-          </div>
-          <div class="action-btn" onclick="toggleComment('${w._id}')">
-            <span class="icon">💬</span><span>${s.commentCount}</span>
-          </div>
-          <div class="action-btn" onclick="openShareModal('${w._id}')">
-            <span class="icon">↗</span><span>${s.shareCount}</span>
-          </div>
+          <div class="action-btn" id="like-btn-${w._id}" onclick="toggleLike('${w._id}')"><span class="icon">♥</span><span id="like-count-${w._id}">${s.likeCount}</span></div>
+          <div class="action-btn" onclick="toggleComment('${w._id}')"><span class="icon">💬</span><span>${s.commentCount}</span></div>
+          <div class="action-btn" onclick="openShareModal('${w._id}')"><span class="icon">↗</span><span>${s.shareCount}</span></div>
           ${w.external_url ? `<a class="external-link" href="${escHtml(w.external_url)}" target="_blank">查看详情 →</a>` : ''}
         </div>
       </div>
@@ -241,7 +349,7 @@ async function renderWorks() {
       <div class="comment-section" id="comment-section-${w._id}">
         <div id="comment-list-${w._id}"></div>
         <div class="comment-input-row">
-          <input class="comment-input" id="comment-input-${w._id}" placeholder="写下你的想法..." />
+          <input class="comment-input" id="comment-input-${w._id}" placeholder="写下你的想法..." onkeydown="if(event.key==='Enter')submitComment('${w._id}')" />
           <button class="comment-send" onclick="submitComment('${w._id}')">发送</button>
         </div>
       </div>
@@ -251,168 +359,151 @@ async function renderWorks() {
   loadInteractors(filtered);
 }
 
-async function loadInteractors(filtered) {
-  for (const w of filtered) {
+async function loadInteractors(filtered){
+  for(const w of filtered){
     const [{ data: likes }, { data: comments }, { data: shares }] = await Promise.all([
       db.collection('Like').where({ work_id: w._id }).limit(20).get(),
       db.collection('Comment').where({ work_id: w._id }).limit(20).get(),
       db.collection('Share').where({ work_id: w._id }).limit(20).get()
     ]);
     const names = new Set();
-    [...(likes||[]), ...(comments||[]), ...(shares||[])].forEach(r => { if (r.nickname) names.add(r.nickname); });
+    [...(likes||[]), ...(comments||[]), ...(shares||[])].forEach(r => { if(r.nickname) names.add(r.nickname); });
     const el = document.getElementById('interactors-' + w._id);
-    if (el && names.size > 0) {
-      el.innerHTML = [...names].slice(0, 6).map(n => `<span class="interactor-tag">${escHtml(n)}</span>`).join('');
+    if(el && names.size > 0){
+      el.innerHTML = [...names].slice(0,6).map(n => `<span class="interactor-tag">${escHtml(n)}</span>`).join('');
     }
   }
 }
 
-async function toggleLike(workId) {
-  if (!nickname) return showToast('请先输入姓名');
+async function toggleLike(workId){
+  if(!nickname) return showToast('请先输入姓名');
   const existing = await db.collection('Like').where({ work_id: workId, device_id }).get();
   const btn = document.getElementById('like-btn-' + workId);
   const countEl = document.getElementById('like-count-' + workId);
-  if (existing.data && existing.data.length > 0) {
+  if(existing.data && existing.data.length > 0){
     await db.collection('Like').doc(existing.data[0]._id).remove();
     btn.classList.remove('liked');
-  } else {
+  }else{
     await db.collection('Like').add({ work_id: workId, nickname, device_id, created_at: new Date() });
     btn.classList.add('liked');
   }
   const { data } = await db.collection('Like').where({ work_id: workId }).get();
-  countEl.textContent = (data || []).length;
+  countEl.textContent = (data||[]).length;
   loadInteractors([{ _id: workId }]);
 }
 
-function toggleComment(workId) {
+function toggleComment(workId){
   const section = document.getElementById('comment-section-' + workId);
   section.classList.toggle('show');
-  if (section.classList.contains('show')) loadComments(workId);
+  if(section.classList.contains('show')) loadComments(workId);
 }
 
-async function loadComments(workId) {
-  const { data } = await db.collection('Comment').where({ work_id: workId }).orderBy('created_at', 'desc').get();
+async function loadComments(workId){
+  const { data } = await db.collection('Comment').where({ work_id: workId }).orderBy('created_at','desc').get();
   const el = document.getElementById('comment-list-' + workId);
-  if (!el) return;
-  el.innerHTML = (data || []).map(c => {
-    const time = c.created_at ? new Date(c.created_at).toLocaleString('zh-CN', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+  if(!el) return;
+  el.innerHTML = (data||[]).map(c => {
+    const time = c.created_at ? new Date(c.created_at).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
     return `<div class="comment-item"><span class="comment-nickname">${escHtml(c.nickname||'匿名')}</span><span class="comment-time">${time}</span><div class="comment-text">${escHtml(c.content||'')}</div></div>`;
   }).join('');
 }
 
-async function submitComment(workId) {
-  if (!nickname) return showToast('请先输入姓名');
+async function submitComment(workId){
+  if(!nickname) return showToast('请先输入姓名');
   const input = document.getElementById('comment-input-' + workId);
   const content = input.value.trim();
-  if (!content) return;
+  if(!content) return;
   await db.collection('Comment').add({ work_id: workId, nickname, device_id, content, created_at: new Date() });
   input.value = '';
-  showToast('评论成功');
+  showToast('评论成功 ✨');
   await loadComments(workId);
 }
 
-function openShareModal(workId) {
+function openShareModal(workId){
   currentShareWorkId = workId;
   document.getElementById('shareModal').classList.add('show');
 }
-
-function closeShareModal(e) {
-  if (e && e.target !== e.currentTarget) return;
+function closeShareModal(e){
+  if(e && e.target !== e.currentTarget) return;
   document.getElementById('shareModal').classList.remove('show');
 }
 
-async function recordShare(type) {
-  if (!nickname || !currentShareWorkId) return;
+async function recordShare(type){
+  if(!nickname || !currentShareWorkId) return;
   await db.collection('Share').add({ work_id: currentShareWorkId, nickname, device_id, share_type: type, created_at: new Date() });
 }
 
-function shareCopy() {
+function shareCopy(){
   recordShare('link');
   navigator.clipboard.writeText(location.href + '#work-' + currentShareWorkId).then(() => showToast('链接已复制')).catch(() => showToast('复制失败'));
   document.getElementById('shareModal').classList.remove('show');
 }
-
-function shareFeishu() {
+function shareFeishu(){
   recordShare('feishu');
   showToast('请手动分享到飞书');
   document.getElementById('shareModal').classList.remove('show');
 }
-
-function shareWechat() {
+function shareWechat(){
   recordShare('wechat');
   showToast('请手动分享到微信');
   document.getElementById('shareModal').classList.remove('show');
 }
 
-function goSlide(workId, idx) {
+function goSlide(workId, idx){
   const carousel = document.getElementById('carousel-' + workId);
-  if (!carousel) return;
-  const data = JSON.parse(carousel.dataset.images);
-  const current = parseInt(carousel.dataset.current);
+  if(!carousel) return;
   const imgs = carousel.querySelectorAll('img');
   const dots = carousel.querySelectorAll('.carousel-dots span');
-  if (imgs[current]) imgs[current].style.opacity = '0';
-  if (dots[current]) dots[current].classList.remove('active');
+  const cur = parseInt(carousel.dataset.current);
+  if(imgs[cur]) imgs[cur].style.opacity = '0';
+  if(dots[cur]) dots[cur].classList.remove('active');
   carousel.dataset.current = idx;
-  if (imgs[idx]) imgs[idx].style.opacity = '1';
-  if (dots[idx]) dots[idx].classList.add('active');
+  if(imgs[idx]) imgs[idx].style.opacity = '1';
+  if(dots[idx]) dots[idx].classList.add('active');
 }
-
-function nextSlide(workId) {
+function nextSlide(workId){
   const carousel = document.getElementById('carousel-' + workId);
-  if (!carousel) return;
+  if(!carousel) return;
   const images = JSON.parse(carousel.dataset.images);
-  const current = parseInt(carousel.dataset.current);
-  goSlide(workId, (current + 1) % images.length);
+  const cur = parseInt(carousel.dataset.current);
+  goSlide(workId, (cur + 1) % images.length);
 }
-
-function prevSlide(workId) {
+function prevSlide(workId){
   const carousel = document.getElementById('carousel-' + workId);
-  if (!carousel) return;
+  if(!carousel) return;
   const images = JSON.parse(carousel.dataset.images);
-  const current = parseInt(carousel.dataset.current);
-  goSlide(workId, (current - 1 + images.length) % images.length);
+  const cur = parseInt(carousel.dataset.current);
+  goSlide(workId, (cur - 1 + images.length) % images.length);
 }
 
-function escHtml(s) {
-  const div = document.createElement('div');
-  div.textContent = s;
-  return div.innerHTML;
-}
+function escHtml(s){ const div = document.createElement('div'); div.textContent = s; return div.innerHTML; }
 
-function showToast(msg) {
+function showToast(msg){
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-// Handle URL hash to scroll to a specific work card
-function scrollToWorkFromHash() {
+function scrollToWorkFromHash(){
   const hash = location.hash;
-  if (hash && hash.startsWith('#work-')) {
-    const workId = hash.replace('#work-', '');
+  if(hash && hash.startsWith('#work-')){
+    const workId = hash.replace('#work-','');
     setTimeout(() => {
-      const card = document.querySelector('[data-work-id="' + workId + '"]');
-      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 500);
+      const card = document.querySelector('[data-work-id="'+workId+'"]');
+      if(card) card.scrollIntoView({behavior:'smooth',block:'center'});
+    }, 800);
   }
 }
 
-async function init() {
+async function init(){
   await initCloudBase();
   await initDeviceId();
   const known = await checkVisitor();
-  if (!known) {
-    showNameModal();
-  } else {
-    await loadData();
-  }
+  if(!known){ showNameModal(); } else { await loadData(); }
 }
 
-init().then(() => {
-  scrollToWorkFromHash();
-}).catch(e => {
+init().then(() => { scrollToWorkFromHash(); }).catch(e => {
   console.error('Init error:', e);
   document.getElementById('grid').innerHTML = '<div class="loading">初始化失败，请检查网络后刷新</div>';
 });

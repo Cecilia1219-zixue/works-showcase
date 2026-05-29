@@ -7,61 +7,61 @@
 <script src="https://unpkg.com/@cloudbase/js-sdk@latest/dist/index.umd.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f6fa;color:#333;min-height:100vh}
-.header{background:linear-gradient(135deg,#2c3e50,#3498db);color:#fff;padding:16px 20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.2)}
-.header h1{font-size:20px;letter-spacing:1px}
-.header .back{font-size:13px;opacity:.8;margin-top:6px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',Roboto,sans-serif;background:linear-gradient(160deg,#D4F2EC 0%,#E8FAF6 40%,#f0f4ff 100%);color:#1a1a2e;min-height:100vh}
+.header{background:linear-gradient(135deg,#00ACC1,#1565C0);color:#fff;padding:20px 20px;text-align:center;box-shadow:0 4px 16px rgba(0,172,193,.2)}
+.header h1{font-size:20px;letter-spacing:2px}
+.header .back{font-size:13px;opacity:.85;margin-top:6px}
 .header .back a{color:#fff}
 .container{max-width:1200px;margin:0 auto;padding:20px 16px}
-.tabs{display:flex;gap:8px;margin-bottom:20px;background:#fff;padding:8px;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.tab-btn{flex:1;padding:10px;border:none;border-radius:8px;background:#f5f5f5;font-size:14px;cursor:pointer;transition:.2s;font-weight:500}
-.tab-btn.active{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+.tabs{display:flex;gap:6px;margin-bottom:20px;background:#fff;padding:6px;border-radius:12px;box-shadow:0 2px 12px rgba(0,172,193,.08)}
+.tab-btn{flex:1;padding:10px;border:none;border-radius:8px;background:#f0f8f7;font-size:14px;cursor:pointer;transition:.2s;font-weight:500;color:#5a6a7a}
+.tab-btn.active{background:linear-gradient(135deg,#00ACC1,#1565C0);color:#fff;box-shadow:0 2px 8px rgba(0,172,193,.25)}
 .panel{display:none}
 .panel.active{display:block}
-table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-th,td{padding:10px 14px;text-align:left;border-bottom:1px solid #f0f0f0;font-size:13px}
-th{background:#fafafa;font-weight:600;color:#666}
-.work-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.work-card h3{font-size:15px;margin-bottom:12px;color:#333}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,172,193,.06)}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid #e8f0ee;font-size:13px}
+th{background:#f0f8f7;font-weight:600;color:#00ACC1}
+.work-card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,172,193,.08);border:1px solid rgba(0,172,193,.06)}
+.work-card h3{font-size:15px;margin-bottom:12px;color:#1a1a2e}
 .stats-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .stat-box{flex:1;min-width:100px;padding:10px;border-radius:8px;text-align:center}
-.stat-today{background:#f0e6ff}
-.stat-total{background:#e6f7ff}
-.stat-box .num{font-size:22px;font-weight:700;color:#764ba2}
+.stat-today{background:rgba(0,172,193,.08)}
+.stat-total{background:rgba(21,101,192,.06)}
+.stat-box .num{font-size:22px;font-weight:700;color:#00ACC1}
 .stat-box .label{font-size:11px;color:#999;margin-top:4px}
-.stat-total .num{color:#3498db}
-.detail-toggle{font-size:13px;color:#764ba2;cursor:pointer;text-decoration:underline}
+.stat-total .num{color:#1565C0}
+.detail-toggle{font-size:13px;color:#00ACC1;cursor:pointer;text-decoration:underline}
 .detail-table{display:none;margin-top:8px}
 .detail-table.show{display:block}
-.detail-table table{box-shadow:none;border:1px solid #f0f0f0}
-.detail-table th{background:#f5f0ff}
-.form-section{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.detail-table table{box-shadow:none;border:1px solid #e8f0ee}
+.detail-table th{background:rgba(0,172,193,.04)}
+.form-section{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 12px rgba(0,172,193,.08);border:1px solid rgba(0,172,193,.06)}
 .form-section h3{margin-bottom:16px;font-size:16px}
 .form-group{margin-bottom:12px}
-.form-group label{display:block;font-size:13px;font-weight:600;color:#666;margin-bottom:4px}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none}
-.form-group input:focus,.form-group textarea:focus{border-color:#764ba2}
+.form-group label{display:block;font-size:13px;font-weight:600;color:#5a6a7a;margin-bottom:4px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1px solid #d8e8e4;border-radius:10px;font-size:14px;outline:none;background:#f8fcfb}
+.form-group input:focus,.form-group textarea:focus{border-color:#00ACC1;background:#fff}
 .form-group textarea{height:60px;resize:vertical}
-.btn{padding:10px 24px;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-weight:600;transition:.2s}
-.btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+.btn{padding:10px 24px;border:none;border-radius:10px;font-size:14px;cursor:pointer;font-weight:600;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,#00ACC1,#1565C0);color:#fff}
 .btn-danger{background:#e74c3c;color:#fff;font-size:12px;padding:6px 14px}
-.btn:hover{opacity:.85}
+.btn:hover{opacity:.85;transform:scale(1.02)}
 .form-actions{display:flex;gap:8px;margin-top:8px}
-.password-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:100;display:flex;align-items:center;justify-content:center}
+.password-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .password-overlay.hidden{display:none}
-.password-box{background:#fff;border-radius:16px;padding:32px;width:340px;text-align:center}
+.password-box{background:#fff;border-radius:20px;padding:32px;width:340px;text-align:center;box-shadow:0 8px 32px rgba(0,172,193,.15)}
 .password-box h2{margin-bottom:8px;font-size:18px}
-.password-box p{color:#999;font-size:13px;margin-bottom:16px}
-.password-box input{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:15px;text-align:center;outline:none;margin-bottom:12px}
-.password-box input:focus{border-color:#764ba2}
+.password-box p{color:#5a6a7a;font-size:13px;margin-bottom:16px}
+.password-box input{width:100%;padding:12px;border:1px solid #d8e8e4;border-radius:10px;font-size:15px;text-align:center;outline:none;margin-bottom:12px;background:#f8fcfb}
+.password-box input:focus{border-color:#00ACC1;background:#fff}
 .password-error{color:#e74c3c;font-size:13px;margin-bottom:8px;display:none}
-.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;padding:10px 24px;border-radius:8px;font-size:14px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(26,26,46,.8);color:#fff;padding:10px 24px;border-radius:10px;font-size:14px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;backdrop-filter:blur(4px)}
 .toast.show{opacity:1}
-.loading{text-align:center;padding:40px;color:#999}
+.loading{text-align:center;padding:40px;color:#5a6a7a}
 .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600}
-.badge-battle{background:#f0e6ff;color:#764ba2}
-.badge-bold{background:#e6f7ff;color:#3498db}
-.work-item{background:#fff;border-radius:10px;padding:12px 16px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.05);display:flex;justify-content:space-between;align-items:center}
+.badge-battle{background:rgba(0,172,193,.08);color:#00ACC1}
+.badge-bold{background:rgba(21,101,192,.06);color:#1565C0}
+.work-item{background:#fff;border-radius:10px;padding:12px 16px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,172,193,.06);display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(0,172,193,.04)}
 .work-item .info{flex:1}
 .work-item .info h4{font-size:14px;margin-bottom:4px}
 .work-item .info p{font-size:12px;color:#999}
