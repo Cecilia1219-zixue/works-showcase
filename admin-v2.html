@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>医起AI·挑战赛 - 管理后台</title>
 <script src="https://unpkg.com/@cloudbase/js-sdk@latest/dist/index.umd.js"></script>
-<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
-<meta http-equiv="Pragma" content="no-cache"/>
-<meta http-equiv="Expires" content="0"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#0d0d1a;color:#e0e0e0;min-height:100vh}
@@ -82,7 +79,6 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
     <button class="tab-btn" data-t="visit" onclick="switchT('visit')">👁️ 访客列表</button>
     <button class="tab-btn" data-t="export" onclick="switchT('export')">📥 数据导出</button>
     <button class="tab-btn" data-t="upload" onclick="switchT('upload')">📤 上传作品</button>
-    <button class="tab-btn" data-t="upload" onclick="switchT('upload')">📤 上传作品</button>
   </div>
 
   <div id="p-dash" class="panel active">
@@ -98,12 +94,12 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
   </div>
 
   <div id="p-works" class="panel">
-    <div class="fb"><select id="w-cat" onchange="renderWT()"><option value="all">全部分类</option><option value="battle">"医"起打擂台</option><option value="bold">医高人胆大</option></select><span style="font-size:11px;color:var(--txt3);margin-left:auto" id="w-cnt"></span></div>
+    <div class="fb"><select id="w-cat" onchange="rWT()"><option value="all">全部分类</option><option value="battle">"医"起打擂台</option><option value="bold">医高人胆大</option></select><span style="font-size:11px;color:var(--txt3);margin-left:auto" id="w-cnt"></span></div>
     <div class="tw"><table><thead><tr><th>作品标题</th><th>分类</th><th>❤️ 点赞</th><th>💬 评论</th><th>🔄 分享</th><th>📈 互动总数</th></tr></thead><tbody id="w-tbody"></tbody></table></div>
   </div>
 
   <div id="p-users" class="panel">
-    <div class="fb"><input id="u-name" placeholder="🔍 搜索用户名" oninput="renderUT()" style="width:140px"/><input id="u-dept" placeholder="🔍 搜索部门" oninput="renderUT()" style="width:140px"/><select id="u-type" onchange="renderUT()"><option value="all">全部操作</option><option value="like">点赞</option><option value="comment">评论</option><option value="share">分享</option></select><span style="font-size:11px;color:var(--txt3);margin-left:auto" id="u-cnt"></span></div>
+    <div class="fb"><input id="u-name" placeholder="🔍 搜索用户名" oninput="rUT()" style="width:140px"/><input id="u-dept" placeholder="🔍 搜索部门" oninput="rUT()" style="width:140px"/><select id="u-type" onchange="rUT()"><option value="all">全部操作</option><option value="like">点赞</option><option value="comment">评论</option><option value="share">分享</option></select><span style="font-size:11px;color:var(--txt3);margin-left:auto" id="u-cnt"></span></div>
     <div class="tw"><table><thead><tr><th>用户名</th><th>部门</th><th>作品标题</th><th>操作类型</th><th>评论内容</th><th>时间</th></tr></thead><tbody id="u-tbody"></tbody></table></div>
   </div>
 
@@ -127,11 +123,10 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
             <option value="1">📋 "医"高人胆大</option>
           </select>
           <label style="font-size:12px;color:var(--txt2)">📁 选择图片（支持多张，最多10张，直接上传）</label>
-          <input id="ul-files" type="file" multiple accept="image/*" max="10" style="background:var(--input);border:1px solid var(--bdr);border-radius:8px;padding:10px 14px;color:var(--txt);font-size:12px" onchange="previewFiles()"/>
+          <input id="ul-files" type="file" multiple accept="image/*" style="background:var(--input);border:1px solid var(--bdr);border-radius:8px;padding:10px 14px;color:var(--txt);font-size:12px" onchange="previewFiles()"/>
           <div id="ul-preview" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-          <div id="ul-img-urls" style="display:none"></div>
           <div id="ul-status" style="font-size:11px;color:var(--txt2)"></div>
-          <button class="btn bp" id="btn-submit" style="margin-top:8px;padding:12px 24px;font-size:14px">🚀 提交作品</button>
+          <button class="btn bp" onclick="doSubmit()" style="margin-top:8px;padding:12px 24px;font-size:14px">🚀 提交作品</button>
         </div>
       </div>
       <div id="ul-msg" style="text-align:center;font-size:12px;color:var(--txt2);display:none"></div>
@@ -143,7 +138,7 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
 
 <script>
 var EI='works-showcase-d2giub4pr5d687848',PK='eyJhbGciOiJSUzI1NiIsImtpZCI6IjlkMWRjMzFlLWI0ZDAtNDQ4Yi1hNzZmLWIwY2M2M2Q4MTQ5OCJ9.eyJpc3MiOiJodHRwczovL3dvcmtzLXNob3djYXNlLWQyZ2l1YjRwcjVkNjg3ODQ4LmFwLXNoYW5naGFpLnRjYi1hcGkudGVuY2VudGNsb3VkYXBpLmNvbSIsInN1YiI6ImFub24iLCJhdWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsImV4cCI6NDA4MzY2MDYyNiwiaWF0IjoxNzc5OTc3NDI2LCJub25jZSI6IlBSdHgtMm1GUlZ1OXFkM0p5ejU1aWciLCJhdF9oYXNoIjoiUFJ0eC0ybUZSVnU5cWQzSnl6NTVpZyIsIm5hbWUiOiJBbm9ueW1vdXMiLCJzY29wZSI6ImFub255bW91cyIsInByb2plY3RfaWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsIm1ldGEiOnsicGxhdGZvcm0iOiJQdWJsaXNoYWJsZUtleSJ9LCJ1c2VyX3R5cGUiOiIiLCJjbGllbnRfdHlwZSI6ImNsaWVudF91c2VyIiwiaXNfc3lzdGVtX2FkbWluIjpmYWxzZX0.hbLxMthyDPhSvGwtKo-PpjGfyejWQir39akNphU_pxYr5aW_MRC-crr-g2nznaTWcnvkjDLlXrJAxd8qjRQ7y5H6S_s8QOZ9LllWmEbDGU2IDV9-Z9F6R_-I3AFy80O6l-vVqEH2V3uTV7gOkGDHq9Rebf0adPIWs3Iv9Lgp-sU5MhZoXgluu-rkxDQPr3Lmaw1GL2O2t7QCp4fmfAJjBkBwgEY3hloe8LdO6_xe8fzAKRzMkc9o1D9ZgPplOARhj-lIQK6JVPjHpGYelYJmlMEq_ePQWzQ7HWKwucoPnspi11hnVP9-NQzesOYRMpjww7sIO5QWhTbyIat60TQbOw',AP='yiyao1219';
-var app,auth,db,W=[],Lk=[],Cm=[],Sh=[],Vi=[],UR=[];var dbReady=false;
+var app,auth,db,W=[],Lk=[],Cm=[],Sh=[],Vi=[],UR=[];
 
 function checkPw(){if(document.getElementById('pwIn').value===AP){document.getElementById('pwOverlay').classList.add('h');localStorage.setItem('aa',JSON.stringify({t:Date.now()}));initDB().then(loadAll)}else{document.getElementById('pwErr').style.display='block'}}
 function isAuth(){try{var d=JSON.parse(localStorage.getItem('aa'));return Date.now()-d.t<6048e5}catch(e){return false}}
@@ -154,27 +149,17 @@ function fd(d){if(!d)return'-';var t=new Date(d);return t.getFullYear()+'-'+Stri
 function ft(d){return d?new Date(d).toLocaleString('zh-CN'):'-'}
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('s');setTimeout(function(){t.classList.remove('s')},2200)}
 
-function switchT(t){document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.toggle('active',b.dataset.t===t)});document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});document.getElementById('p-'+t).classList.add('active')}
+function switchT(t){document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.toggle('active',b.dataset.t===t)});document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});var p=document.getElementById('p-'+t);if(p)p.classList.add('active')}
 
 async function initDB(){
-  try{
-    app=cloudbase.init({env:EI,publishableKey:PK});
-    console.log('cloudbase.init OK');
-    auth=app.auth({persistence:'local'});
-    console.log('auth init OK');
-    db=app.database();
-    console.log('db init OK, db=',db);
-    await auth.signInAnonymously();
-    console.log('anonymous signIn OK');
-    dbReady=true;
-    console.log('DB fully ready');
-  }catch(e){
-    console.error('DB init failed:',e);
-    toast('数据库初始化失败: '+e.message);
-  }
+  app=cloudbase.init({env:EI,publishableKey:PK});
+  auth=app.auth({persistence:'local'});
+  db=app.database();
+  await auth.signInAnonymously();
+  console.log('DB ready');
 }
 
-async function loadAll(){try{await loadD();rDash();rWT();rUT();rVT()}catch(e){toast('数据加载失败: '+e.message)}}
+async function loadAll(){try{await loadD();rDash();rWT();rUT();rVT();console.log('loadAll OK')}catch(e){console.error('loadAll error:',e);toast('数据加载失败: '+e.message)}}
 
 async function loadD(){
   var r;r=await db.collection('Work').orderBy('sort_order','asc').get();W=r.data||[];
@@ -190,8 +175,6 @@ function rDash(){
   tb.innerHTML=Vi.slice(0,10).map(function(v){return'<tr><td>'+esc(v.user_nickname)+'</td><td>'+esc(v.user_department)+'</td><td style="font-size:11px;color:var(--txt3)">'+esc(v.device_id)+'</td><td>'+ft(v.last_seen)+'</td></tr>'}).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--txt3)">暂无数据</td></tr>';
 }
 function el(id,v){var e=document.getElementById(id);if(e)e.textContent=v}
-
-function wTitle(wid){for(var i=0;i<W.length;i++){if(W[i]._id===wid)return W[i].title}return'-'}
 
 function rWT(){
   var f=document.getElementById('w-cat').value;
@@ -216,9 +199,9 @@ function rWT(){
 function buildUR(){
   var wm={};for(var i=0;i<W.length;i++)wm[W[i]._id]=W[i].title;
   UR=[];
-  for(var i=0;i<Lk.length;i++){var x=Lk[i];UR.push({n:x.user_nickname||x.nickname||'',d:x.user_department||x.department||'',wt:wm[x.work_id]||'-',tp:'点赞',ct:'-',tm:x.created_at})}
-  for(var i=0;i<Cm.length;i++){var x=Cm[i];UR.push({n:x.user_nickname||x.nickname||'',d:x.user_department||x.department||'',wt:wm[x.work_id]||'-',tp:'评论',ct:x.content||'-',tm:x.created_at})}
-  for(var i=0;i<Sh.length;i++){var x=Sh[i];UR.push({n:x.user_nickname||x.nickname||'',d:x.user_department||x.department||'',wt:wm[x.work_id]||'-',tp:'分享',ct:'-',tm:x.created_at})}
+  for(var i=0;i<Lk.length;i++){var x=Lk[i];UR.push({n:x.user_nickname||x.nickname||'',d:x.user_department||x.department||'',wt:wm[x.work_id]||'-',tp:'\u70b9\u8d5e',ct:'-',tm:x.created_at})}
+  for(var i=0;i<Cm.length;i++){var x=Cm[i];UR.push({n:x.user_nickname||x.nickname||'',d:x.user_department||x.department||'',wt:wm[x.work_id]||'-',tp:'\u8bc4\u8bba',ct:x.content||'-',tm:x.created_at})}
+  for(var i=0;i<Sh.length;i++){var x=Sh[i];UR.push({n:x.user_nickname||x.nickname||'',d:x.user_department||x.department||'',wt:wm[x.work_id]||'-',tp:'\u5206\u4eab',ct:'-',tm:x.created_at})}
   UR.sort(function(a,b){return new Date(b.tm)-new Date(a.tm)});
 }
 
@@ -227,7 +210,7 @@ function rUT(){
   var nf=document.getElementById('u-name').value.trim().toLowerCase();
   var df=document.getElementById('u-dept').value.trim().toLowerCase();
   var tf=document.getElementById('u-type').value;
-  var tpMap={like:'点赞',comment:'评论',share:'分享'};
+  var tpMap={like:'\u70b9\u8d5e',comment:'\u8bc4\u8bba',share:'\u5206\u4eab'};
   var f=UR.filter(function(r){
     if(nf&&r.n.toLowerCase().indexOf(nf)===-1)return false;
     if(df&&r.d.toLowerCase().indexOf(df)===-1)return false;
@@ -235,7 +218,7 @@ function rUT(){
     return true;
   });
   var tb=document.getElementById('u-tbody');
-  var tc={点赞:'#FF6B6B',评论:'#4ECDC4',分享:'#A78BFA'};
+  var tc={'\u70b9\u8d5e':'#FF6B6B','\u8bc4\u8bba':'#4ECDC4','\u5206\u4eab':'#A78BFA'};
   tb.innerHTML=f.map(function(r){
     return'<tr><td>'+esc(r.n)+'</td><td>'+esc(r.d)+'</td><td>'+esc(r.wt)+'</td><td style="color:'+tc[r.tp]+';font-weight:600">'+esc(r.tp)+'</td><td style="font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.ct)+'</td><td>'+ft(r.tm)+'</td></tr>';
   }).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--txt3)">暂无数据</td></tr>';
@@ -249,7 +232,6 @@ function rVT(){
   }).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--txt3)">暂无数据</td></tr>';
 }
 
-// ===== CSV Export =====
 function csvCell(v){var s=String(v||'');if(s.indexOf(',')!==-1||s.indexOf('"')!==-1||s.indexOf('\n')!==-1)return'"'+s.replace(/"/g,'""')+'"';return s}
 function dlCSV(rows,filename){
   var bom='\uFEFF';var csv=bom+rows.map(function(r){return r.map(csvCell).join(',')}).join('\r\n');
@@ -259,21 +241,13 @@ function dlCSV(rows,filename){
 }
 
 function expWorks(){
-  buildUR();
-  var rows=[['作品标题','分类','点赞数','评论数','分享数','互动总数']];
-  W.forEach(function(w){
-    var l=0,c=0,s=0;
-    for(var i=0;i<Lk.length;i++)if(Lk[i].work_id===w._id)l++;
-    for(var i=0;i<Cm.length;i++)if(Cm[i].work_id===w._id)c++;
-    for(var i=0;i<Sh.length;i++)if(Sh[i].work_id===w._id)s++;
-    rows.push([w.title,w.category==='battle'?"\"医\"起打擂台":"医高人胆大",l,c,s,l+c+s]);
-  });
+  buildUR();var rows=[['作品标题','分类','点赞数','评论数','分享数','互动总数']];
+  W.forEach(function(w){var l=0,c=0,s=0;for(var i=0;i<Lk.length;i++)if(Lk[i].work_id===w._id)l++;for(var i=0;i<Cm.length;i++)if(Cm[i].work_id===w._id)c++;for(var i=0;i<Sh.length;i++)if(Sh[i].work_id===w._id)s++;rows.push([w.title,w.category==='battle'?"\"医\"起打擂台":"医高人胆大",l,c,s,l+c+s])});
   dlCSV(rows,'作品统计_'+fd(new Date())+'.csv');
 }
 
 function expUsers(){
-  buildUR();
-  var rows=[['用户名','部门','作品标题','操作类型','评论内容','时间']];
+  buildUR();var rows=[['用户名','部门','作品标题','操作类型','评论内容','时间']];
   UR.forEach(function(r){rows.push([r.n,r.d,r.wt,r.tp,r.ct,ft(r.tm)])});
   dlCSV(rows,'用户行为明细_'+fd(new Date())+'.csv');
 }
@@ -284,45 +258,30 @@ function expVisitors(){
   dlCSV(rows,'访客列表_'+fd(new Date())+'.csv');
 }
 
-// ===== Upload Work (Base64) =====
+// ===== Upload =====
 var _ulFiles=[];
 function previewFiles(){
   var input=document.getElementById('ul-files');
   var newFiles=Array.from(input.files);
-  // 限制最多10张
-  if(_ulFiles.length+newFiles.length>10){
-    toast('最多只能上传10张图片，当前已有'+_ulFiles.length+'张');
-    return;
-  }
-  _ulFiles=_ulFiles.concat(newFiles);
-  renderPreview();
-  input.value='';
+  if(_ulFiles.length+newFiles.length>10){toast('最多10张，当前已有'+_ulFiles.length+'张');return}
+  _ulFiles=_ulFiles.concat(newFiles);renderPreview();input.value='';
 }
 
-function removeImg(idx){
-  _ulFiles.splice(idx,1);
-  renderPreview();
-}
+function removeImg(idx){_ulFiles.splice(idx,1);renderPreview()}
 
 function renderPreview(){
   var preview=document.getElementById('ul-preview');
   var status=document.getElementById('ul-status');
   preview.innerHTML='';
-  status.textContent=_ulFiles.length?'已选择 '+_ulFiles.length+' 张图片（点击 × 可移除）':'';
+  status.textContent=_ulFiles.length?'已选择 '+_ulFiles.length+' 张（点击 × 移除）':'';
   _ulFiles.forEach(function(f,i){
     var idx=i;
     var reader=new FileReader();
     reader.onload=function(e){
       var wrap=document.createElement('div');
       wrap.style.cssText='position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:2px solid var(--bdr)';
-      var img=document.createElement('img');
-      img.src=e.target.result;img.style.cssText='width:100%;height:100%;object-fit:cover';
-      wrap.appendChild(img);
-      var btn=document.createElement('div');
-      btn.style.cssText='position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:14px;line-height:20px;text-align:center;cursor:pointer;';
-      btn.textContent='×';
-      btn.onclick=function(){removeImg(idx)};
-      wrap.appendChild(btn);
+      wrap.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover"/>'+'<div style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:14px;line-height:20px;text-align:center;cursor:pointer">\u00d7</div>';
+      wrap.querySelector('div').onclick=function(){removeImg(idx)};
       preview.appendChild(wrap);
     };
     reader.readAsDataURL(f);
@@ -347,62 +306,45 @@ function compressImg(file,maxW,quality){
   });
 }
 
-async function submitWork(){
-  if(!db||!db.collection){toast('数据库未就绪，请等待3秒再试');return}
+async function doSubmit(){
+  if(!db||typeof db.collection!=='function'){toast('数据库未就绪，请等待3秒');return}
   var title=document.getElementById('ul-title').value.trim();
   var desc=document.getElementById('ul-desc').value.trim();
   var cat=document.getElementById('ul-cat').value;
   var msg=document.getElementById('ul-msg');
-  if(!title){toast('请填写作品标题');return}
-  if(!_ulFiles.length){toast('请至少选择一张图片');return}
-  // Show loading
-  msg.textContent='正在处理图片（'+_ulFiles.length+'张），请稍候...';
-  msg.style.color='var(--txt2)';
-  msg.style.display='block';
-  // Compress and convert to Base64
+  if(!title){toast('请填写标题');return}
+  if(!_ulFiles.length){toast('请选择至少一张图片');return}
+  msg.textContent='正在处理 '+_ulFiles.length+' 张图片...';msg.style.color='var(--txt2)';msg.style.display='block';
   var images=[];
   for(var i=0;i<_ulFiles.length;i++){
     try{
-      var b64=await compressImg(_ulFiles[i],800,0.7);
+      var b64=await compressImg(_ulFiles[i],600,0.6);
       images.push(b64);
     }catch(e){
-      msg.textContent='❌ 图片处理失败: '+e.message;
-      msg.style.color='var(--danger)';
-      return;
+      msg.textContent='图片处理失败: '+e.message;msg.style.color='var(--danger)';return;
     }
   }
   try{
     await db.collection('Work').add({
-      title:title,
-      description:desc,
-      category:cat,
-      images:images,
-      visible:true,
-      sort_order:Date.now(),
-      createdAt:new Date()
+      title:title,description:desc,category:cat,images:images,
+      visible:true,sort_order:Date.now(),createdAt:new Date()
     });
-    // Reset form
     document.getElementById('ul-title').value='';
     document.getElementById('ul-desc').value='';
     document.getElementById('ul-files').value='';
     document.getElementById('ul-preview').innerHTML='';
     document.getElementById('ul-status').textContent='';
     _ulFiles=[];
-    msg.textContent='✅ 作品已提交成功！刷新前台即可看到';
-    msg.style.color='#00E5A0';
-    toast('作品发布成功 🎉');
+    msg.textContent='\u2705 作品已提交！刷新前台即可看到';msg.style.color='#00E5A0';
+    toast('发布成功');
     loadAll();
   }catch(e){
-    msg.textContent='❌ 发布失败: '+e.message;
-    msg.style.color='var(--danger)';
+    msg.textContent='发布失败: '+e.message;msg.style.color='var(--danger)';
     toast('发布失败: '+e.message);
   }
 }
 
-// ===== Init =====
 if(isAuth()){initDB().then(loadAll)}else{document.getElementById('pwIn').focus()}
-// Bind submit button
-setTimeout(function(){var btn=document.getElementById('btn-submit');if(btn)btn.onclick=submitWork},500)
 </script>
 </body>
 </html>
