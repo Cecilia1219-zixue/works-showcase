@@ -2,242 +2,356 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>后台管理 — 优秀作品展</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>医起AI·挑战赛 - 管理后台</title>
+<script src="https://unpkg.com/@cloudbase/js-sdk@latest/dist/index.umd.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f5f5f5; color: #333; }
-  #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-  .login-box { background: white; border-radius: 20px; padding: 40px 32px; width: 320px; box-shadow: 0 4px 24px rgba(0,0,0,0.1); text-align: center; }
-  .login-box h2 { font-size: 1.3rem; margin-bottom: 24px; color: #555; }
-  .login-box input { width: 100%; padding: 12px 16px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 1rem; outline: none; margin-bottom: 16px; }
-  .login-box input:focus { border-color: #667eea; }
-  .btn-primary { width: 100%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; padding: 13px; font-size: 1rem; cursor: pointer; font-weight: 600; }
-  .login-err { color: #e53e3e; font-size: 0.85rem; margin-top: 10px; display: none; }
-  #admin-screen { display: none; }
-  header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 16px; display: flex; align-items: center; justify-content: space-between; }
-  header h1 { font-size: 1.2rem; font-weight: 700; }
-  .logout-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
-  .container { max-width: 800px; margin: 0 auto; padding: 20px 16px 60px; }
-  .section-title { font-size: 1rem; font-weight: 600; color: #555; margin: 24px 0 12px; }
-  .add-form { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
-  label { display: block; font-size: 0.85rem; color: #888; margin-bottom: 5px; margin-top: 14px; }
-  label:first-child { margin-top: 0; }
-  input[type=text], input[type=url], textarea { width: 100%; padding: 10px 14px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 0.95rem; outline: none; font-family: inherit; }
-  input:focus, textarea:focus { border-color: #667eea; }
-  textarea { resize: vertical; min-height: 80px; }
-  .img-upload-area { border: 2px dashed #d0d0d0; border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; color: #aaa; font-size: 0.9rem; margin-top: 6px; transition: border-color 0.2s; }
-  .img-upload-area:hover { border-color: #667eea; color: #667eea; }
-  .img-previews { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-  .img-preview { position: relative; width: 80px; height: 80px; }
-  .img-preview img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
-  .img-preview .del { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; background: #ff6b6b; color: white; border: none; border-radius: 50%; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .submit-btn { margin-top: 18px; width: 100%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 12px; padding: 14px; font-size: 1rem; font-weight: 600; cursor: pointer; }
-  .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-  .work-item { background: white; border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 12px; }
-  .work-thumb { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #eee; }
-  .work-info { flex: 1; min-width: 0; }
-  .work-info .wt { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .work-info .wd { font-size: 0.8rem; color: #999; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .work-actions { display: flex; gap: 6px; flex-shrink: 0; }
-  .act-btn { border: none; border-radius: 8px; padding: 7px 10px; font-size: 0.8rem; cursor: pointer; }
-  .up-btn { background: #f0f4ff; color: #667eea; }
-  .dn-btn { background: #f0f4ff; color: #667eea; }
-  .del-btn { background: #fff0f0; color: #ff6b6b; }
-  .count-badge { font-size: 0.8rem; color: #aaa; margin: 0 0 8px; }
-  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 24px; border-radius: 20px; font-size: 0.9rem; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
-  .toast.show { opacity: 1; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f6fa;color:#333;min-height:100vh}
+.header{background:linear-gradient(135deg,#2c3e50,#3498db);color:#fff;padding:16px 20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.header h1{font-size:20px;letter-spacing:1px}
+.header .back{font-size:13px;opacity:.8;margin-top:6px}
+.header .back a{color:#fff}
+.container{max-width:1200px;margin:0 auto;padding:20px 16px}
+.tabs{display:flex;gap:8px;margin-bottom:20px;background:#fff;padding:8px;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.tab-btn{flex:1;padding:10px;border:none;border-radius:8px;background:#f5f5f5;font-size:14px;cursor:pointer;transition:.2s;font-weight:500}
+.tab-btn.active{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+.panel{display:none}
+.panel.active{display:block}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid #f0f0f0;font-size:13px}
+th{background:#fafafa;font-weight:600;color:#666}
+.work-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.work-card h3{font-size:15px;margin-bottom:12px;color:#333}
+.stats-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.stat-box{flex:1;min-width:100px;padding:10px;border-radius:8px;text-align:center}
+.stat-today{background:#f0e6ff}
+.stat-total{background:#e6f7ff}
+.stat-box .num{font-size:22px;font-weight:700;color:#764ba2}
+.stat-box .label{font-size:11px;color:#999;margin-top:4px}
+.stat-total .num{color:#3498db}
+.detail-toggle{font-size:13px;color:#764ba2;cursor:pointer;text-decoration:underline}
+.detail-table{display:none;margin-top:8px}
+.detail-table.show{display:block}
+.detail-table table{box-shadow:none;border:1px solid #f0f0f0}
+.detail-table th{background:#f5f0ff}
+.form-section{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.form-section h3{margin-bottom:16px;font-size:16px}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:#666;margin-bottom:4px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none}
+.form-group input:focus,.form-group textarea:focus{border-color:#764ba2}
+.form-group textarea{height:60px;resize:vertical}
+.btn{padding:10px 24px;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-weight:600;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+.btn-danger{background:#e74c3c;color:#fff;font-size:12px;padding:6px 14px}
+.btn:hover{opacity:.85}
+.form-actions{display:flex;gap:8px;margin-top:8px}
+.password-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:100;display:flex;align-items:center;justify-content:center}
+.password-overlay.hidden{display:none}
+.password-box{background:#fff;border-radius:16px;padding:32px;width:340px;text-align:center}
+.password-box h2{margin-bottom:8px;font-size:18px}
+.password-box p{color:#999;font-size:13px;margin-bottom:16px}
+.password-box input{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:15px;text-align:center;outline:none;margin-bottom:12px}
+.password-box input:focus{border-color:#764ba2}
+.password-error{color:#e74c3c;font-size:13px;margin-bottom:8px;display:none}
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;padding:10px 24px;border-radius:8px;font-size:14px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.loading{text-align:center;padding:40px;color:#999}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600}
+.badge-battle{background:#f0e6ff;color:#764ba2}
+.badge-bold{background:#e6f7ff;color:#3498db}
+.work-item{background:#fff;border-radius:10px;padding:12px 16px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.05);display:flex;justify-content:space-between;align-items:center}
+.work-item .info{flex:1}
+.work-item .info h4{font-size:14px;margin-bottom:4px}
+.work-item .info p{font-size:12px;color:#999}
 </style>
 </head>
 <body>
 
-<div id="login-screen">
-  <div class="login-box">
-    <h2>🔐 后台管理</h2>
-    <input type="password" id="pwd-input" placeholder="请输入管理密码" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="btn-primary" onclick="doLogin()">登 录</button>
-    <div class="login-err" id="login-err">密码错误，请重试</div>
+<div id="passwordOverlay" class="password-overlay">
+  <div class="password-box">
+    <h2>🔐 管理后台登录</h2>
+    <p>请输入管理密码</p>
+    <div id="pwError" class="password-error">密码错误</div>
+    <input id="pwInput" type="password" placeholder="输入密码" onkeydown="if(event.key==='Enter')checkPassword()" />
+    <button class="btn btn-primary" style="width:100%" onclick="checkPassword()">登录</button>
   </div>
 </div>
 
-<div id="admin-screen">
-  <header>
-    <h1>🛠 后台管理</h1>
-    <div style="display:flex;gap:10px;align-items:center">
-      <a href="index.html" style="color:rgba(255,255,255,0.8);font-size:0.85rem;text-decoration:none">查看前台</a>
-      <button class="logout-btn" onclick="doLogout()">退出</button>
-    </div>
-  </header>
-  <div class="container">
-    <div class="section-title">➕ 添加新作品</div>
-    <div class="add-form">
-      <label>作品标题 *</label>
-      <input type="text" id="f-title" placeholder="请输入标题">
-      <label>作品描述</label>
-      <textarea id="f-desc" placeholder="简单介绍这个作品..."></textarea>
-      <label>作品分类 *</label>
-      <select id="f-cat" style="width:100%;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:0.95rem;outline:none;background:white">
-        <option value="challenge">"医"起打擂台</option>
-        <option value="brave">"医"高人胆大</option>
-      </select>
-      <label>外部链接（可选）</label>
-      <input type="url" id="f-link" placeholder="https://...">
-      <label>图片（最多10张）</label>
-      <div class="img-upload-area" onclick="document.getElementById('img-input').click()">📷 点击选择图片（支持多选）</div>
-      <input type="file" id="img-input" multiple accept="image/*" style="display:none" onchange="handleImgs(this)">
-      <div class="img-previews" id="img-previews"></div>
-      <button class="submit-btn" id="submit-btn" onclick="addWork()">✅ 添加作品</button>
-    </div>
+<div class="header">
+  <h1>⚙️ 医起AI·挑战赛 管理后台</h1>
+  <div class="back"><a href="index.html">← 返回作品广场</a></div>
+</div>
 
-    <div class="section-title">📋 已有作品</div>
-    <div class="count-badge" id="count-badge"></div>
-    <div id="work-list"></div>
+<div class="container">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('daily')">每日访问</button>
+    <button class="tab-btn" onclick="switchTab('stats')">互动明细</button>
+    <button class="tab-btn" onclick="switchTab('manage')">作品管理</button>
+  </div>
+
+  <div id="panel-daily" class="panel active">
+    <table><thead><tr><th>日期</th><th>UV（去重人数）</th><th>PV（总访问次数）</th></tr></thead>
+    <tbody id="daily-tbody"></tbody></table>
+  </div>
+
+  <div id="panel-stats" class="panel">
+    <div id="stats-container"></div>
+  </div>
+
+  <div id="panel-manage" class="panel">
+    <div class="form-section" style="margin-bottom:20px">
+      <h3>➕ 新增作品</h3>
+      <div class="form-group"><label>标题</label><input id="new-title" placeholder="作品标题" /></div>
+      <div class="form-group"><label>描述</label><textarea id="new-desc" placeholder="作品描述"></textarea></div>
+      <div class="form-group"><label>分类</label>
+        <select id="new-cat"><option value="battle">"医"起打擂台</option><option value="bold">医高人胆大</option></select>
+      </div>
+      <div class="form-group"><label>图片URL（逗号分隔）</label><input id="new-imgs" placeholder="https://xxx.jpg,https://yyy.png" /></div>
+      <div class="form-group"><label>外链</label><input id="new-url" placeholder="https://..." /></div>
+      <div class="form-group"><label>排序值（越小越靠前）</label><input id="new-sort" type="number" value="99" /></div>
+      <button class="btn btn-primary" onclick="addWork()">添加作品</button>
+    </div>
+    <div id="works-list"></div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div id="toast" class="toast"></div>
 
 <script>
-const ADMIN_PASSWORD = 'works2024';
-const SESSION_KEY = 'works_admin_session';
-const SUPABASE_URL = 'https://nrukvtlujydvebfskwok.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ydWt2dGx1anlkdmViZnNrd29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3Mzc5MDUsImV4cCI6MjA5NTMxMzkwNX0.QUZLq1S8VdJjQzA8g6DxUvNj6bK06ci3lR-3KK15nk4';
+const ENV_ID = 'works-showcase-d2giub4pr5d687848';
+const PUB_KEY = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjlkMWRjMzFlLWI0ZDAtNDQ4Yi1hNzZmLWIwY2M2M2Q4MTQ5OCJ9.eyJpc3MiOiJodHRwczovL3dvcmtzLXNob3djYXNlLWQyZ2l1YjRwcjVkNjg3ODQ4LmFwLXNoYW5naGFpLnRjYi1hcGkudGVuY2VudGNsb3VkYXBpLmNvbSIsInN1YiI6ImFub24iLCJhdWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsImV4cCI6NDA4MzY2MDYyNiwiaWF0IjoxNzc5OTc3NDI2LCJub25jZSI6IlBSdHgtMm1GUlZ1OXFkM0p5ejU1aWciLCJhdF9oYXNoIjoiUFJ0eC0ybUZSVnU5cWQzSnl6NTVpZyIsIm5hbWUiOiJBbm9ueW1vdXMiLCJzY29wZSI6ImFub255bW91cyIsInByb2plY3RfaWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsIm1ldGEiOnsicGxhdGZvcm0iOiJQdWJsaXNoYWJsZUtleSJ9LCJ1c2VyX3R5cGUiOiIiLCJjbGllbnRfdHlwZSI6ImNsaWVudF91c2VyIiwiaXNfc3lzdGVtX2FkbWluIjpmYWxzZX0.hbLxMthyDPhSvGwtKo-PpjGfyejWQir39akNphU_pxYr5aW_MRC-crr-g2nznaTWcnvkjDLlXrJAxd8qjRQ7y5H6S_s8QOZ9LllWmEbDGU2IDV9-Z9F6R_-I3AFy80O6l-vVqEH2V3uTV7gOkGDHq9Rebf0adPIWs3Iv9Lgp-sU5MhZoXgluu-rkxDQPr3Lmaw1GL2O2t7QCp4fmfAJjBkBwgEY3hloe8LdO6_xe8fzAKRzMkc9o1D9ZgPplOARhj-lIQK6JVPjHpGYelYJmlMEq_ePQWzQ7HWKwucoPnspi11hnVP9-NQzesOYRMpjww7sIO5QWhTbyIat60TQbOw';
+const ADMIN_PW = 'shuidi2024';
+let app, auth, db;
 
-let pendingImgs = [];
-let works = [];
-
-async function api(path, opts={}) {
-  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
-    headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=representation', ...opts.headers },
-    ...opts
-  });
-  if (!res.ok) { const t = await res.text(); throw new Error(t); }
-  return res.status === 204 ? null : res.json();
-}
-
-function doLogin() {
-  if (document.getElementById('pwd-input').value === ADMIN_PASSWORD) {
-    sessionStorage.setItem(SESSION_KEY, '1');
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('admin-screen').style.display = 'block';
-    loadWorks();
+function checkPassword() {
+  var pw = document.getElementById('pwInput').value;
+  if (pw === ADMIN_PW) {
+    document.getElementById('passwordOverlay').classList.add('hidden');
+    localStorage.setItem('admin_auth', JSON.stringify({ ts: Date.now() }));
+    initCloudBase().then(loadAll);
   } else {
-    document.getElementById('login-err').style.display = 'block';
+    document.getElementById('pwError').style.display = 'block';
   }
 }
-function doLogout() { sessionStorage.removeItem(SESSION_KEY); location.reload(); }
 
-function handleImgs(input) {
-  const files = Array.from(input.files);
-  const remain = 10 - pendingImgs.length;
-  if (remain <= 0) { showToast('最多上传10张图片'); return; }
-  files.slice(0, remain).forEach(f => {
-    const reader = new FileReader();
-    reader.onload = e => { pendingImgs.push(e.target.result); renderPreviews(); };
-    reader.readAsDataURL(f);
+function isAuthenticated() {
+  try {
+    var d = JSON.parse(localStorage.getItem('admin_auth'));
+    return Date.now() - d.ts < 7 * 24 * 3600 * 1000;
+  } catch (e) { return false; }
+}
+
+if (isAuthenticated()) {
+  document.getElementById('passwordOverlay').classList.add('hidden');
+}
+
+function escHtml(s) {
+  var div = document.createElement('div');
+  div.textContent = s || '';
+  return div.innerHTML;
+}
+
+function fmtDate(d) {
+  if (!d) return '-';
+  var dt = new Date(d);
+  return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+}
+
+function fmtTime(d) {
+  if (!d) return '-';
+  return new Date(d).toLocaleString('zh-CN');
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2000);
+}
+
+function switchTab(tab) {
+  var btns = document.querySelectorAll('.tab-btn');
+  var panels = document.querySelectorAll('.panel');
+  btns.forEach(function(b, i) {
+    b.classList.toggle('active', (i===0&&tab==='daily')||(i===1&&tab==='stats')||(i===2&&tab==='manage'));
   });
-  input.value = '';
+  panels.forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('panel-' + tab).classList.add('active');
 }
-function renderPreviews() {
-  document.getElementById('img-previews').innerHTML = pendingImgs.map((src, i) =>
-    `<div class="img-preview"><img src="${src}"><button class="del" onclick="removeImg(${i})">×</button></div>`
-  ).join('');
+
+async function initCloudBase() {
+  app = cloudbase.init({ env: ENV_ID, publishableKey: PUB_KEY });
+  auth = app.auth({ persistence: 'local' });
+  db = app.database();
+  await auth.anonymousAuthProvider().signIn();
 }
-function removeImg(i) { pendingImgs.splice(i, 1); renderPreviews(); }
+
+async function loadAll() {
+  loadDailyVisits();
+  loadStats();
+  loadWorksList();
+}
+
+async function loadDailyVisits() {
+  try {
+    var res = await db.collection('Visitor').orderBy('last_seen', 'desc').get();
+    var visitors = res.data || [];
+    var dateMap = {};
+    visitors.forEach(function(v) {
+      var date = fmtDate(v.last_seen || v.created_at);
+      if (!dateMap[date]) dateMap[date] = { devices: new Set(), count: 0 };
+      dateMap[date].devices.add(v.device_id);
+      dateMap[date].count++;
+    });
+    var sorted = Object.entries(dateMap).sort(function(a, b) { return b[0].localeCompare(a[0]); });
+    var tbody = document.getElementById('daily-tbody');
+    tbody.innerHTML = sorted.map(function(entry) {
+      var date = entry[0], info = entry[1];
+      return '<tr><td>' + date + '</td><td>' + info.devices.size + '</td><td>' + info.count + '</td></tr>';
+    }).join('') || '<tr><td colspan="3" style="text-align:center;color:#999">暂无数据</td></tr>';
+  } catch(e) {
+    document.getElementById('daily-tbody').innerHTML = '<tr><td colspan="3" style="text-align:center;color:#e74c3c">加载失败: ' + escHtml(e.message) + '</td></tr>';
+  }
+}
+
+async function loadStats() {
+  try {
+    var res = await db.collection('Work').orderBy('sort_order', 'asc').get();
+    var worksList = res.data || [];
+    var today = fmtDate(new Date());
+    var container = document.getElementById('stats-container');
+    if (worksList.length === 0) {
+      container.innerHTML = '<div class="loading">暂无作品</div>';
+      return;
+    }
+    var html = '';
+    for (var i = 0; i < worksList.length; i++) {
+      var w = worksList[i];
+      html += '<div class="work-card" data-workid="' + w._id + '">';
+      html += '<h3>' + escHtml(w.title) + ' <span class="badge ' + (w.category==='battle'?'badge-battle':'badge-bold') + '">' + (w.category==='battle'?'打擂台':'胆大') + '</span></h3>';
+      html += '<div class="stats-row">';
+      html += '<div class="stat-box stat-today"><div class="num" id="tl-' + w._id + '">-</div><div class="label">今日点赞</div></div>';
+      html += '<div class="stat-box stat-today"><div class="num" id="tc-' + w._id + '">-</div><div class="label">今日评论</div></div>';
+      html += '<div class="stat-box stat-today"><div class="num" id="ts-' + w._id + '">-</div><div class="label">今日转发</div></div>';
+      html += '<div class="stat-box stat-total"><div class="num" id="al-' + w._id + '">-</div><div class="label">总点赞</div></div>';
+      html += '<div class="stat-box stat-total"><div class="num" id="ac-' + w._id + '">-</div><div class="label">总评论</div></div>';
+      html += '<div class="stat-box stat-total"><div class="num" id="as-' + w._id + '">-</div><div class="label">总转发</div></div>';
+      html += '</div>';
+      html += '<div class="detail-toggle" onclick="toggleDetail(\'' + w._id + '\')">📋 展开查看详情</div>';
+      html += '<div class="detail-table" id="detail-' + w._id + '"></div>';
+      html += '</div>';
+    }
+    container.innerHTML = html;
+
+    for (var j = 0; j < worksList.length; j++) {
+      var wid = worksList[j]._id;
+      var likesRes = await db.collection('Like').where({ work_id: wid }).get();
+      var cmtsRes = await db.collection('Comment').where({ work_id: wid }).get();
+      var sharesRes = await db.collection('Share').where({ work_id: wid }).get();
+      var lAll = likesRes.data || [];
+      var cAll = cmtsRes.data || [];
+      var sAll = sharesRes.data || [];
+      var lToday = lAll.filter(function(x) { return fmtDate(x.created_at) === today; });
+      var cToday = cAll.filter(function(x) { return fmtDate(x.created_at) === today; });
+      var sToday = sAll.filter(function(x) { return fmtDate(x.created_at) === today; });
+
+      var se = function(id, val) { var e = document.getElementById(id); if(e) e.textContent = val; };
+      se('tl-' + wid, lToday.length);
+      se('tc-' + wid, cToday.length);
+      se('ts-' + wid, sToday.length);
+      se('al-' + wid, lAll.length);
+      se('ac-' + wid, cAll.length);
+      se('as-' + wid, sAll.length);
+
+      var detailEl = document.getElementById('detail-' + wid);
+      if (detailEl) {
+        var rows = '';
+        lAll.forEach(function(x) { rows += '<tr><td>' + escHtml(x.nickname) + '</td><td>' + fmtTime(x.created_at) + '</td></tr>'; });
+        var likesTable = '<p style="font-size:13px;font-weight:600;margin-bottom:6px">点赞明细</p><table><thead><tr><th>姓名</th><th>时间</th></tr></thead><tbody>' + (rows || '<tr><td colspan="2" style="color:#999;text-align:center">暂无</td></tr>') + '</tbody></table>';
+
+        rows = '';
+        cAll.forEach(function(x) { rows += '<tr><td>' + escHtml(x.nickname) + '</td><td>' + fmtTime(x.created_at) + '</td><td>' + escHtml(x.content) + '</td></tr>'; });
+        var cmtsTable = '<p style="font-size:13px;font-weight:600;margin:12px 0 6px">评论明细</p><table><thead><tr><th>姓名</th><th>时间</th><th>内容</th></tr></thead><tbody>' + (rows || '<tr><td colspan="3" style="color:#999;text-align:center">暂无</td></tr>') + '</tbody></table>';
+
+        rows = '';
+        sAll.forEach(function(x) { rows += '<tr><td>' + escHtml(x.nickname) + '</td><td>' + fmtTime(x.created_at) + '</td><td>' + escHtml(x.share_type) + '</td></tr>'; });
+        var sharesTable = '<p style="font-size:13px;font-weight:600;margin:12px 0 6px">转发明细</p><table><thead><tr><th>姓名</th><th>时间</th><th>类型</th></tr></thead><tbody>' + (rows || '<tr><td colspan="3" style="color:#999;text-align:center">暂无</td></tr>') + '</tbody></table>';
+
+        detailEl.innerHTML = likesTable + cmtsTable + sharesTable;
+      }
+    }
+  } catch(e) {
+    document.getElementById('stats-container').innerHTML = '<div class="loading" style="color:#e74c3c">加载失败: ' + escHtml(e.message) + '</div>';
+  }
+}
+
+function toggleDetail(id) {
+  var el = document.getElementById('detail-' + id);
+  if (el) el.classList.toggle('show');
+}
+
+async function loadWorksList() {
+  try {
+    var res = await db.collection('Work').orderBy('sort_order', 'asc').get();
+    var works = res.data || [];
+    var container = document.getElementById('works-list');
+    if (works.length === 0) {
+      container.innerHTML = '<div class="loading">暂无作品</div>';
+      return;
+    }
+    container.innerHTML = works.map(function(w) {
+      return '<div class="work-item"><div class="info"><h4>' + escHtml(w.title) + ' <span class="badge ' + (w.category==='battle'?'badge-battle':'badge-bold') + '">' + (w.category==='battle'?'打擂台':'胆大') + '</span></h4><p>' + escHtml(w.description) + ' | 排序: ' + (w.sort_order||0) + '</p></div><button class="btn btn-danger" onclick="deleteWork(\'' + w._id + '\')">删除</button></div>';
+    }).join('');
+  } catch(e) {
+    document.getElementById('works-list').innerHTML = '<div class="loading" style="color:#e74c3c">加载失败</div>';
+  }
+}
 
 async function addWork() {
-  const title = document.getElementById('f-title').value.trim();
-  if (!title) { showToast('请填写标题'); return; }
-  if (works.length >= 100) { showToast('已达100个作品上限'); return; }
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = true; btn.textContent = '提交中...';
+  var title = document.getElementById('new-title').value.trim();
+  var desc = document.getElementById('new-desc').value.trim();
+  var cat = document.getElementById('new-cat').value;
+  var imgs = document.getElementById('new-imgs').value.trim();
+  var url = document.getElementById('new-url').value.trim();
+  var sort = parseInt(document.getElementById('new-sort').value) || 99;
+  if (!title) { showToast('请输入标题'); return; }
   try {
-    const maxOrder = works.length ? Math.max(...works.map(w => w.sort_order||0)) : 0;
-    const result = await api('works', {
-      method: 'POST',
-      body: JSON.stringify({
-        title,
-        description: document.getElementById('f-desc').value.trim(),
-        link: document.getElementById('f-link').value.trim() || null,
-        images: pendingImgs,
-        category: document.getElementById('f-cat').value,
-        sort_order: maxOrder + 1,
-        likes: 0
-      })
+    await db.collection('Work').add({
+      title: title, description: desc, category: cat, images: imgs,
+      external_url: url, sort_order: sort, created_at: new Date()
     });
-    document.getElementById('f-title').value = '';
-    document.getElementById('f-desc').value = '';
-    document.getElementById('f-link').value = '';
-    pendingImgs = []; renderPreviews();
-    showToast('✅ 添加成功！');
-    await loadWorks();
+    showToast('作品添加成功');
+    document.getElementById('new-title').value = '';
+    document.getElementById('new-desc').value = '';
+    document.getElementById('new-imgs').value = '';
+    document.getElementById('new-url').value = '';
+    document.getElementById('new-sort').value = '99';
+    loadWorksList();
+    loadStats();
   } catch(e) {
-    showToast('添加失败：' + e.message);
-  }
-  btn.disabled = false; btn.textContent = '✅ 添加作品';
-}
-
-async function loadWorks() {
-  try {
-    works = await api('works?order=sort_order.asc,created_at.desc&select=*');
-    renderList();
-  } catch(e) {
-    showToast('加载失败：' + e.message);
+    showToast('添加失败: ' + e.message);
   }
 }
 
-function renderList() {
-  document.getElementById('count-badge').textContent = `共 ${works.length} / 100 个作品`;
-  const list = document.getElementById('work-list');
-  if (!works.length) { list.innerHTML = '<div style="text-align:center;color:#ccc;padding:30px">暂无作品</div>'; return; }
-  list.innerHTML = works.map((w, i) => `
-    <div class="work-item">
-      ${w.images && w.images[0] ? `<img class="work-thumb" src="${w.images[0]}">` : '<div class="work-thumb"></div>'}
-      <div class="work-info">
-        <div class="wt">${w.title}</div>
-        <div class="wd">${w.description || (w.link ? '🔗 '+w.link : '无描述')}</div>
-      </div>
-      <div class="work-actions">
-        ${i > 0 ? `<button class="act-btn up-btn" onclick="moveWork(${i},-1)">↑</button>` : ''}
-        ${i < works.length-1 ? `<button class="act-btn dn-btn" onclick="moveWork(${i},1)">↓</button>` : ''}
-        <button class="act-btn del-btn" onclick="deleteWork('${w.id}',${i})">删除</button>
-      </div>
-    </div>`).join('');
-}
-
-async function moveWork(i, dir) {
-  const j = i + dir;
-  if (j < 0 || j >= works.length) return;
-  const a = works[i], b = works[j];
-  const so_a = a.sort_order, so_b = b.sort_order;
+async function deleteWork(id) {
+  if (!confirm('确定删除该作品？')) return;
   try {
-    await api(`works?id=eq.${a.id}`, { method: 'PATCH', body: JSON.stringify({ sort_order: so_b }), headers: { 'Prefer': 'return=minimal' } });
-    await api(`works?id=eq.${b.id}`, { method: 'PATCH', body: JSON.stringify({ sort_order: so_a }), headers: { 'Prefer': 'return=minimal' } });
-    await loadWorks();
-  } catch(e) { showToast('排序失败'); }
-}
-
-async function deleteWork(id, i) {
-  if (!confirm(`确认删除「${works[i].title}」？`)) return;
-  try {
-    await api(`works?id=eq.${id}`, { method: 'DELETE', headers: { 'Prefer': 'return=minimal' } });
+    await db.collection('Work').doc(id).remove();
     showToast('已删除');
-    await loadWorks();
-  } catch(e) { showToast('删除失败'); }
+    loadWorksList();
+    loadStats();
+  } catch(e) {
+    showToast('删除失败: ' + e.message);
+  }
 }
 
-let _toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-if (sessionStorage.getItem(SESSION_KEY) === '1') {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('admin-screen').style.display = 'block';
-  loadWorks();
+// 初始化
+if (isAuthenticated()) {
+  initCloudBase().then(loadAll);
+} else {
+  document.getElementById('pwInput').focus();
 }
 </script>
 </body>
