@@ -152,11 +152,37 @@ function toast(m){var t=document.getElementById('toast');t.textContent=m;t.class
 function switchT(t){document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.toggle('active',b.dataset.t===t)});document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});var p=document.getElementById('p-'+t);if(p)p.classList.add('active')}
 
 async function initDB(){
-  app=cloudbase.init({env:EI,publishableKey:PK});
-  auth=app.auth({persistence:'local'});
-  db=app.database();
-  await auth.signInAnonymously();
-  console.log('DB ready');
+  try{
+    app=cloudbase.init({env:EI,publishableKey:PK});
+    auth=app.auth({persistence:'local'});
+    db=app.database();
+    // Check login state - try both old and new API
+    try{
+      if(typeof auth.hasLoginState==='function'){
+        if(!auth.hasLoginState()){
+          if(typeof auth.signInAnonymously==='function') await auth.signInAnonymously();
+          else if(auth.anonymousAuthProvider){
+            var provider=auth.anonymousAuthProvider();
+            if(typeof provider.signIn==='function') await provider.signIn();
+          }
+        }
+      }else{
+        if(typeof auth.signInAnonymously==='function') await auth.signInAnonymously();
+        else if(auth.anonymousAuthProvider){
+          var provider=auth.anonymousAuthProvider();
+          if(typeof provider.signIn==='function') await provider.signIn();
+        }
+      }
+    }catch(e){
+      console.warn('Auth warning:',e.message);
+    }
+    // Test DB connection
+    await db.collection('Work').limit(1).get();
+    console.log('DB ready');
+  }catch(e){
+    console.error('initDB error:',e);
+    throw e;
+  }
 }
 
 async function loadAll(){try{await loadD();rDash();rWT();rUT();rVT();console.log('loadAll OK')}catch(e){console.error('loadAll error:',e);toast('数据加载失败: '+e.message)}}
