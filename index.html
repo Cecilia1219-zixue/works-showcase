@@ -419,24 +419,11 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 function escHtml(s){if(!s)return '';const d=document.createElement('div');d.textContent=String(s);return d.innerHTML}
 function formatTime(v){if(v instanceof Date)return v.toLocaleString('zh-CN');if(typeof v==='string'){try{return new Date(v).toLocaleString('zh-CN')}catch(e){return v}}if(v&&v.$date)return new Date(v.$date).toLocaleString('zh-CN');return ''}
 
-// 粒子生成
-function createParticles(){
-  const container=document.getElementById('particles');
-  for(let i=0;i<30;i++){
-    const p=document.createElement('div');p.className='particle';
-    const size=Math.random()*4+1;
-    p.style.width=size+'px';p.style.height=size+'px';
-    p.style.left=Math.random()*100+'%';
-    p.style.bottom='-10px';
-    p.style.background=['rgba(155,89,255,0.3)','rgba(0,229,255,0.25)','rgba(255,89,214,0.2)','rgba(255,255,255,0.15)'][Math.floor(Math.random()*4)];
-    p.style.animationDuration=(Math.random()*15+10)+'s';
-    p.style.animationDelay=(Math.random()*15)+'s';
-    container.appendChild(p);
-  }
-}
+// 粒子生成（已弃用，保留函数定义避免引用报错）
+function createParticles(){}
 
 async function init(){
-  await initCloudBase();initDeviceId();createParticles();
+  await initCloudBase();initDeviceId();
   const nameInput=document.getElementById('name-input');
   const deptInput=document.getElementById('dept-input');
   const loginBtn=document.getElementById('login-btn');
