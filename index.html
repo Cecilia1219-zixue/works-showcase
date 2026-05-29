@@ -45,6 +45,8 @@ a{color:var(--mint);text-decoration:none}
 .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,172,193,0.4)}
 .btn-primary:active{transform:translateY(0)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.login-error{color:#ef5350;font-size:.8rem;margin-top:.5rem;display:none}
+.login-hint{color:var(--text-dim);font-size:.75rem;margin-top:.5rem;text-align:center}
 
 /* ── Main Content ── */
 #main{position:relative;z-index:1;display:none}
@@ -55,6 +57,7 @@ a{color:var(--mint);text-decoration:none}
 .hero-sphere{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,rgba(168,232,216,0.3),rgba(0,172,193,0.15));border:1px solid rgba(168,232,216,0.25);display:inline-flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 0 40px rgba(168,232,216,0.2);margin-bottom:1rem}
 .hero h1{font-size:1.6rem;color:var(--mint)}
 .hero .subtitle{color:var(--text-dim);font-size:.9rem;margin-top:.25rem}
+.hero .theme-text{font-family:'Dancing Script','Georgia','Brush Script MT','Pacifico',cursive;font-size:1.2rem;background:linear-gradient(135deg,var(--mint),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-top:.35rem;letter-spacing:.02em}
 
 /* ── Tabs ── */
 .tabs-wrap{max-width:1100px;margin:0 auto;padding:0 1rem}
@@ -105,6 +108,7 @@ a{color:var(--mint);text-decoration:none}
 .comment-item{padding:6px 0;font-size:.8rem;border-bottom:1px solid rgba(255,255,255,0.04)}
 .comment-item:last-child{border-bottom:none}
 .comment-author{color:var(--mint);font-weight:500}
+.comment-dept{display:inline-block;padding:1px 6px;border-radius:4px;background:rgba(168,232,216,0.15);color:var(--teal);font-size:.7rem;margin-left:4px;vertical-align:middle}
 .comment-time{color:var(--text-dim);margin-left:8px;font-size:.75rem}
 .comment-text{margin-top:2px;color:var(--text-dim)}
 
@@ -164,9 +168,12 @@ a{color:var(--mint);text-decoration:none}
   <div class="login-right">
     <div class="login-form">
       <h2>欢迎参与 🎉</h2>
-      <p>请输入你的昵称，即可开始浏览和互动</p>
+      <p>请输入你的昵称和部门，即可开始浏览和互动</p>
       <input id="name-input" type="text" placeholder="请输入你的昵称" maxlength="20" autocomplete="off">
-      <button class="btn btn-primary" id="login-btn" disabled>进入活动</button>
+      <input id="dept-input" type="text" placeholder="请输入你的部门" maxlength="30" autocomplete="off">
+      <div class="login-error" id="login-error">请填写昵称和部门</div>
+      <button class="btn btn-primary" id="login-btn" disabled>进入广场</button>
+      <div class="login-hint">登录信息有效期30天</div>
     </div>
   </div>
 </div>
@@ -176,6 +183,7 @@ a{color:var(--mint);text-decoration:none}
   <div class="hero">
     <div class="hero-sphere">🏥</div>
     <h1>医起AI·挑战赛</h1>
+    <p class="theme-text">&ldquo;医&rdquo;起追AI，赢在未来</p>
     <p class="subtitle">作品展示与互动平台</p>
   </div>
 
@@ -223,6 +231,7 @@ const PUB_KEY = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjlkMWRjMzFlLWI0ZDAtNDQ4Yi1hNzZmLWI
 
 let app, db, anonymousAuth, deviceId;
 let visitorName = '';
+let visitorDepartment = '';
 let isKnown = false;
 let currentTab = 0;
 let allWorks = [];
@@ -251,40 +260,55 @@ function initDeviceId() {
   }
 }
 
-/* ── checkVisitor ── */
-function checkVisitor() {
-  const saved = localStorage.getItem('works_visitor');
-  if (saved) {
-    try {
-      const v = JSON.parse(saved);
-      visitorName = v.name;
-      isKnown = true;
-    } catch { /* ignore */ }
-  }
+/* ── hideLogin ── */
+function hideLogin() {
+  document.getElementById('login-overlay').classList.add('hidden');
+  document.getElementById('main').classList.add('show');
 }
 
-/* ── registerVisitor ── */
-async function registerVisitor(name) {
-  visitorName = name;
-  isKnown = true;
-  localStorage.setItem('works_visitor', JSON.stringify({ name, deviceId, at: Date.now() }));
-  try {
-    const col = db.collection('visitors');
-    // Check if already registered
-    const res = await col.where({ deviceId }).get();
-    if (!res.data || res.data.length === 0) {
-      await col.add({ name, deviceId, createdAt: new Date() });
-    }
-  } catch (e) { console.warn('[registerVisitor] DB write skipped:', e); }
+/* ── showLogin ── */
+function showLogin() {
+  document.getElementById('login-overlay').classList.remove('hidden');
+  document.getElementById('main').classList.remove('show');
 }
 
 /* ── doLogin ── */
-function doLogin() {
+async function doLogin() {
   const name = document.getElementById('name-input').value.trim();
-  if (!name) return;
-  document.getElementById('login-overlay').classList.add('hidden');
-  document.getElementById('main').classList.add('show');
-  registerVisitor(name);
+  const dept = document.getElementById('dept-input').value.trim();
+  const errEl = document.getElementById('login-error');
+  if (!name || !dept) {
+    if (errEl) errEl.style.display = 'block';
+    return;
+  }
+  if (errEl) errEl.style.display = 'none';
+
+  // Set global vars
+  visitorName = name;
+  visitorDepartment = dept;
+  isKnown = true;
+
+  // Write to localStorage with timestamp (30-day expiry)
+  localStorage.setItem('loginInfo', JSON.stringify({
+    nickname: name,
+    department: dept,
+    timestamp: Date.now()
+  }));
+
+  // Write to CloudBase visitors table (new device only)
+  try {
+    const col = db.collection('visitors');
+    const res = await col.where({ deviceId }).get();
+    if (!res.data || res.data.length === 0) {
+      await col.add({ name, department: dept, deviceId, createdAt: new Date() });
+    } else {
+      // Update existing record with latest name/dept
+      await col.doc(res.data[0]._id).update({ name, department: dept, lastLoginAt: new Date() });
+    }
+  } catch (e) { console.warn('[doLogin] DB write skipped:', e); }
+
+  hideLogin();
+  showToast('欢迎 ' + name + '（' + dept + '）！');
   loadData();
 }
 
@@ -431,7 +455,13 @@ async function toggleLike(workId) {
     w._stats.likes += interactors[workId].liked ? 1 : -1;
   }
 
-  // Update DB
+  // Record to Like table with user info
+  try {
+    const likeCol = db.collection('likes');
+    await likeCol.add({ workId, user_nickname: visitorName, user_department: visitorDepartment, deviceId, timestamp: new Date() });
+  } catch (e) { console.warn('[toggleLike] Like table write:', e); }
+
+  // Update stats
   try {
     const statsCol = db.collection('work_stats');
     const res = await statsCol.where({ workId }).get();
@@ -478,7 +508,8 @@ async function loadComments(workId) {
     if (comments.length) {
       list.innerHTML = comments.map(c => {
         const time = c.createdAt ? formatTime(c.createdAt) : '';
-        return `<div class="comment-item"><span class="comment-author">${escHtml(c.authorName || '匿名')}</span><span class="comment-time">${time}</span><div class="comment-text">${escHtml(c.text)}</div></div>`;
+        const dept = c.user_department ? `<span class="comment-dept">${escHtml(c.user_department)}</span>` : '';
+        return `<div class="comment-item"><span class="comment-author">${escHtml(c.user_nickname || c.authorName || '匿名')}</span>${dept}<span class="comment-time">${time}</span><div class="comment-text">${escHtml(c.content || c.text)}</div></div>`;
       }).join('');
     } else {
       list.innerHTML = '<div style="padding:8px 0;color:var(--text-dim);font-size:.8rem">暂无评论，来抢沙发吧~</div>';
@@ -496,7 +527,7 @@ async function submitComment(workId) {
 
   try {
     const col = db.collection('comments');
-    await col.add({ workId, authorName: visitorName, authorDeviceId: deviceId, text, createdAt: new Date() });
+    await col.add({ workId, user_nickname: visitorName, user_department: visitorDepartment, deviceId, content: text, timestamp: new Date() });
     input.value = '';
 
     // Update stats
@@ -554,12 +585,12 @@ function shareCopy() {
   input.select();
   navigator.clipboard.writeText(input.value).then(() => {
     showToast('链接已复制 🔗');
-    recordShare(shareWorkId);
+    recordShare(shareWorkId, 'link');
     closeShareModal();
   }).catch(() => {
     document.execCommand('copy');
     showToast('链接已复制 🔗');
-    recordShare(shareWorkId);
+    recordShare(shareWorkId, 'link');
     closeShareModal();
   });
 }
@@ -572,7 +603,7 @@ function shareFeishu() {
   const text = `来看看「${title}」吧！${url}`;
   navigator.clipboard.writeText(text).then(() => {
     showToast('已复制到剪贴板，请在飞书中粘贴发送');
-    recordShare(shareWorkId);
+    recordShare(shareWorkId, 'feishu');
     closeShareModal();
   }).catch(() => {
     showToast('复制失败，请手动复制链接');
@@ -581,12 +612,19 @@ function shareFeishu() {
 
 /* ── shareWechat ── */
 function shareWechat() {
+  recordShare(shareWorkId, 'wechat');
   shareCopy();
   showToast('链接已复制，请在微信中粘贴分享');
 }
 
 /* ── recordShare ── */
-async function recordShare(workId) {
+async function recordShare(workId, platform) {
+  // Record to Share table with user info
+  try {
+    const shareCol = db.collection('shares');
+    await shareCol.add({ workId, user_nickname: visitorName, user_department: visitorDepartment, deviceId, platform: platform || 'link', timestamp: new Date() });
+  } catch (e) { console.warn('[recordShare] Share table write:', e); }
+
   try {
     const statsCol = db.collection('work_stats');
     const res = await statsCol.where({ workId }).get();
@@ -684,24 +722,47 @@ function formatTime(v) {
 
 /* ── Init ── */
 async function init() {
-  // Bind login UI
-  const nameInput = document.getElementById('name-input');
-  const loginBtn = document.getElementById('login-btn');
-  nameInput.addEventListener('input', () => { loginBtn.disabled = !nameInput.value.trim(); });
-  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter' && nameInput.value.trim()) doLogin(); });
-  loginBtn.addEventListener('click', doLogin);
-
-  // Init core
+  // Init core first
   await initCloudBase();
   initDeviceId();
-  checkVisitor();
 
-  if (isKnown) {
-    document.getElementById('login-overlay').classList.add('hidden');
-    document.getElementById('main').classList.add('show');
-    await loadData();
+  // Bind login UI
+  const nameInput = document.getElementById('name-input');
+  const deptInput = document.getElementById('dept-input');
+  const loginBtn = document.getElementById('login-btn');
+  const errEl = document.getElementById('login-error');
+
+  function checkLoginReady() {
+    const ready = nameInput.value.trim() && deptInput.value.trim();
+    loginBtn.disabled = !ready;
+    if (ready && errEl) errEl.style.display = 'none';
   }
-  // If not known, login overlay stays visible; doLogin() will loadData()
+
+  nameInput.addEventListener('input', checkLoginReady);
+  deptInput.addEventListener('input', checkLoginReady);
+  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') { if (nameInput.value.trim() && deptInput.value.trim()) doLogin(); else checkLoginReady(); } });
+  deptInput.addEventListener('keydown', e => { if (e.key === 'Enter') { if (nameInput.value.trim() && deptInput.value.trim()) doLogin(); else checkLoginReady(); } });
+  loginBtn.addEventListener('click', doLogin);
+
+  // Check localStorage for 30-day auto-login
+  const saved = localStorage.getItem('loginInfo');
+  if (saved) {
+    try {
+      const info = JSON.parse(saved);
+      const days = (Date.now() - info.timestamp) / (1000 * 60 * 60 * 24);
+      if (days <= 30 && info.nickname) {
+        visitorName = info.nickname;
+        visitorDepartment = info.department || '';
+        isKnown = true;
+        hideLogin();
+        await loadData();
+        return;
+      }
+    } catch { /* ignore expired/corrupted data */ }
+  }
+
+  // Beyond 30 days or no record — show login
+  showLogin();
 }
 
 init();
