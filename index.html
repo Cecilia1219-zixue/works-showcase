@@ -32,7 +32,10 @@ a{color:var(--text-secondary);text-decoration:none}
 .login-card{position:relative;z-index:1;background:var(--surface);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--border);border-radius:24px;padding:2.5rem 2rem;width:90%;max-width:420px;box-shadow:0 16px 48px rgba(0,0,0,0.08);text-align:center}
 .login-card .logo-sphere{width:80px;height:80px;margin:0 auto 1.2rem;border-radius:50%;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
 .login-card .logo-sphere img{width:100%;height:100%;object-fit:cover;display:block}
-.login-card h1{font-size:1.6rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.02em;margin-bottom:.2rem}
+.login-card h1{font-size:1.8rem;font-weight:900;letter-spacing:.05em;
+  background:linear-gradient(180deg,#e8e8e8 0%,#fff 15%,#a8c0d8 30%,#4a8aaa 50%,#00bcd4 65%,#0288d1 80%,#0d47a1 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 2px 4px rgba(0,188,212,0.3));margin-bottom:.2rem}
 .login-card .theme-text{font-family:'Noto Sans SC',sans-serif;font-size:.95rem;color:rgba(26,26,26,0.4);margin-bottom:1.5rem;letter-spacing:.15em;text-transform:uppercase}
 .login-card .login-form{text-align:left}
 .login-card .login-form>p{text-align:center;color:var(--text-dim);margin-bottom:1.5rem;font-size:.85rem}
@@ -63,7 +66,16 @@ a{color:var(--text-secondary);text-decoration:none}
 
 /* Hero */
 .hero{text-align:center;padding:2rem 1.5rem 1rem}
-.hero h1{font-size:2.2rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.03em}
+.hero h1{font-size:2.6rem;font-weight:900;letter-spacing:.05em;
+  background:linear-gradient(180deg,#e8e8e8 0%,#fff 15%,#a8c0d8 30%,#4a8aaa 50%,#00bcd4 65%,#0288d1 80%,#0d47a1 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 2px 4px rgba(0,188,212,0.3)) drop-shadow(0 4px 12px rgba(2,136,209,0.2));
+  position:relative}
+.hero h1::after{content:'医起AI·挑战赛';position:absolute;left:0;top:0;width:100%;height:100%;
+  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.6) 45%,transparent 50%);
+  background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:shine 4s ease-in-out infinite}
+@keyframes shine{0%,100%{background-position:200% 0}50%{background-position:-200% 0}}
 .hero .theme-text{font-family:'Noto Sans SC',sans-serif;font-size:1rem;color:rgba(26,26,26,0.35);margin-top:.5rem;letter-spacing:.2em;text-transform:uppercase}
 
 /* Sheet Tabs */
@@ -147,9 +159,9 @@ a{color:var(--text-secondary);text-decoration:none}
 .empty-state p{font-size:1rem;color:var(--text-secondary)}
 
 /* 页脚 */
-.footer{text-align:center;padding:3rem 1.5rem 2rem;color:var(--text-dim);font-size:.85rem}
-.footer .brand{font-family:'Noto Sans SC',sans-serif;font-size:.95rem;font-weight:700;color:var(--text-secondary);letter-spacing:.1em;margin-bottom:.5rem}
-.footer .admin-link{display:inline-block;margin-top:.5rem;padding:6px 16px;border-radius:8px;border:1px solid var(--border);color:var(--text-dim);font-size:.78rem;text-decoration:none;transition:all .2s;cursor:pointer}
+.footer{text-align:center;padding:2rem 1.5rem 1.5rem;color:var(--text-dim);font-size:.85rem}
+.footer .brand{font-family:'Noto Sans SC',sans-serif;font-size:.78rem;font-weight:500;color:var(--text-secondary);letter-spacing:.15em;margin-bottom:.4rem}
+.footer .admin-link{display:inline-block;padding:4px 14px;border-radius:6px;border:1px solid var(--border);color:var(--text-dim);font-size:.72rem;text-decoration:none;transition:all .2s;cursor:pointer}
 .footer .admin-link:hover{color:var(--text-primary);background:rgba(0,0,0,0.04);border-color:var(--border-h)}
 
 /* Loading */
