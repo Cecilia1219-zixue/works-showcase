@@ -308,11 +308,13 @@ async function handleFeishuCallback(){
 
 async function exchangeCode(code){
   try{
-    const res=await app.callFunction({name:'login',data:{code}});
-    return res.result;
+    const res=await fetch("https://works-showcase-d2giub4pr5d687848-1437802595.ap-shanghai.app.tcloudbase.com/login",{
+      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code})
+    });
+    return await res.json();
   }catch(e){
-    console.error('[exchangeCode]',e);
-    return{code:500,message:'调用云函数失败: '+e.message};
+    console.error("[exchangeCode]",e);
+    return{code:500,message:"调用云函数失败: "+e.message};
   }
 }
 
