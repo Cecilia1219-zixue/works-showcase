@@ -4,7 +4,6 @@
 <body style="padding:2rem;font-family:monospace">
 <h2>测试 CloudBase 云函数 login</h2>
 <div style="margin:1rem 0">
-  <button onclick="testInit()">Step 1: 测试 init</button>
   <button onclick="testCall()">Step 2: 调云函数</button>
 </div>
 <pre id="log" style="margin-top:1rem;padding:1rem;background:#f0f0f0;white-space:pre-wrap">等待测试...</pre>
@@ -12,60 +11,28 @@
 <script src="cloudbase.full.js"></script>
 <script>
 const ENV_ID='works-showcase-d2giub4pr5d687848';
-const PUB_KEY='eyJhbGciOiJSUzI1NiIsImtpZCI6IjlkMWRjMzFlLWI0ZDAtNDQ4Yi1hNzZmLWIwY2M2M2Q4MTQ5OCJ9.eyJpc3MiOiJodHRwczovL3dvcmtzLXNob3djYXNlLWQyZ2l1YjRwcjVkNjg3ODQ4LmFwLXNoYW5naGFpLnRjYi1hcGkudGVuY2VudGNsb3VkYXBpLmNvbSIsInN1YiI6ImFub24iLCJhdWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsImV4cCI6NDA4MzY2MDYyNiwiaWF0IjoxNzc5OTc3NDI2LCJub25jZSI6IlBSdHgtMm1GUlZ1OXFkM0p5ejU1aWciLCJhdF9oYXNoIjoiUFJ0eC0ybUZSVnU5cWQzSnl6NTVpZyIsIm5hbWUiOiJBbm9ueW1vdXMiLCJzY29wZSI6ImFub255bW91cyIsInByb2plY3RfaWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsIm1ldGEiOnsicGxhdGZvcm0iOiJQdWJsaXNoYWJsZUtleSJ9LCJ1c2VyX3R5cGUiOiIiLCJjbGllbnRfdHlwZSI6ImNsaWVudF91c2VyIiwiaXNfc3lzdGVtX2FkbWluIjpmYWxzZX0.hbLxMthyDPhSvGwtKo-PpjGfyejWQir39akNphU_pxYr5aW_MRC-crr-g2nznaTWcnvkjDLlXrJAxd8qjRQ7y5H6S_s8QOZ9LllWmEbDGU2IDV9-Z9F6R_-I3AFy80O6l-vVqEH2V3uTV7gOkGDHq9Rebf0adPIWs3Iv9Lgp-sU5MhZoXgluu-rkxDQPr3Lmaw1GL2O2t7QCp4fmfAJjBkBwgEY3hloe8LdO6_xe8fzAKRzMkc9o1D9ZgPplOARhj-lIQK6JVPjHpGYelYJmlMEq_ePQWzQ7HWKwucoPnspi11hnVP9-NQzesOYRMpjww7sIO5QWhTbyIat60TQbOw';
+let app;
 
 const log=document.getElementById('log');
 
-function logMsg(msg){ log.textContent+=msg+'\n'; }
-
-async function testInit(){
-  log.textContent='';
-  logMsg('cloudbase 对象: '+(typeof cloudbase));
-  logMsg('cloudbase keys: '+Object.keys(cloudbase).join(', '));
-  
-  try{
-    const appObj=cloudbase.init({env:ENV_ID,anonymousAuth:PUB_KEY});
-    logMsg('init 返回值类型: '+(typeof appObj));
-    logMsg('app 是否为null: '+(appObj===null));
-    logMsg('app keys: '+(appObj?Object.keys(appObj).join(', '):'N/A'));
-    logMsg('app.auth: '+(typeof(appObj?.auth)));
-    logMsg('app.database: '+(typeof(appObj?.database)));
-    logMsg('app.callFunction: '+(typeof(appObj?.callFunction)));
-    
-    if(appObj && appObj.auth){
-      const auth=appObj.auth({persistence:'local'});
-      await auth.anonymousAuthProvider().signIn();
-      logMsg('✅ 匿名登录成功');
-    }
-  }catch(e){
-    logMsg('❌ 初始化异常: '+e.message);
-    logMsg('stack: '+e.stack);
-  }
-}
-
 async function testCall(){
   log.textContent='';
-  logMsg('检查 cloudbase 全局...');
+  logMsg('检查 cloudbase...');
   
   try{
-    const appObj=cloudbase.init({env:ENV_ID,anonymousAuth:PUB_KEY});
-    if(!appObj){ logMsg('❌ init 返回 null/undefined'); return; }
-    
-    const auth=appObj.auth({persistence:'local'});
-    await auth.anonymousAuthProvider().signIn();
-    logMsg('✅ 已匿名登录');
+    const appObj=cloudbase.init({env:ENV_ID});
+    logMsg('✅ init OK, keys: '+Object.keys(appObj).join(', '));
     
     logMsg('正在调用云函数 login...');
     const res=await appObj.callFunction({name:'login',data:{code:'test_code_123'}});
     logMsg('✅ 结果: '+JSON.stringify(res,null,2));
   }catch(e){
     logMsg('❌ 失败: '+e.message);
-    logMsg('stack: '+e.stack);
   }
 }
 
-// 自动执行 init
-testInit();
+// Auto-run
+testCall();
 </script>
 </body>
 </html>
