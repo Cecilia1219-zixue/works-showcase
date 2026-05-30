@@ -310,32 +310,13 @@ async function handleFeishuCallback(){
 }
 
 async function exchangeCode(code){
-  // 直接用前端 fetch 调飞书 API（内部工具，风险可控）
-  const APP_SECRET='rfXKyH5jiyf8lYIDB0HqOdAHCpLSDgiA';
-  // 1. 获取 app_access_token
-  const appTokenRes=await fetch('https://open.feishu.cn/open-apis/auth/v3/app_access_token/internal',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({app_id:FEISHU_APP_ID,app_secret:APP_SECRET})
-  });
-  const appTokenData=await appTokenRes.json();
-  if(appTokenData.code!==0)return{code:500,message:'获取 app_access_token 失败',detail:appTokenData};
-  // 2. 用 code 换 user_access_token
-  const userTokenRes=await fetch('https://open.feishu.cn/open-apis/authen/v1/oidc/access_token',{
-    method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+appTokenData.app_access_token},
-    body:JSON.stringify({grant_type:'authorization_code',code})
-  });
-  const userTokenData=await userTokenRes.json();
-  if(userTokenData.code!==0)return{code:500,message:'获取 user_access_token 失败',detail:userTokenData};
-  const userAccessToken=userTokenData.data.access_token;
-  const openId=userTokenData.data.open_id;
-  // 3. 获取用户信息
-  const userInfoRes=await fetch('https://open.feishu.cn/open-apis/contact/v3/users/me',{
-    headers:{'Authorization':'Bearer '+userAccessToken}
-  });
-  const userInfoData=await userInfoRes.json();
-  if(userInfoData.code!==0)return{code:500,message:'获取用户信息失败',detail:userInfoData};
-  const user=userInfoData.data.user;
-  return{code:0,data:{open_id:openId,name:user.name,en_name:user.en_name,department_ids:user.department_ids||[],avatar_url:user.avatar?.avatar_url_240||''}};
+  try{
+    const res=await app.callFunction({name:'login',data:{code}});
+    return res.result;
+  }catch(e){
+    console.error('[exchangeCode]',e);
+    return{code:500,message:'调用云函数失败: '+e.message};
+  }
 }
 
 async function autoLoginWithFeishu(openId,name,department,avatarUrl){
