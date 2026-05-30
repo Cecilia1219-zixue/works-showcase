@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>测试云函数 login</title>
+<script>
+const ENV_ID='works-showcase-d2giub4pr5d687848';
+const log=document.getElementById?null:null;
+
+async function testLogin(){
+  const l=document.getElementById('log');
+  l.textContent='正在调用云函数 login...\n';
+  
+  try{
+    // 方式1: CloudBase HTTP API v1
+    const res=await fetch(`https://${ENV_ID}.service.tcloudbase.com/v1/cloud/${ENV_ID}/callFunction`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:'login',data:JSON.stringify({code:'test_123'})})
+    });
+    const data=await res.json();
+    l.textContent='HTTP API 结果:\n'+JSON.stringify(data,null,2);
+  }catch(e){
+    l.textContent='Error: '+e.message+'\n'+JSON.stringify(e,null,2);
+  }
+}
+</script>
+</head>
+<body style="padding:2rem;font-family:monospace">
+<h2>测试云函数 login (HTTP API)</h2>
+<button onclick="testLogin()">调用云函数</button>
+<pre id="log" style="margin-top:1rem;padding:1rem;background:#f0f0f0">等待测试...</pre>
+</body>
+</html>
