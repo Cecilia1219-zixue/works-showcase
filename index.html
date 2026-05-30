@@ -262,14 +262,11 @@ let app,db,anonymousAuth,deviceId,visitorName='',visitorDepartment='',isKnown=fa
 
 async function initCloudBase(){
   try{
-    app=cloudbase.init({env:ENV_ID,anonymousAuth:PUB_KEY});
+    app=cloudbase.init({env:ENV_ID});
     db=app.database();
-    anonymousAuth=app.auth({persistence:'local'});
-    await anonymousAuth.anonymousAuthProvider().signIn();
-    console.log('[CloudBase] initialized & signed in');
+    console.log('[CloudBase] initialized (no auth)');
   }catch(e){console.error('[CloudBase] init error:',e)}
 }
-
 function initDeviceId(){
   deviceId=localStorage.getItem('works_device_id');
   if(!deviceId){deviceId='dev_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);localStorage.setItem('works_device_id',deviceId)}
