@@ -308,8 +308,8 @@ async function handleFeishuCallback(){
 
 async function exchangeCode(code){
   try{
-    const res=await fetch("https://works-showcase-d2giub4pr5d687848-1437802595.ap-shanghai.app.tcloudbase.com/login",{
-      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code})
+    const res=await fetch("https://works-showcase-d2giub4pr5d687848-1437802595.ap-shanghai.app.tcloudbase.com/login?code="+encodeURIComponent(code),{
+      method:"POST"
     });
     return await res.json();
   }catch(e){
