@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>医起AI·挑战赛</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F5F4;--bg-alt:rgba(255,255,255,0.75);--surface:rgba(255,255,255,0.92);
+  --text-primary:#1A1A1A;--text-secondary:#666;--text-dim:#999;
+  --accent:#1A1A1A;--accent-h:#333;
+  --card-shadow:0 2px 16px rgba(0,0,0,0.06);
+  --card-radius:16px;--chip-bg:rgba(0,0,0,0.06);
+  --nav-bg:rgba(255,255,255,0.82);--nav-shadow:0 2px 12px rgba(0,0,0,0.06);
+  --border:rgba(0,0,0,0.08);
+  --sheet-tab:#E8E8E8;--sheet-tab-active:#fff;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans SC',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;line-height:1.6;overflow-x:hidden}
+a{color:var(--text-secondary);text-decoration:none}
+
+/* 全局背景 */
+.site-bg{position:fixed;inset:0;z-index:-2;overflow:hidden}
+.site-bg img{width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(0.92) saturate(0.95);opacity:.35}
+.site-bg::after{content:'';position:absolute;inset:0;background:rgba(245,245,244,0.30)}
+
+/* 登录页 */
+#login-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;transition:opacity .5s,visibility .5s;overflow:hidden}
+#login-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.login-card{position:relative;z-index:1;background:var(--surface);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--border);border-radius:24px;padding:2.5rem 2rem;width:90%;max-width:420px;box-shadow:0 16px 48px rgba(0,0,0,0.08);text-align:center}
+.login-card .logo-sphere{width:80px;height:80px;margin:0 auto 1.2rem;border-radius:50%;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
+.login-card .logo-sphere img{width:100%;height:100%;object-fit:cover;display:block}
+.login-card h1{font-size:1.8rem;font-weight:900;letter-spacing:.05em;
+  background:linear-gradient(180deg,#e8e8e8 0%,#fff 15%,#a8c0d8 30%,#4a8aaa 50%,#00bcd4 65%,#0288d1 80%,#0d47a1 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 2px 4px rgba(0,188,212,0.3));margin-bottom:.2rem}
+.login-card .theme-text{font-family:'Noto Sans SC',sans-serif;font-size:.95rem;color:rgba(26,26,26,0.4);margin-bottom:1.5rem;letter-spacing:.15em;text-transform:uppercase}
+.login-card .login-form{text-align:left}
+.login-card .login-form>p{text-align:center;color:var(--text-dim);margin-bottom:1.5rem;font-size:.85rem}
+.btn-feishu{width:100%;margin-top:.5rem;background:#3370FF;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-feishu:hover{background:#2860E0;transform:translateY(-1px);box-shadow:0 6px 24px rgba(51,112,255,0.3)}
+.btn-feishu:active{transform:scale(0.98)}
+.login-divider{display:flex;align-items:center;gap:12px;margin:1rem 0;color:var(--text-dim);font-size:.78rem}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.form-input{width:100%;padding:14px 16px;margin-bottom:1rem;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,0.7);color:var(--text-primary);font-size:1rem;outline:none;transition:border-color .2s,box-shadow .2s}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,26,26,0.06)}
+.form-input::placeholder{color:var(--text-dim)}
+.form-btn{display:inline-flex;align-items:center;justify-content:center;padding:14px 28px;border:none;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer;transition:transform .15s,box-shadow .2s,opacity .2s;background:var(--accent);color:#fff}
+.btn-primary{width:100%;margin-top:.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.12)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,0,0,0.18)}
+.btn-primary:active{transform:scale(0.98)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.login-error{color:#E53935;font-size:.82rem;margin-top:.25rem;display:none}
+.login-hint{color:var(--text-dim);font-size:.75rem;margin-top:.75rem;text-align:center}
+@media(max-width:768px){.login-card{padding:2rem 1.5rem;width:92%;max-width:360px;border-radius:20px}.login-card h1{font-size:1.3rem}.login-card .theme-text{font-size:.8rem}}
+
+/* 主内容 */
+#main{position:relative;z-index:1;display:none}
+#main.show{display:block}
+
+/* 导航 */
+.navbar{position:sticky;top:0;z-index:100;padding:10px 1.5rem;display:flex;align-items:center;justify-content:space-between;background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--nav-shadow);border-radius:0 0 20px 20px}
+.nav-left{display:flex;align-items:center;gap:12px}
+.nav-sphere{width:36px;height:36px;border-radius:50%;flex-shrink:0;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.nav-sphere img{width:100%;height:100%;object-fit:cover;display:block}
+.nav-title{font-weight:700;font-size:1.1rem;color:var(--text-primary);letter-spacing:-0.01em}
+.nav-admin{font-size:.75rem;color:var(--text-dim);padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .2s}
+.nav-admin:hover{color:var(--text-primary);background:rgba(0,0,0,0.04)}
+
+/* Hero */
+.hero{text-align:center;padding:2rem 1.5rem 1rem}
+.hero h1{font-size:2.6rem;font-weight:900;letter-spacing:.05em;
+  background:linear-gradient(180deg,#e8e8e8 0%,#fff 15%,#a8c0d8 30%,#4a8aaa 50%,#00bcd4 65%,#0288d1 80%,#0d47a1 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 2px 4px rgba(0,188,212,0.3)) drop-shadow(0 4px 12px rgba(2,136,209,0.2));
+  position:relative}
+.hero h1::after{content:'医起AI·挑战赛';position:absolute;left:0;top:0;width:100%;height:100%;
+  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.6) 45%,transparent 50%);
+  background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:shine 4s ease-in-out infinite}
+@keyframes shine{0%,100%{background-position:200% 0}50%{background-position:-200% 0}}
+.hero .theme-text{font-family:'Noto Sans SC',sans-serif;font-size:1rem;color:rgba(26,26,26,0.35);margin-top:.5rem;letter-spacing:.2em;text-transform:uppercase}
+
+/* Sheet Tabs */
+.sheet-bar{max-width:1100px;margin:0 auto;padding:0 1.5rem}
+.sheet-tabs{display:flex;align-items:flex-end;gap:0}
+.sheet-tab{padding:8px 24px;font-size:.85rem;font-weight:500;cursor:pointer;background:var(--sheet-tab);color:var(--text-secondary);border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;transition:all .2s;user-select:none;position:relative;bottom:-1px}
+.sheet-tab:hover{background:rgba(255,255,255,0.6);color:var(--text-primary)}
+.sheet-tab.active{background:var(--sheet-tab-active);color:var(--text-primary);font-weight:600;border-bottom-color:var(--sheet-tab-active)}
+
+/* 卡片瀑布流（小红书风格） */
+.cards-container{max-width:1100px;margin:0 auto;padding:1rem 1.5rem 2rem}
+.masonry{column-count:2;column-gap:14px}
+@media(max-width:640px){.masonry{column-count:1}}
+@media(min-width:900px){.masonry{column-count:3}}
+@media(min-width:1200px){.masonry{column-count:4}}
+
+/* 卡片 */
+.card{break-inside:avoid;margin-bottom:14px;background:var(--surface);border-radius:var(--card-radius);overflow:hidden;box-shadow:var(--card-shadow);border:1px solid var(--border);transition:transform .2s,box-shadow .2s;cursor:pointer}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.1)}
+.card-image{width:100%;display:block;position:relative;overflow:hidden;background:#f0f0f0}
+.card-image img{width:100%;display:block;object-fit:cover}
+.card-carousel{position:relative;overflow:hidden}
+.card-carousel .carousel-track{display:flex;transition:transform .3s ease}
+.card-carousel .carousel-slide{min-width:100%;flex-shrink:0}
+.card-carousel .carousel-slide img{width:100%;display:block;object-fit:cover;aspect-ratio:3/4}
+.card-carousel .carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);color:#333;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:transform .15s}
+.card-carousel .carousel-btn:hover{transform:translateY(-50%) scale(1.1)}
+.card-carousel .carousel-btn.prev{left:8px}
+.card-carousel .carousel-btn.next{right:8px}
+.card-carousel .carousel-dots{display:flex;justify-content:center;gap:5px;padding:6px 0}
+.card-carousel .carousel-dots .dot{width:6px;height:6px;border-radius:50%;background:var(--text-dim);transition:all .2s}
+.card-carousel .carousel-dots .dot.active{background:var(--accent);width:14px;border-radius:3px}
+.card-body{padding:12px}
+.card-title{font-size:.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-desc{font-size:.78rem;color:var(--text-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* 卡片底部操作栏 */
+.card-actions{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid rgba(0,0,0,0.04)}
+.card-action{display:flex;align-items:center;gap:4px;background:transparent;border:none;cursor:pointer;padding:4px 6px;border-radius:8px;transition:all .15s;color:var(--text-secondary);font-size:.78rem}
+.card-action:hover{background:rgba(0,0,0,0.04);color:var(--text-primary)}
+.card-action.liked{color:#E53935}
+.card-action .icon{font-size:1rem}
+
+/* 评论面板 */
+.comment-panel{display:none;padding:10px 12px;border-top:1px solid rgba(0,0,0,0.06);background:var(--bg-alt)}
+.comment-panel.show{display:block}
+.comment-input-row{display:flex;gap:8px;margin-bottom:8px}
+.comment-input-row input{flex:1;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-primary);font-size:.82rem;outline:none}
+.comment-input-row input:focus{border-color:var(--accent)}
+.comment-input-row button{padding:8px 16px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:.82rem;cursor:pointer;font-weight:500}
+.comment-list{max-height:150px;overflow-y:auto}
+.comment-item{padding:6px 0;font-size:.78rem;border-bottom:1px solid rgba(0,0,0,0.04)}
+.comment-item:last-child{border-bottom:none}
+.comment-author{color:var(--text-primary);font-weight:500}
+.comment-dept{display:inline-block;padding:1px 6px;border-radius:8px;background:rgba(0,0,0,0.06);color:var(--text-secondary);font-size:.65rem;margin-left:4px;vertical-align:middle}
+.comment-time{color:var(--text-dim);margin-left:6px;font-size:.7rem}
+.comment-text{margin-top:2px;color:var(--text-secondary)}
+
+/* 分享弹窗 */
+.modal-overlay{position:fixed;inset:0;z-index:998;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+.modal-overlay.show{opacity:1;visibility:visible}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);padding:1.5rem;width:90%;max-width:400px;box-shadow:0 16px 48px rgba(0,0,0,0.12);transform:translateY(20px);transition:transform .25s;position:relative}
+.modal-overlay.show .modal{transform:translateY(0)}
+.modal h3{font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text-primary)}
+.modal-close-btn{position:absolute;top:12px;right:12px;background:transparent;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-dim);line-height:1}
+.share-buttons{display:flex;gap:1rem;justify-content:center;margin-bottom:1rem}
+.share-btn{width:56px;height:56px;border-radius:50%;border:none;background:var(--chip-bg);color:var(--text-primary);font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s,background .15s}
+.share-btn:hover{transform:scale(1.1)}
+.share-btn.wechat:hover{background:rgba(7,193,96,0.12);color:#07C160}
+.share-link{display:flex;gap:8px}
+.share-link input{flex:1;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text-primary);font-size:.8rem;outline:none}
+.share-link button{padding:8px 14px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:.8rem;cursor:pointer;font-weight:500}
+
+/* Toast */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(26,26,26,0.9);backdrop-filter:blur(8px);color:#fff;padding:10px 20px;border-radius:12px;font-size:.9rem;z-index:9999;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,0.15)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* 空状态 */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;text-align:center;min-height:400px;width:100%;column-span:all}
+.empty-state .icon{font-size:3rem;margin-bottom:1rem;opacity:.5}
+.empty-state p{font-size:1rem;color:var(--text-secondary)}
+
+/* 页脚 */
+.footer{text-align:center;padding:2rem 1.5rem 1.5rem;color:var(--text-dim);font-size:.85rem}
+.footer .brand{font-family:'Noto Sans SC',sans-serif;font-size:.78rem;font-weight:500;color:var(--text-secondary);letter-spacing:.15em;margin-bottom:.4rem}
+.footer .admin-link{display:inline-block;padding:4px 14px;border-radius:6px;border:1px solid var(--border);color:var(--text-dim);font-size:.72rem;text-decoration:none;transition:all .2s;cursor:pointer}
+.footer .admin-link:hover{color:var(--text-primary);background:rgba(0,0,0,0.04);border-color:var(--border-h)}
+
+/* Loading */
+.loading{display:flex;align-items:center;justify-content:center;padding:1rem;color:var(--text-dim)}
+.loading .spinner{width:20px;height:20px;border:2px solid var(--chip-bg);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- 全局背景 -->
+<div class="site-bg"><img src="bg.jpg" alt="" /></div>
+
+<!-- 登录页 -->
+<div id="login-overlay">
+  <div class="login-card">
+    <div class="logo-sphere"><img src="logo.png" alt="logo" /></div>
+    <h1>医起AI·挑战赛</h1>
+    <div class="theme-text">"医"起追AI，赢在未来</div>
+    <div class="login-form">
+      <p>填写昵称和部门，30天内免重复登录</p>
+      <button class="form-btn btn-feishu" id="feishu-login-btn" onclick="doFeishuLogin()">🔵 飞书一键登录</button>
+      <div class="login-divider">或手动填写</div>
+      <input class="form-input" id="name-input" placeholder="你的昵称" autocomplete="nickname" />
+      <input class="form-input" id="dept-input" placeholder="所属部门" autocomplete="organization-title" />
+      <div class="login-error" id="login-error"></div>
+      <button class="form-btn btn-primary" id="login-btn" disabled>进入广场</button>
+      <div class="login-hint">登录信息将同步至云端，有效期30天</div>
+    </div>
+  </div>
+</div>
+
+<!-- 主内容 -->
+<div id="main">
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <div class="nav-sphere"><img src="logo.png" alt="logo" /></div>
+      <span class="nav-title">医起AI·挑战赛</span>
+    </div>
+    <button class="nav-admin" onclick="window.open('admin.html','_blank')" title="管理后台">⚙️ 管理</button>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <h1>医起AI·挑战赛</h1>
+    <div class="theme-text">"医"起追AI，赢在未来</div>
+  </header>
+
+  <!-- Sheet Tabs -->
+  <div class="sheet-bar">
+    <div class="sheet-tabs" id="tab-bar">
+      <div class="sheet-tab active" data-tab="0" onclick="switchTab(0)">📋 "医"起打擂台</div>
+      <div class="sheet-tab" data-tab="1" onclick="switchTab(1)">📋 "医"高人胆大</div>
+    </div>
+  </div>
+
+  <!-- 卡片瀑布流 -->
+  <div class="cards-container">
+    <div class="masonry" id="cards"></div>
+  </div>
+</div>
+
+<!-- 分享弹窗 -->
+<div class="modal-overlay" id="share-modal" onclick="if(event.target===this)closeShareModal()">
+  <div class="modal">
+    <button class="modal-close-btn" onclick="closeShareModal()">&times;</button>
+    <h3>分享给朋友</h3>
+    <div class="share-buttons">
+      <button class="share-btn feishu" title="飞书" onclick="shareFeishu()">📎</button>
+      <button class="share-btn wechat" title="微信" onclick="shareWechat()">💬</button>
+    </div>
+    <div class="share-link">
+      <input id="share-url" readonly /><button onclick="shareCopy()">复制</button>
+    </div>
+  </div>
+</div>
+
+<!-- 页脚 -->
+<footer class="footer">
+  <div class="brand">医药事业部</div>
+  <a class="admin-link" href="admin.html" target="_blank">⚙️ 进入管理后台</a>
+</footer>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="cloudbase.full.js"></script>
+<script>
+const ENV_ID='works-showcase-d2giub4pr5d687848';
+const PUB_KEY='eyJhbGciOiJSUzI1NiIsImtpZCI6IjlkMWRjMzFlLWI0ZDAtNDQ4Yi1hNzZmLWIwY2M2M2Q4MTQ5OCJ9.eyJpc3MiOiJodHRwczovL3dvcmtzLXNob3djYXNlLWQyZ2l1YjRwcjVkNjg3ODQ4LmFwLXNoYW5naGFpLnRjYi1hcGkudGVuY2VudGNsb3VkYXBpLmNvbSIsInN1YiI6ImFub24iLCJhdWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsImV4cCI6NDA4MzY2MDYyNiwiaWF0IjoxNzc5OTc3NDI2LCJub25jZSI6IlBSdHgtMm1GUlZ1OXFkM0p5ejU1aWciLCJhdF9oYXNoIjoiUFJ0eC0ybUZSVnU5cWQzSnl6NTVpZyIsIm5hbWUiOiJBbm9ueW1vdXMiLCJzY29wZSI6ImFub255bW91cyIsInByb2plY3RfaWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsIm1ldGEiOnsicGxhdGZvcm0iOiJQdWJsaXNoYWJsZUtleSJ9LCJ1c2VyX3R5cGUiOiIiLCJjbGllbnRfdHlwZSI6ImNsaWVudF91c2VyIiwiaXNfc3lzdGVtX2FkbWluIjpmYWxzZX0.hbLxMthyDPhSvGwtKo-PpjGfyejWQir39akNphU_pxYr5aW_MRC-crr-g2nznaTWcnvkjDLlXrJAxd8qjRQ7y5H6S_s8QOZ9LllWmEbDGU2IDV9-Z9F6R_-I3AFy80O6l-vVqEH2V3uTV7gOkGDHq9Rebf0adPIWs3Iv9Lgp-sU5MhZoXgluu-rkxDQPr3Lmaw1GL2O2t7QCp4fmfAJjBkBwgEY3hloe8LdO6_xe8fzAKRzMkc9o1D9ZgPplOARhj-lIQK6JVPjHpGYelYJmlMEq_ePQWzQ7HWKwucoPnspi11hnVP9-NQzesOYRMpjww7sIO5QWhTbyIat60TQbOw';
+let app,db,anonymousAuth,deviceId,visitorName='',visitorDepartment='',isKnown=false,currentTab=0,allWorks=[],interactors={},shareWorkId='';
+
+async function initCloudBase(){
+  try{
+    app=cloudbase.init({env:ENV_ID});
+    db=app.database();
+    console.log('[CloudBase] initialized (no auth)');
+  }catch(e){console.error('[CloudBase] init error:',e)}
+}
+function initDeviceId(){
+  deviceId=localStorage.getItem('works_device_id');
+  if(!deviceId){deviceId='dev_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);localStorage.setItem('works_device_id',deviceId)}
+}
+
+function hideLogin(){document.getElementById('login-overlay').classList.add('hidden');document.getElementById('main').classList.add('show')}
+function showLogin(){document.getElementById('login-overlay').classList.remove('hidden');document.getElementById('main').classList.remove('show')}
+
+// ===== 飞书登录 =====
+const FEISHU_APP_ID='cli_aa9f2a2fb6395bdf';
+const FEISHU_REDIRECT_URI='https://cecilia1219-zixue.github.io/works-showcase/';
+
+function doFeishuLogin(){
+  const url='https://passport.feishu.cn/suite/passport/oauth/authorize'
+    +'?client_id='+FEISHU_APP_ID
+    +'&redirect_uri='+encodeURIComponent(FEISHU_REDIRECT_URI)
+    +'&response_type=code'
+    +'&state=feishu_login';
+  window.location.href=url;
+}
+
+async function handleFeishuCallback(){
+  const params=new URLSearchParams(window.location.search);
+  const code=params.get('code');
+  const state=params.get('state');
+  if(!code||state!=='feishu_login')return false;
+  // 清除 URL 参数
+  window.history.replaceState({},document.title,window.location.pathname);
+  try{
+    const res=await exchangeCode(code);
+    if(res.code!==0){showToast('飞书登录失败: '+(res.message||'未知错误'));return false}
+    const d=res.data;
+    const name=d.name||d.en_name||'飞书用户';
+    const dept=d.department_ids?d.department_ids.join(','):'';
+    await autoLoginWithFeishu(d.open_id,name,dept,d.avatar_url);
+    return true;
+  }catch(e){console.error('[feishu callback]',e);showToast('飞书登录异常');return false}
+}
+
+async function exchangeCode(code){
+  try{
+    const res=await fetch("https://works-showcase-d2giub4pr5d687848-1437802595.ap-shanghai.app.tcloudbase.com/login?code="+encodeURIComponent(code),{
+      method:"POST"
+    });
+    return await res.json();
+  }catch(e){
+    console.error("[exchangeCode]",e);
+    return{code:500,message:"调用云函数失败: "+e.message};
+  }
+}
+
+async function autoLoginWithFeishu(openId,name,department,avatarUrl){
+  visitorName=name;visitorDepartment=department;isKnown=true;
+  localStorage.setItem('loginInfo',JSON.stringify({nickname:name,department:department||'',timestamp:Date.now(),openId}));
+  try{
+    const col=db.collection('visitors');
+    const res=await col.where({open_id:openId}).get();
+    if(!res.data||res.data.length===0){
+      await col.add({name,department,deviceId,open_id:openId,avatar:avatarUrl,createdAt:new Date()});
+    }else{
+      await col.doc(res.data[0]._id).update({name,department,lastLoginAt:new Date()});
+    }
+  }catch(e){console.warn('[feishu login] DB write skipped:',e)}
+  hideLogin();showToast('欢迎 '+name+'（'+(department||'已登录')+'）！');loadData();
+}
+
+async function doLogin(){
+  const name=document.getElementById('name-input').value.trim();
+  const dept=document.getElementById('dept-input').value.trim();
+  const errEl=document.getElementById('login-error');
+  if(!name||!dept){if(errEl)errEl.style.display='block';return}
+  if(errEl)errEl.style.display='none';
+  visitorName=name;visitorDepartment=dept;isKnown=true;
+  localStorage.setItem('loginInfo',JSON.stringify({nickname:name,department:dept,timestamp:Date.now()}));
+  try{
+    const col=db.collection('visitors');
+    const res=await col.where({deviceId}).get();
+    if(!res.data||res.data.length===0){await col.add({name,department:dept,deviceId,createdAt:new Date()})}
+    else{await col.doc(res.data[0]._id).update({name,department:dept,lastLoginAt:new Date()})}
+  }catch(e){console.warn('[doLogin] DB write skipped:',e)}
+  hideLogin();showToast('欢迎 '+name+'（'+dept+'）！');loadData();
+}
+
+async function loadData(){
+  try{
+    const col=db.collection('works');
+    const res=await col.where({category:currentTab,visible:true}).orderBy('createdAt','desc').get();
+    allWorks=res.data||[];
+  }catch(e){console.error('[loadData] error:',e);allWorks=[]}
+  loadInteractors();renderWorks();
+}
+
+function switchTab(idx){
+  currentTab=idx;
+  document.querySelectorAll('.sheet-tab').forEach(t=>t.classList.toggle('active',parseInt(t.dataset.tab)===idx));
+  loadData();
+}
+
+function renderWorks(){
+  const container=document.getElementById('cards');
+  if(!allWorks.length){
+    container.innerHTML='<div class="empty-state"><div class="icon">✨</div><p>暂无作品，敬请期待</p></div>';
+    return;
+  }
+  let html='';
+  for(const w of allWorks){
+    const stats=w._stats||{likes:0,comments:0,shares:0};
+    const liked=interactors[w._id]&&interactors[w._id].liked;
+    const imgs=w.images||[];
+    const slide=interactors[w._id]&&interactors[w._id].slide?interactors[w._id].slide:0;
+
+    // Carousel
+    const slides=imgs.length?imgs.map((src,i)=>'<div class="carousel-slide"><img src="'+escHtml(src)+'" alt="" onerror="this.parentElement.innerHTML=\'<div style=\'aspect-ratio:3/4;background:#f0f0f0;display:flex;align-items:center;justify-content:center\'><span style=\'font-size:2rem;opacity:.4\'>🖼️</span></div>\'"></div>').join(''):'<div class="carousel-slide"><div style="aspect-ratio:3/4;background:linear-gradient(135deg,#f5f5f4,#e8e8e8);display:flex;align-items:center;justify-content:center"><span style="font-size:2rem;opacity:.4">🖼️</span></div></div>';
+    const dots=imgs.length>1?'<div class="carousel-dots" id="dots-'+w._id+'">'+imgs.map((_,i)=>'<div class="dot'+(i===slide?' active':'')+'"></div>').join('')+'</div>':'';
+    const arrows=imgs.length>1?'<button class="carousel-btn prev" onclick="event.stopPropagation();prevSlide(\''+w._id+'\')">‹</button><button class="carousel-btn next" onclick="event.stopPropagation();nextSlide(\''+w._id+'\')">›</button>':'';
+
+    html+='<div class="card" id="card-'+w._id+'" data-wid="'+w._id+'" onclick="openShareModal(\''+w._id+'\')">';
+    // Image
+    html+='<div class="card-carousel" id="carousel-'+w._id+'" data-wid="'+w._id+'"><div class="carousel-track" id="track-'+w._id+'" style="transform:translateX(-'+slide*100+'%)">'+slides+'</div>';
+    if(arrows)html+=arrows;
+    if(dots)html+=dots;
+    html+='</div>';
+    // Body
+    html+='<div class="card-body"><div class="card-title">'+escHtml(w.title||'未命名作品')+'</div>';
+    if(w.description)html+='<div class="card-desc">'+escHtml(w.description)+'</div>';
+    html+='</div>';
+    // Actions
+    html+='<div class="card-actions">';
+    html+='<button class="card-action'+(liked?' liked':'')+'" onclick="event.stopPropagation();toggleLike(\''+w._id+'\')" title="点赞"><span class="icon">'+(liked?'❤️':'🤍')+'</span><span>'+stats.likes+'</span></button>';
+    html+='<button class="card-action" onclick="event.stopPropagation();toggleComment(\''+w._id+'\')" title="评论"><span class="icon">💬</span><span id="comments-count-'+w._id+'">'+stats.comments+'</span></button>';
+    html+='<button class="card-action" onclick="event.stopPropagation();openShareModal(\''+w._id+'\')" title="分享"><span class="icon">↗️</span><span>'+stats.shares+'</span></button>';
+    html+='</div>';
+    // Comment panel
+    html+='<div class="comment-panel'+(interactors[w._id]&&interactors[w._id].commentOpen?' show':'')+'" id="comments-'+w._id+'">';
+    html+='<div class="comment-input-row"><input type="text" placeholder="写评论…" id="comment-input-'+w._id+'" onkeydown="if(event.key===\'Enter\')submitComment(\''+w._id+'\')"><button onclick="submitComment(\''+w._id+'\')">发送</button></div>';
+    html+='<div class="comment-list" id="comment-list-'+w._id+'"><div class="loading"><div class="spinner"></div></div></div>';
+    html+='</div>';
+    html+='</div>';
+  }
+  container.innerHTML=html;
+  loadVisibleComments();
+}
+
+function loadInteractors(){try{const s=localStorage.getItem('works_interactors');if(s)interactors={...interactors,...JSON.parse(s)}}catch(e){}}
+function saveInteractors(){localStorage.setItem('works_interactors',JSON.stringify(interactors))}
+
+async function toggleLike(workId){
+  if(!interactors[workId])interactors[workId]={};
+  interactors[workId].liked=!interactors[workId].liked;saveInteractors();
+  const w=allWorks.find(x=>x._id===workId);
+  if(w&&w._stats){w._stats.likes+=interactors[workId].liked?1:-1}
+  try{await db.collection('likes').add({workId,user_nickname:visitorName,user_department:visitorDepartment,deviceId,timestamp:new Date()})}catch(e){}
+  try{
+    const sc=db.collection('work_stats');
+    const res=await sc.where({workId}).get();
+    if(res.data&&res.data.length>0){await sc.doc(res.data[0]._id).update({likes:res.data[0].likes+(interactors[workId].liked?1:-1)})}
+    else{await sc.add({workId,likes:interactors[workId].liked?1:0,comments:0,shares:0})}
+  }catch(e){}
+  renderWorks();
+}
+
+function toggleComment(workId){
+  if(!interactors[workId])interactors[workId]={};
+  interactors[workId].commentOpen=!interactors[workId].commentOpen;saveInteractors();
+  renderWorks();
+  if(interactors[workId].commentOpen){loadComments(workId)}
+}
+
+async function loadComments(workId){
+  const list=document.getElementById('comment-list-'+workId);if(!list)return;
+  try{
+    const res=await db.collection('comments').where({workId}).orderBy('createdAt','desc').limit(50).get();
+    const comments=res.data||[];
+    if(comments.length){
+      list.innerHTML=comments.map(c=>{
+        const time=c.createdAt?formatTime(c.createdAt):'';
+        const dept=c.user_department?'<span class="comment-dept">'+escHtml(c.user_department)+'</span>':'';
+        return '<div class="comment-item"><span class="comment-author">'+escHtml(c.user_nickname||c.authorName||'匿名')+'</span>'+dept+'<span class="comment-time">'+time+'</span><div class="comment-text">'+escHtml(c.content||c.text)+'</div></div>';
+      }).join('');
+    }else{list.innerHTML='<div style="padding:8px 0;color:var(--text-dim);font-size:.8rem">暂无评论，来抢沙发吧~</div>'}
+  }catch(e){list.innerHTML='<div style="padding:8px 0;color:var(--text-dim);font-size:.8rem">评论加载失败</div>'}
+}
+
+async function submitComment(workId){
+  const input=document.getElementById('comment-input-'+workId);const text=input.value.trim();
+  if(!text||!visitorName){showToast('请先输入评论内容');return}
+  try{
+    await db.collection('comments').add({workId,user_nickname:visitorName,user_department:visitorDepartment,deviceId,content:text,timestamp:new Date()});
+    input.value='';
+    const sc=db.collection('work_stats');const res=await sc.where({workId}).get();
+    if(res.data&&res.data.length>0){await sc.doc(res.data[0]._id).update({comments:db.command.inc(1)})}
+    else{await sc.add({workId,likes:0,comments:1,shares:0})}
+    const w=allWorks.find(x=>x._id===workId);if(w&&w._stats)w._stats.comments++;
+    renderWorks();loadComments(workId);showToast('评论成功 🎉');
+  }catch(e){console.error('[submitComment] error:',e);showToast('评论失败，请重试')}
+}
+
+let visibleCommentsLoaded={};
+function loadVisibleComments(){allWorks.forEach(w=>{if(interactors[w._id]&&interactors[w._id].commentOpen&&!visibleCommentsLoaded[w._id]){visibleCommentsLoaded[w._id]=true;loadComments(w._id)}})}
+
+function goSlide(workId,idx){
+  const w=allWorks.find(x=>x._id===workId);if(!w)return;
+  const imgs=w.images||[];if(!imgs.length)return;
+  if(!interactors[workId])interactors[workId]={};
+  idx=Math.max(0,Math.min(idx,imgs.length-1));interactors[workId].slide=idx;saveInteractors();
+  const track=document.getElementById('track-'+workId);if(track)track.style.transform='translateX(-'+idx*100+'%)';
+  const dotsWrap=document.getElementById('dots-'+workId);
+  if(dotsWrap){dotsWrap.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===idx))}
+}
+function nextSlide(workId){const w=allWorks.find(x=>x._id===workId);if(!w)return;const idx=(interactors[workId]&&interactors[workId].slide||0)+1;goSlide(workId,idx%(w.images||[]).length)}
+function prevSlide(workId){const w=allWorks.find(x=>x._id===workId);if(!w)return;const imgs=w.images||[];const idx=(interactors[workId]&&interactors[workId].slide||0)-1;goSlide(workId,idx<0?imgs.length-1:idx)}
+
+function openShareModal(workId){
+  shareWorkId=workId;const w=allWorks.find(x=>x._id===workId);
+  const url=w?(window.location.origin+window.location.pathname+'#'+workId):window.location.href;
+  document.getElementById('share-url').value=url;document.getElementById('share-modal').classList.add('show');
+}
+function closeShareModal(){document.getElementById('share-modal').classList.remove('show');shareWorkId=''}
+
+function shareCopy(){
+  const input=document.getElementById('share-url');input.select();
+  navigator.clipboard.writeText(input.value).then(()=>{showToast('链接已复制 🔗');recordShare(shareWorkId,'link');closeShareModal()}).catch(()=>{document.execCommand('copy');showToast('链接已复制 🔗');recordShare(shareWorkId,'link');closeShareModal()});
+}
+function shareFeishu(){
+  const url=document.getElementById('share-url').value;const w=allWorks.find(x=>x._id===shareWorkId);
+  const title=w?w.title:'医起AI·挑战赛作品';
+  navigator.clipboard.writeText('来看看「'+title+'」吧！'+url).then(()=>{showToast('已复制到剪贴板，请在飞书中粘贴发送');recordShare(shareWorkId,'feishu');closeShareModal()}).catch(()=>{showToast('复制失败，请手动复制链接')});
+}
+function shareWechat(){recordShare(shareWorkId,'wechat');shareCopy();showToast('链接已复制，请在微信中粘贴分享')}
+
+async function recordShare(workId,platform){
+  try{await db.collection('shares').add({workId,user_nickname:visitorName,user_department:visitorDepartment,deviceId,platform:platform||'link',timestamp:new Date()})}catch(e){}
+  try{
+    const sc=db.collection('work_stats');const res=await sc.where({workId}).get();
+    if(res.data&&res.data.length>0){await sc.doc(res.data[0]._id).update({shares:db.command.inc(1)})}
+    else{await sc.add({workId,likes:0,comments:0,shares:1})}
+    const w=allWorks.find(x=>x._id===workId);if(w&&w._stats)w._stats.shares++;
+  }catch(e){}
+}
+
+function scrollToWorkFromHash(){const hash=window.location.hash.slice(1);if(!hash)return;const card=document.getElementById('card-'+hash);if(card)setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'center'}),300)}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),2500)}
+function escHtml(s){if(!s)return '';const d=document.createElement('div');d.textContent=String(s);return d.innerHTML}
+function formatTime(v){if(v instanceof Date)return v.toLocaleString('zh-CN');if(typeof v==='string'){try{return new Date(v).toLocaleString('zh-CN')}catch(e){return v}}if(v&&v.$date)return new Date(v.$date).toLocaleString('zh-CN');return ''}
+
+async function init(){
+  await initCloudBase();initDeviceId();
+  const nameInput=document.getElementById('name-input');
+  const deptInput=document.getElementById('dept-input');
+  const loginBtn=document.getElementById('login-btn');
+  const errEl=document.getElementById('login-error');
+  function checkLoginReady(){const ready=nameInput.value.trim()&&deptInput.value.trim();loginBtn.disabled=!ready;if(ready&&errEl)errEl.style.display='none'}
+  nameInput.addEventListener('input',checkLoginReady);deptInput.addEventListener('input',checkLoginReady);
+  nameInput.addEventListener('keydown',e=>{if(e.key==='Enter'){if(nameInput.value.trim()&&deptInput.value.trim())doLogin();else checkLoginReady()}});
+  deptInput.addEventListener('keydown',e=>{if(e.key==='Enter'){if(nameInput.value.trim()&&deptInput.value.trim())doLogin();else checkLoginReady()}});
+  loginBtn.addEventListener('click',doLogin);
+  // 处理飞书回调
+  const feishuOk=await handleFeishuCallback();
+  if(feishuOk)return;
+  const saved=localStorage.getItem('loginInfo');
+  if(saved){try{const info=JSON.parse(saved);const days=(Date.now()-info.timestamp)/(1000*60*60*24);if(days<=30&&info.nickname){visitorName=info.nickname;visitorDepartment=info.department||'';isKnown=true;hideLogin();await loadData();return}}catch(e){}}
+  showLogin();
+}
+init();
+</script>
+</body>
+</html>

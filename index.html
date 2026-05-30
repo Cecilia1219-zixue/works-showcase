@@ -253,282 +253,350 @@ a{color:var(--text-secondary);text-decoration:none}
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
-
-<script src="cloudbase.full.js"></script>
 <script>
-const ENV_ID='works-showcase-d2giub4pr5d687848';
-const PUB_KEY='eyJhbGciOiJSUzI1NiIsImtpZCI6IjlkMWRjMzFlLWI0ZDAtNDQ4Yi1hNzZmLWIwY2M2M2Q4MTQ5OCJ9.eyJpc3MiOiJodHRwczovL3dvcmtzLXNob3djYXNlLWQyZ2l1YjRwcjVkNjg3ODQ4LmFwLXNoYW5naGFpLnRjYi1hcGkudGVuY2VudGNsb3VkYXBpLmNvbSIsInN1YiI6ImFub24iLCJhdWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsImV4cCI6NDA4MzY2MDYyNiwiaWF0IjoxNzc5OTc3NDI2LCJub25jZSI6IlBSdHgtMm1GUlZ1OXFkM0p5ejU1aWciLCJhdF9oYXNoIjoiUFJ0eC0ybUZSVnU5cWQzSnl6NTVpZyIsIm5hbWUiOiJBbm9ueW1vdXMiLCJzY29wZSI6ImFub255bW91cyIsInByb2plY3RfaWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsIm1ldGEiOnsicGxhdGZvcm0iOiJQdWJsaXNoYWJsZUtleSJ9LCJ1c2VyX3R5cGUiOiIiLCJjbGllbnRfdHlwZSI6ImNsaWVudF91c2VyIiwiaXNfc3lzdGVtX2FkbWluIjpmYWxzZX0.hbLxMthyDPhSvGwtKo-PpjGfyejWQir39akNphU_pxYr5aW_MRC-crr-g2nznaTWcnvkjDLlXrJAxd8qjRQ7y5H6S_s8QOZ9LllWmEbDGU2IDV9-Z9F6R_-I3AFy80O6l-vVqEH2V3uTV7gOkGDHq9Rebf0adPIWs3Iv9Lgp-sU5MhZoXgluu-rkxDQPr3Lmaw1GL2O2t7QCp4fmfAJjBkBwgEY3hloe8LdO6_xe8fzAKRzMkc9o1D9ZgPplOARhj-lIQK6JVPjHpGYelYJmlMEq_ePQWzQ7HWKwucoPnspi11hnVP9-NQzesOYRMpjww7sIO5QWhTbyIat60TQbOw';
-let app,db,anonymousAuth,deviceId,visitorName='',visitorDepartment='',isKnown=false,currentTab=0,allWorks=[],interactors={},shareWorkId='';
+// ========== 配置 ==========
+const API_URL = 'https://works-showcase-d2giub4pr5d687848-1437802595.ap-shanghai.app.tcloudbase.com/api';
+const LOGIN_URL = 'https://works-showcase-d2giub4pr5d687848-1437802595.ap-shanghai.app.tcloudbase.com/login';
+const FEISHU_APP_ID = 'cli_aa9f2a2fb6395bdf';
+const FEISHU_REDIRECT_URI = 'https://cecilia1219-zixue.github.io/works-showcase/';
 
-async function initCloudBase(){
-  try{
-    app=cloudbase.init({env:ENV_ID});
-    db=app.database();
-    console.log('[CloudBase] initialized (no auth)');
-  }catch(e){console.error('[CloudBase] init error:',e)}
-}
-function initDeviceId(){
-  deviceId=localStorage.getItem('works_device_id');
-  if(!deviceId){deviceId='dev_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);localStorage.setItem('works_device_id',deviceId)}
-}
+// ========== 状态 ==========
+let deviceId, visitorName = '', visitorDepartment = '', isKnown = false;
+let currentTab = 0, allWorks = [], interactors = {}, shareWorkId = '';
 
-function hideLogin(){document.getElementById('login-overlay').classList.add('hidden');document.getElementById('main').classList.add('show')}
-function showLogin(){document.getElementById('login-overlay').classList.remove('hidden');document.getElementById('main').classList.remove('show')}
-
-// ===== 飞书登录 =====
-const FEISHU_APP_ID='cli_aa9f2a2fb6395bdf';
-const FEISHU_REDIRECT_URI='https://cecilia1219-zixue.github.io/works-showcase/';
-
-function doFeishuLogin(){
-  const url='https://passport.feishu.cn/suite/passport/oauth/authorize'
-    +'?client_id='+FEISHU_APP_ID
-    +'&redirect_uri='+encodeURIComponent(FEISHU_REDIRECT_URI)
-    +'&response_type=code'
-    +'&state=feishu_login';
-  window.location.href=url;
-}
-
-async function handleFeishuCallback(){
-  const params=new URLSearchParams(window.location.search);
-  const code=params.get('code');
-  const state=params.get('state');
-  if(!code||state!=='feishu_login')return false;
-  // 清除 URL 参数
-  window.history.replaceState({},document.title,window.location.pathname);
-  try{
-    const res=await exchangeCode(code);
-    if(res.code!==0){showToast('飞书登录失败: '+(res.message||'未知错误'));return false}
-    const d=res.data;
-    const name=d.name||d.en_name||'飞书用户';
-    const dept=d.department_ids?d.department_ids.join(','):'';
-    await autoLoginWithFeishu(d.open_id,name,dept,d.avatar_url);
-    return true;
-  }catch(e){console.error('[feishu callback]',e);showToast('飞书登录异常');return false}
-}
-
-async function exchangeCode(code){
-  try{
-    const res=await fetch("https://works-showcase-d2giub4pr5d687848-1437802595.ap-shanghai.app.tcloudbase.com/login?code="+encodeURIComponent(code),{
-      method:"POST"
+// ========== 统一 API 调用 ==========
+async function apiCall(action, collection, params = {}) {
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, collection, params })
     });
     return await res.json();
-  }catch(e){
-    console.error("[exchangeCode]",e);
-    return{code:500,message:"调用云函数失败: "+e.message};
+  } catch (e) {
+    console.error(`[apiCall ${action}/${collection}]`, e);
+    return { code: 500, message: '网络异常: ' + e.message };
   }
 }
 
-async function autoLoginWithFeishu(openId,name,department,avatarUrl){
-  visitorName=name;visitorDepartment=department;isKnown=true;
-  localStorage.setItem('loginInfo',JSON.stringify({nickname:name,department:department||'',timestamp:Date.now(),openId}));
-  try{
-    const col=db.collection('visitors');
-    const res=await col.where({open_id:openId}).get();
-    if(!res.data||res.data.length===0){
-      await col.add({name,department,deviceId,open_id:openId,avatar:avatarUrl,createdAt:new Date()});
-    }else{
-      await col.doc(res.data[0]._id).update({name,department,lastLoginAt:new Date()});
+// ========== 设备 ID ==========
+function initDeviceId() {
+  deviceId = localStorage.getItem('works_device_id');
+  if (!deviceId) {
+    deviceId = 'dev_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    localStorage.setItem('works_device_id', deviceId);
+  }
+}
+
+// ========== 登录 UI ==========
+function hideLogin() {
+  document.getElementById('login-overlay').classList.add('hidden');
+  document.getElementById('main').classList.add('show');
+}
+function showLogin() {
+  document.getElementById('login-overlay').classList.remove('hidden');
+  document.getElementById('main').classList.remove('show');
+}
+
+// ========== 飞书登录 ==========
+function doFeishuLogin() {
+  const url = 'https://passport.feishu.cn/suite/passport/oauth/authorize'
+    + '?client_id=' + FEISHU_APP_ID
+    + '&redirect_uri=' + encodeURIComponent(FEISHU_REDIRECT_URI)
+    + '&response_type=code'
+    + '&state=feishu_login';
+  window.location.href = url;
+}
+
+async function handleFeishuCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  const state = params.get('state');
+  if (!code || state !== 'feishu_login') return false;
+  window.history.replaceState({}, document.title, window.location.pathname);
+  try {
+    const res = await exchangeCode(code);
+    if (res.code !== 0) { showToast('飞书登录失败: ' + (res.message || '未知错误')); return false; }
+    const d = res.data;
+    const name = d.name || d.en_name || '飞书用户';
+    const dept = d.department_ids ? d.department_ids.join(',') : '';
+    await autoLoginWithFeishu(d.open_id, name, dept, d.avatar_url);
+    return true;
+  } catch (e) { console.error('[feishu callback]', e); showToast('飞书登录异常'); return false; }
+}
+
+async function exchangeCode(code) {
+  try {
+    const res = await fetch(LOGIN_URL + '?code=' + encodeURIComponent(code), { method: 'POST' });
+    return await res.json();
+  } catch (e) {
+    console.error('[exchangeCode]', e);
+    return { code: 500, message: '调用云函数失败: ' + e.message };
+  }
+}
+
+async function autoLoginWithFeishu(openId, name, department, avatarUrl) {
+  visitorName = name;
+  visitorDepartment = department;
+  isKnown = true;
+  localStorage.setItem('loginInfo', JSON.stringify({ nickname: name, department: department || '', timestamp: Date.now(), openId }));
+  // 写入数据库
+  try {
+    const res = await apiCall('get', 'visitors', { query: { open_id: openId }, limit: 1 });
+    if (res.code === 0 && res.data && res.data.data && res.data.data.length === 0) {
+      await apiCall('add', 'visitors', { data: { name, department, deviceId, open_id: openId, avatar: avatarUrl, createdAt: new Date().toISOString() } });
+    } else if (res.code === 0 && res.data && res.data.data && res.data.data.length > 0) {
+      await apiCall('update', 'visitors', { docId: res.data.data[0]._id, data: { name, department, lastLoginAt: new Date().toISOString() } });
     }
-  }catch(e){console.warn('[feishu login] DB write skipped:',e)}
-  hideLogin();showToast('欢迎 '+name+'（'+(department||'已登录')+'）！');loadData();
-}
-
-async function doLogin(){
-  const name=document.getElementById('name-input').value.trim();
-  const dept=document.getElementById('dept-input').value.trim();
-  const errEl=document.getElementById('login-error');
-  if(!name||!dept){if(errEl)errEl.style.display='block';return}
-  if(errEl)errEl.style.display='none';
-  visitorName=name;visitorDepartment=dept;isKnown=true;
-  localStorage.setItem('loginInfo',JSON.stringify({nickname:name,department:dept,timestamp:Date.now()}));
-  try{
-    const col=db.collection('visitors');
-    const res=await col.where({deviceId}).get();
-    if(!res.data||res.data.length===0){await col.add({name,department:dept,deviceId,createdAt:new Date()})}
-    else{await col.doc(res.data[0]._id).update({name,department:dept,lastLoginAt:new Date()})}
-  }catch(e){console.warn('[doLogin] DB write skipped:',e)}
-  hideLogin();showToast('欢迎 '+name+'（'+dept+'）！');loadData();
-}
-
-async function loadData(){
-  try{
-    const col=db.collection('works');
-    const res=await col.where({category:currentTab,visible:true}).orderBy('createdAt','desc').get();
-    allWorks=res.data||[];
-  }catch(e){console.error('[loadData] error:',e);allWorks=[]}
-  loadInteractors();renderWorks();
-}
-
-function switchTab(idx){
-  currentTab=idx;
-  document.querySelectorAll('.sheet-tab').forEach(t=>t.classList.toggle('active',parseInt(t.dataset.tab)===idx));
+  } catch (e) { console.warn('[feishu login] DB write skipped:', e); }
+  hideLogin();
+  showToast('欢迎 ' + name + '（' + (department || '已登录') + '）！');
   loadData();
 }
 
-function renderWorks(){
-  const container=document.getElementById('cards');
-  if(!allWorks.length){
-    container.innerHTML='<div class="empty-state"><div class="icon">✨</div><p>暂无作品，敬请期待</p></div>';
+// ========== 手动登录 ==========
+async function doLogin() {
+  const name = document.getElementById('name-input').value.trim();
+  const dept = document.getElementById('dept-input').value.trim();
+  const errEl = document.getElementById('login-error');
+  if (!name || !dept) { if (errEl) errEl.style.display = 'block'; return; }
+  if (errEl) errEl.style.display = 'none';
+  visitorName = name;
+  visitorDepartment = dept;
+  isKnown = true;
+  localStorage.setItem('loginInfo', JSON.stringify({ nickname: name, department: dept, timestamp: Date.now() }));
+  // 写入数据库
+  try {
+    const res = await apiCall('get', 'visitors', { query: { deviceId: deviceId }, limit: 1 });
+    if (res.code === 0 && res.data && res.data.data && res.data.data.length === 0) {
+      await apiCall('add', 'visitors', { data: { name, department: dept, deviceId, createdAt: new Date().toISOString() } });
+    } else if (res.code === 0 && res.data && res.data.data && res.data.data.length > 0) {
+      await apiCall('update', 'visitors', { docId: res.data.data[0]._id, data: { name, department: dept, lastLoginAt: new Date().toISOString() } });
+    }
+  } catch (e) { console.warn('[doLogin] DB write skipped:', e); }
+  hideLogin();
+  showToast('欢迎 ' + name + '（' + dept + '）！');
+  loadData();
+}
+
+// ========== 数据加载 ==========
+async function loadData() {
+  try {
+    const res = await apiCall('get', 'works', {
+      query: { category: currentTab, visible: true },
+      orderBy: 'createdAt',
+      orderType: 'desc',
+      limit: 200
+    });
+    allWorks = (res.code === 0 && res.data && res.data.data) ? res.data.data : [];
+  } catch (e) { console.error('[loadData] error:', e); allWorks = []; }
+  loadInteractors();
+  renderWorks();
+}
+
+function switchTab(idx) {
+  currentTab = idx;
+  document.querySelectorAll('.sheet-tab').forEach(t => t.classList.toggle('active', parseInt(t.dataset.tab) === idx));
+  loadData();
+}
+
+// ========== 作品渲染 ==========
+function renderWorks() {
+  const container = document.getElementById('cards');
+  if (!allWorks.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">✨</div><p>暂无作品，敬请期待</p></div>';
     return;
   }
-  let html='';
-  for(const w of allWorks){
-    const stats=w._stats||{likes:0,comments:0,shares:0};
-    const liked=interactors[w._id]&&interactors[w._id].liked;
-    const imgs=w.images||[];
-    const slide=interactors[w._id]&&interactors[w._id].slide?interactors[w._id].slide:0;
+  let html = '';
+  for (const w of allWorks) {
+    const stats = w._stats || { likes: 0, comments: 0, shares: 0 };
+    const liked = interactors[w._id] && interactors[w._id].liked;
+    const imgs = w.images || [];
+    const slide = interactors[w._id] && interactors[w._id].slide ? interactors[w._id].slide : 0;
 
-    // Carousel
-    const slides=imgs.length?imgs.map((src,i)=>'<div class="carousel-slide"><img src="'+escHtml(src)+'" alt="" onerror="this.parentElement.innerHTML=\'<div style=\'aspect-ratio:3/4;background:#f0f0f0;display:flex;align-items:center;justify-content:center\'><span style=\'font-size:2rem;opacity:.4\'>🖼️</span></div>\'"></div>').join(''):'<div class="carousel-slide"><div style="aspect-ratio:3/4;background:linear-gradient(135deg,#f5f5f4,#e8e8e8);display:flex;align-items:center;justify-content:center"><span style="font-size:2rem;opacity:.4">🖼️</span></div></div>';
-    const dots=imgs.length>1?'<div class="carousel-dots" id="dots-'+w._id+'">'+imgs.map((_,i)=>'<div class="dot'+(i===slide?' active':'')+'"></div>').join('')+'</div>':'';
-    const arrows=imgs.length>1?'<button class="carousel-btn prev" onclick="event.stopPropagation();prevSlide(\''+w._id+'\')">‹</button><button class="carousel-btn next" onclick="event.stopPropagation();nextSlide(\''+w._id+'\')">›</button>':'';
+    const slides = imgs.length ? imgs.map((src, i) => '<div class="carousel-slide"><img src="' + escHtml(src) + '" alt="" onerror="this.parentElement.innerHTML=\'<div style=\'aspect-ratio:3/4;background:#f0f0f0;display:flex;align-items:center;justify-content:center\'><span style=\'font-size:2rem;opacity:.4\'>🖼️</span></div>\'"></div>').join('') : '<div class="carousel-slide"><div style="aspect-ratio:3/4;background:linear-gradient(135deg,#f5f5f4,#e8e8e8);display:flex;align-items:center;justify-content:center"><span style="font-size:2rem;opacity:.4">🖼️</span></div></div>';
+    const dots = imgs.length > 1 ? '<div class="carousel-dots" id="dots-' + w._id + '">' + imgs.map((_, i) => '<div class="dot' + (i === slide ? ' active' : '') + '"></div>').join('') + '</div>' : '';
+    const arrows = imgs.length > 1 ? '<button class="carousel-btn prev" onclick="event.stopPropagation();prevSlide(\'' + w._id + '\')">‹</button><button class="carousel-btn next" onclick="event.stopPropagation();nextSlide(\'' + w._id + '\')">›</button>' : '';
 
-    html+='<div class="card" id="card-'+w._id+'" data-wid="'+w._id+'" onclick="openShareModal(\''+w._id+'\')">';
-    // Image
-    html+='<div class="card-carousel" id="carousel-'+w._id+'" data-wid="'+w._id+'"><div class="carousel-track" id="track-'+w._id+'" style="transform:translateX(-'+slide*100+'%)">'+slides+'</div>';
-    if(arrows)html+=arrows;
-    if(dots)html+=dots;
-    html+='</div>';
-    // Body
-    html+='<div class="card-body"><div class="card-title">'+escHtml(w.title||'未命名作品')+'</div>';
-    if(w.description)html+='<div class="card-desc">'+escHtml(w.description)+'</div>';
-    html+='</div>';
-    // Actions
-    html+='<div class="card-actions">';
-    html+='<button class="card-action'+(liked?' liked':'')+'" onclick="event.stopPropagation();toggleLike(\''+w._id+'\')" title="点赞"><span class="icon">'+(liked?'❤️':'🤍')+'</span><span>'+stats.likes+'</span></button>';
-    html+='<button class="card-action" onclick="event.stopPropagation();toggleComment(\''+w._id+'\')" title="评论"><span class="icon">💬</span><span id="comments-count-'+w._id+'">'+stats.comments+'</span></button>';
-    html+='<button class="card-action" onclick="event.stopPropagation();openShareModal(\''+w._id+'\')" title="分享"><span class="icon">↗️</span><span>'+stats.shares+'</span></button>';
-    html+='</div>';
-    // Comment panel
-    html+='<div class="comment-panel'+(interactors[w._id]&&interactors[w._id].commentOpen?' show':'')+'" id="comments-'+w._id+'">';
-    html+='<div class="comment-input-row"><input type="text" placeholder="写评论…" id="comment-input-'+w._id+'" onkeydown="if(event.key===\'Enter\')submitComment(\''+w._id+'\')"><button onclick="submitComment(\''+w._id+'\')">发送</button></div>';
-    html+='<div class="comment-list" id="comment-list-'+w._id+'"><div class="loading"><div class="spinner"></div></div></div>';
-    html+='</div>';
-    html+='</div>';
+    html += '<div class="card" id="card-' + w._id + '" data-wid="' + w._id + '" onclick="openShareModal(\'' + w._id + '\')">';
+    html += '<div class="card-carousel" id="carousel-' + w._id + '" data-wid="' + w._id + '"><div class="carousel-track" id="track-' + w._id + '" style="transform:translateX(-' + slide * 100 + '%)">' + slides + '</div>';
+    if (arrows) html += arrows;
+    if (dots) html += dots;
+    html += '</div>';
+    html += '<div class="card-body"><div class="card-title">' + escHtml(w.title || '未命名作品') + '</div>';
+    if (w.description) html += '<div class="card-desc">' + escHtml(w.description) + '</div>';
+    html += '</div>';
+    html += '<div class="card-actions">';
+    html += '<button class="card-action' + (liked ? ' liked' : '') + '" onclick="event.stopPropagation();toggleLike(\'' + w._id + '\')" title="点赞"><span class="icon">' + (liked ? '❤️' : '🤍') + '</span><span>' + stats.likes + '</span></button>';
+    html += '<button class="card-action" onclick="event.stopPropagation();toggleComment(\'' + w._id + '\')" title="评论"><span class="icon">💬</span><span id="comments-count-' + w._id + '">' + stats.comments + '</span></button>';
+    html += '<button class="card-action" onclick="event.stopPropagation();openShareModal(\'' + w._id + '\')" title="分享"><span class="icon">↗️</span><span>' + stats.shares + '</span></button>';
+    html += '</div>';
+    html += '<div class="comment-panel' + (interactors[w._id] && interactors[w._id].commentOpen ? ' show' : '') + '" id="comments-' + w._id + '">';
+    html += '<div class="comment-input-row"><input type="text" placeholder="写评论…" id="comment-input-' + w._id + '" onkeydown="if(event.key===\'Enter\')submitComment(\'' + w._id + '\')"><button onclick="submitComment(\'' + w._id + '\')">发送</button></div>';
+    html += '<div class="comment-list" id="comment-list-' + w._id + '"><div class="loading"><div class="spinner"></div></div></div>';
+    html += '</div>';
+    html += '</div>';
   }
-  container.innerHTML=html;
+  container.innerHTML = html;
   loadVisibleComments();
 }
 
-function loadInteractors(){try{const s=localStorage.getItem('works_interactors');if(s)interactors={...interactors,...JSON.parse(s)}}catch(e){}}
-function saveInteractors(){localStorage.setItem('works_interactors',JSON.stringify(interactors))}
+// ========== 交互状态 ==========
+function loadInteractors() { try { const s = localStorage.getItem('works_interactors'); if (s) interactors = { ...interactors, ...JSON.parse(s) } } catch (e) { } }
+function saveInteractors() { localStorage.setItem('works_interactors', JSON.stringify(interactors)) }
 
-async function toggleLike(workId){
-  if(!interactors[workId])interactors[workId]={};
-  interactors[workId].liked=!interactors[workId].liked;saveInteractors();
-  const w=allWorks.find(x=>x._id===workId);
-  if(w&&w._stats){w._stats.likes+=interactors[workId].liked?1:-1}
-  try{await db.collection('likes').add({workId,user_nickname:visitorName,user_department:visitorDepartment,deviceId,timestamp:new Date()})}catch(e){}
-  try{
-    const sc=db.collection('work_stats');
-    const res=await sc.where({workId}).get();
-    if(res.data&&res.data.length>0){await sc.doc(res.data[0]._id).update({likes:res.data[0].likes+(interactors[workId].liked?1:-1)})}
-    else{await sc.add({workId,likes:interactors[workId].liked?1:0,comments:0,shares:0})}
-  }catch(e){}
+// ========== 点赞 ==========
+async function toggleLike(workId) {
+  if (!interactors[workId]) interactors[workId] = {};
+  interactors[workId].liked = !interactors[workId].liked;
+  saveInteractors();
+  const w = allWorks.find(x => x._id === workId);
+  if (w && w._stats) { w._stats.likes += interactors[workId].liked ? 1 : -1; }
+  // 写 likes 表
+  try {
+    await apiCall('add', 'likes', {
+      data: { workId, user_nickname: visitorName, user_department: visitorDepartment, deviceId, timestamp: new Date().toISOString() }
+    });
+  } catch (e) { }
+  // 更新 work_stats
+  try {
+    const sc = await apiCall('get', 'work_stats', { query: { workId: workId }, limit: 1 });
+    if (sc.code === 0 && sc.data && sc.data.data && sc.data.data.length > 0) {
+      const old = sc.data.data[0];
+      await apiCall('update', 'work_stats', { docId: old._id, data: { likes: old.likes + (interactors[workId].liked ? 1 : -1) } });
+    } else {
+      await apiCall('add', 'work_stats', { data: { workId, likes: interactors[workId].liked ? 1 : 0, comments: 0, shares: 0 } });
+    }
+  } catch (e) { }
   renderWorks();
 }
 
-function toggleComment(workId){
-  if(!interactors[workId])interactors[workId]={};
-  interactors[workId].commentOpen=!interactors[workId].commentOpen;saveInteractors();
+// ========== 评论 ==========
+function toggleComment(workId) {
+  if (!interactors[workId]) interactors[workId] = {};
+  interactors[workId].commentOpen = !interactors[workId].commentOpen;
+  saveInteractors();
   renderWorks();
-  if(interactors[workId].commentOpen){loadComments(workId)}
+  if (interactors[workId].commentOpen) { loadComments(workId); }
 }
 
-async function loadComments(workId){
-  const list=document.getElementById('comment-list-'+workId);if(!list)return;
-  try{
-    const res=await db.collection('comments').where({workId}).orderBy('createdAt','desc').limit(50).get();
-    const comments=res.data||[];
-    if(comments.length){
-      list.innerHTML=comments.map(c=>{
-        const time=c.createdAt?formatTime(c.createdAt):'';
-        const dept=c.user_department?'<span class="comment-dept">'+escHtml(c.user_department)+'</span>':'';
-        return '<div class="comment-item"><span class="comment-author">'+escHtml(c.user_nickname||c.authorName||'匿名')+'</span>'+dept+'<span class="comment-time">'+time+'</span><div class="comment-text">'+escHtml(c.content||c.text)+'</div></div>';
+async function loadComments(workId) {
+  const list = document.getElementById('comment-list-' + workId); if (!list) return;
+  try {
+    const res = await apiCall('get', 'comments', {
+      query: { workId: workId },
+      orderBy: 'createdAt',
+      orderType: 'desc',
+      limit: 50
+    });
+    const comments = (res.code === 0 && res.data && res.data.data) ? res.data.data : [];
+    if (comments.length) {
+      list.innerHTML = comments.map(c => {
+        const time = c.createdAt ? formatTime(c.createdAt) : '';
+        const dept = c.user_department ? '<span class="comment-dept">' + escHtml(c.user_department) + '</span>' : '';
+        return '<div class="comment-item"><span class="comment-author">' + escHtml(c.user_nickname || c.authorName || '匿名') + '</span>' + dept + '<span class="comment-time">' + time + '</span><div class="comment-text">' + escHtml(c.content || c.text) + '</div></div>';
       }).join('');
-    }else{list.innerHTML='<div style="padding:8px 0;color:var(--text-dim);font-size:.8rem">暂无评论，来抢沙发吧~</div>'}
-  }catch(e){list.innerHTML='<div style="padding:8px 0;color:var(--text-dim);font-size:.8rem">评论加载失败</div>'}
+    } else { list.innerHTML = '<div style="padding:8px 0;color:var(--text-dim);font-size:.8rem">暂无评论，来抢沙发吧~</div>'; }
+  } catch (e) { list.innerHTML = '<div style="padding:8px 0;color:var(--text-dim);font-size:.8rem">评论加载失败</div>'; }
 }
 
-async function submitComment(workId){
-  const input=document.getElementById('comment-input-'+workId);const text=input.value.trim();
-  if(!text||!visitorName){showToast('请先输入评论内容');return}
-  try{
-    await db.collection('comments').add({workId,user_nickname:visitorName,user_department:visitorDepartment,deviceId,content:text,timestamp:new Date()});
-    input.value='';
-    const sc=db.collection('work_stats');const res=await sc.where({workId}).get();
-    if(res.data&&res.data.length>0){await sc.doc(res.data[0]._id).update({comments:db.command.inc(1)})}
-    else{await sc.add({workId,likes:0,comments:1,shares:0})}
-    const w=allWorks.find(x=>x._id===workId);if(w&&w._stats)w._stats.comments++;
-    renderWorks();loadComments(workId);showToast('评论成功 🎉');
-  }catch(e){console.error('[submitComment] error:',e);showToast('评论失败，请重试')}
+async function submitComment(workId) {
+  const input = document.getElementById('comment-input-' + workId); const text = input.value.trim();
+  if (!text || !visitorName) { showToast('请先输入评论内容'); return; }
+  try {
+    await apiCall('add', 'comments', {
+      data: { workId, user_nickname: visitorName, user_department: visitorDepartment, deviceId, content: text, timestamp: new Date().toISOString() }
+    });
+    input.value = '';
+    const sc = await apiCall('get', 'work_stats', { query: { workId: workId }, limit: 1 });
+    if (sc.code === 0 && sc.data && sc.data.data && sc.data.data.length > 0) {
+      const old = sc.data.data[0];
+      await apiCall('update', 'work_stats', { docId: old._id, data: { comments: (old.comments || 0) + 1 } });
+    } else {
+      await apiCall('add', 'work_stats', { data: { workId, likes: 0, comments: 1, shares: 0 } });
+    }
+    const w = allWorks.find(x => x._id === workId); if (w && w._stats) w._stats.comments++;
+    renderWorks(); loadComments(workId); showToast('评论成功 🎉');
+  } catch (e) { console.error('[submitComment] error:', e); showToast('评论失败，请重试'); }
 }
 
-let visibleCommentsLoaded={};
-function loadVisibleComments(){allWorks.forEach(w=>{if(interactors[w._id]&&interactors[w._id].commentOpen&&!visibleCommentsLoaded[w._id]){visibleCommentsLoaded[w._id]=true;loadComments(w._id)}})}
+let visibleCommentsLoaded = {};
+function loadVisibleComments() { allWorks.forEach(w => { if (interactors[w._id] && interactors[w._id].commentOpen && !visibleCommentsLoaded[w._id]) { visibleCommentsLoaded[w._id] = true; loadComments(w._id); } }) }
 
-function goSlide(workId,idx){
-  const w=allWorks.find(x=>x._id===workId);if(!w)return;
-  const imgs=w.images||[];if(!imgs.length)return;
-  if(!interactors[workId])interactors[workId]={};
-  idx=Math.max(0,Math.min(idx,imgs.length-1));interactors[workId].slide=idx;saveInteractors();
-  const track=document.getElementById('track-'+workId);if(track)track.style.transform='translateX(-'+idx*100+'%)';
-  const dotsWrap=document.getElementById('dots-'+workId);
-  if(dotsWrap){dotsWrap.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===idx))}
+// ========== 轮播 ==========
+function goSlide(workId, idx) {
+  const w = allWorks.find(x => x._id === workId); if (!w) return;
+  const imgs = w.images || []; if (!imgs.length) return;
+  if (!interactors[workId]) interactors[workId] = {};
+  idx = Math.max(0, Math.min(idx, imgs.length - 1)); interactors[workId].slide = idx; saveInteractors();
+  const track = document.getElementById('track-' + workId); if (track) track.style.transform = 'translateX(-' + idx * 100 + '%)';
+  const dotsWrap = document.getElementById('dots-' + workId);
+  if (dotsWrap) { dotsWrap.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === idx)); }
 }
-function nextSlide(workId){const w=allWorks.find(x=>x._id===workId);if(!w)return;const idx=(interactors[workId]&&interactors[workId].slide||0)+1;goSlide(workId,idx%(w.images||[]).length)}
-function prevSlide(workId){const w=allWorks.find(x=>x._id===workId);if(!w)return;const imgs=w.images||[];const idx=(interactors[workId]&&interactors[workId].slide||0)-1;goSlide(workId,idx<0?imgs.length-1:idx)}
+function nextSlide(workId) { const w = allWorks.find(x => x._id === workId); if (!w) return; const idx = (interactors[workId] && interactors[workId].slide || 0) + 1; goSlide(workId, idx % (w.images || []).length); }
+function prevSlide(workId) { const w = allWorks.find(x => x._id === workId); if (!w) return; const imgs = w.images || []; const idx = (interactors[workId] && interactors[workId].slide || 0) - 1; goSlide(workId, idx < 0 ? imgs.length - 1 : idx); }
 
-function openShareModal(workId){
-  shareWorkId=workId;const w=allWorks.find(x=>x._id===workId);
-  const url=w?(window.location.origin+window.location.pathname+'#'+workId):window.location.href;
-  document.getElementById('share-url').value=url;document.getElementById('share-modal').classList.add('show');
+// ========== 分享 ==========
+function openShareModal(workId) {
+  shareWorkId = workId; const w = allWorks.find(x => x._id === workId);
+  const url = w ? (window.location.origin + window.location.pathname + '#' + workId) : window.location.href;
+  document.getElementById('share-url').value = url; document.getElementById('share-modal').classList.add('show');
 }
-function closeShareModal(){document.getElementById('share-modal').classList.remove('show');shareWorkId=''}
+function closeShareModal() { document.getElementById('share-modal').classList.remove('show'); shareWorkId = ''; }
 
-function shareCopy(){
-  const input=document.getElementById('share-url');input.select();
-  navigator.clipboard.writeText(input.value).then(()=>{showToast('链接已复制 🔗');recordShare(shareWorkId,'link');closeShareModal()}).catch(()=>{document.execCommand('copy');showToast('链接已复制 🔗');recordShare(shareWorkId,'link');closeShareModal()});
+function shareCopy() {
+  const input = document.getElementById('share-url'); input.select();
+  navigator.clipboard.writeText(input.value).then(() => { showToast('链接已复制 🔗'); recordShare(shareWorkId, 'link'); closeShareModal(); }).catch(() => { document.execCommand('copy'); showToast('链接已复制 🔗'); recordShare(shareWorkId, 'link'); closeShareModal(); });
 }
-function shareFeishu(){
-  const url=document.getElementById('share-url').value;const w=allWorks.find(x=>x._id===shareWorkId);
-  const title=w?w.title:'医起AI·挑战赛作品';
-  navigator.clipboard.writeText('来看看「'+title+'」吧！'+url).then(()=>{showToast('已复制到剪贴板，请在飞书中粘贴发送');recordShare(shareWorkId,'feishu');closeShareModal()}).catch(()=>{showToast('复制失败，请手动复制链接')});
+function shareFeishu() {
+  const url = document.getElementById('share-url').value; const w = allWorks.find(x => x._id === shareWorkId);
+  const title = w ? w.title : '医起AI·挑战赛作品';
+  navigator.clipboard.writeText('来看看「' + title + '」吧！' + url).then(() => { showToast('已复制到剪贴板，请在飞书中粘贴发送'); recordShare(shareWorkId, 'feishu'); closeShareModal(); }).catch(() => { showToast('复制失败，请手动复制链接'); });
 }
-function shareWechat(){recordShare(shareWorkId,'wechat');shareCopy();showToast('链接已复制，请在微信中粘贴分享')}
+function shareWechat() { recordShare(shareWorkId, 'wechat'); shareCopy(); showToast('链接已复制，请在微信中粘贴分享'); }
 
-async function recordShare(workId,platform){
-  try{await db.collection('shares').add({workId,user_nickname:visitorName,user_department:visitorDepartment,deviceId,platform:platform||'link',timestamp:new Date()})}catch(e){}
-  try{
-    const sc=db.collection('work_stats');const res=await sc.where({workId}).get();
-    if(res.data&&res.data.length>0){await sc.doc(res.data[0]._id).update({shares:db.command.inc(1)})}
-    else{await sc.add({workId,likes:0,comments:0,shares:1})}
-    const w=allWorks.find(x=>x._id===workId);if(w&&w._stats)w._stats.shares++;
-  }catch(e){}
+async function recordShare(workId, platform) {
+  try {
+    await apiCall('add', 'shares', {
+      data: { workId, user_nickname: visitorName, user_department: visitorDepartment, deviceId, platform: platform || 'link', timestamp: new Date().toISOString() }
+    });
+  } catch (e) { }
+  try {
+    const sc = await apiCall('get', 'work_stats', { query: { workId: workId }, limit: 1 });
+    if (sc.code === 0 && sc.data && sc.data.data && sc.data.data.length > 0) {
+      const old = sc.data.data[0];
+      await apiCall('update', 'work_stats', { docId: old._id, data: { shares: (old.shares || 0) + 1 } });
+    } else {
+      await apiCall('add', 'work_stats', { data: { workId, likes: 0, comments: 0, shares: 1 } });
+    }
+    const w = allWorks.find(x => x._id === workId); if (w && w._stats) w._stats.shares++;
+  } catch (e) { }
 }
 
-function scrollToWorkFromHash(){const hash=window.location.hash.slice(1);if(!hash)return;const card=document.getElementById('card-'+hash);if(card)setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'center'}),300)}
+// ========== 工具函数 ==========
+function scrollToWorkFromHash() { const hash = window.location.hash.slice(1); if (!hash) return; const card = document.getElementById('card-' + hash); if (card) setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); }
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('show'), 2500); }
+function escHtml(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
+function formatTime(v) { if (v instanceof Date) return v.toLocaleString('zh-CN'); if (typeof v === 'string') { try { return new Date(v).toLocaleString('zh-CN'); } catch (e) { return v; } } if (v && v.$date) return new Date(v.$date).toLocaleString('zh-CN'); return ''; }
 
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),2500)}
-function escHtml(s){if(!s)return '';const d=document.createElement('div');d.textContent=String(s);return d.innerHTML}
-function formatTime(v){if(v instanceof Date)return v.toLocaleString('zh-CN');if(typeof v==='string'){try{return new Date(v).toLocaleString('zh-CN')}catch(e){return v}}if(v&&v.$date)return new Date(v.$date).toLocaleString('zh-CN');return ''}
-
-async function init(){
-  await initCloudBase();initDeviceId();
-  const nameInput=document.getElementById('name-input');
-  const deptInput=document.getElementById('dept-input');
-  const loginBtn=document.getElementById('login-btn');
-  const errEl=document.getElementById('login-error');
-  function checkLoginReady(){const ready=nameInput.value.trim()&&deptInput.value.trim();loginBtn.disabled=!ready;if(ready&&errEl)errEl.style.display='none'}
-  nameInput.addEventListener('input',checkLoginReady);deptInput.addEventListener('input',checkLoginReady);
-  nameInput.addEventListener('keydown',e=>{if(e.key==='Enter'){if(nameInput.value.trim()&&deptInput.value.trim())doLogin();else checkLoginReady()}});
-  deptInput.addEventListener('keydown',e=>{if(e.key==='Enter'){if(nameInput.value.trim()&&deptInput.value.trim())doLogin();else checkLoginReady()}});
-  loginBtn.addEventListener('click',doLogin);
+// ========== 初始化 ==========
+async function init() {
+  initDeviceId();
+  const nameInput = document.getElementById('name-input');
+  const deptInput = document.getElementById('dept-input');
+  const loginBtn = document.getElementById('login-btn');
+  const errEl = document.getElementById('login-error');
+  function checkLoginReady() { const ready = nameInput.value.trim() && deptInput.value.trim(); loginBtn.disabled = !ready; if (ready && errEl) errEl.style.display = 'none'; }
+  nameInput.addEventListener('input', checkLoginReady); deptInput.addEventListener('input', checkLoginReady);
+  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') { if (nameInput.value.trim() && deptInput.value.trim()) doLogin(); else checkLoginReady(); } });
+  deptInput.addEventListener('keydown', e => { if (e.key === 'Enter') { if (nameInput.value.trim() && deptInput.value.trim()) doLogin(); else checkLoginReady(); } });
+  loginBtn.addEventListener('click', doLogin);
   // 处理飞书回调
-  const feishuOk=await handleFeishuCallback();
-  if(feishuOk)return;
-  const saved=localStorage.getItem('loginInfo');
-  if(saved){try{const info=JSON.parse(saved);const days=(Date.now()-info.timestamp)/(1000*60*60*24);if(days<=30&&info.nickname){visitorName=info.nickname;visitorDepartment=info.department||'';isKnown=true;hideLogin();await loadData();return}}catch(e){}}
+  const feishuOk = await handleFeishuCallback();
+  if (feishuOk) return;
+  // 检查本地缓存
+  const saved = localStorage.getItem('loginInfo');
+  if (saved) { try { const info = JSON.parse(saved); const days = (Date.now() - info.timestamp) / (1000 * 60 * 60 * 24); if (days <= 30 && info.nickname) { visitorName = info.nickname; visitorDepartment = info.department || ''; isKnown = true; hideLogin(); await loadData(); return; } } catch (e) { } }
   showLogin();
 }
 init();
