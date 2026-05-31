@@ -226,6 +226,122 @@ a{color:var(--text-secondary);text-decoration:none}
   .footer{padding:1rem 1rem 1.5rem;font-size:.72rem}
 }
 </style>
+<style>
+/* Xiaohongshu-style feed and detail page override */
+body{background:#fff;color:#222}
+.site-bg{display:none}
+.navbar{position:sticky;top:0;border-radius:0;background:rgba(255,255,255,.96);box-shadow:none;border-bottom:1px solid #eee;padding:12px 30px}
+.nav-title{font-size:18px;font-weight:800}
+.nav-user{display:flex}
+.nav-user .name{font-size:13px}
+.nav-admin{border-color:#eee;background:#fff;color:#444}
+.hero{display:none}
+.mobile-discovery{display:none}
+.sheet-bar{max-width:1540px;padding:16px 32px 4px}
+.sheet-tabs{gap:26px;border-bottom:1px solid #eee;align-items:center}
+.sheet-tab{border:none;background:transparent;border-radius:0;bottom:0;padding:0 0 12px;font-size:16px;color:#8b8b8b}
+.sheet-tab.active{background:transparent;color:#151515;border:none;font-weight:800}
+.sheet-tab.active::after{content:'';position:absolute;left:50%;bottom:-1px;width:34px;height:3px;border-radius:99px;background:#ff2f55;transform:translateX(-50%)}
+.cards-container{max-width:1540px;padding:22px 32px 80px}
+.masonry{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:24px 22px;align-items:start}
+.card{border:none;box-shadow:none;border-radius:0;background:#fff;cursor:pointer;overflow:visible}
+.card:hover{transform:none;box-shadow:none}
+.card-carousel{border-radius:12px;overflow:hidden;background:#f5f5f5;border:1px solid #f0f0f0}
+.card-carousel .carousel-track{display:flex;transition:transform .25s ease}
+.card-carousel .carousel-slide{min-width:100%;flex:0 0 100%}
+.card-carousel .carousel-slide img,.card-fallback{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;background:#f5f5f5}
+.card-carousel .carousel-btn{width:30px;height:30px;background:rgba(0,0,0,.32);color:#fff;border:none;box-shadow:none;font-size:18px}
+.card-carousel .carousel-dots{position:absolute;left:0;right:0;bottom:8px;padding:0}
+.card-carousel .carousel-dots .dot{background:rgba(255,255,255,.7)}
+.card-carousel .carousel-dots .dot.active{background:#fff}
+.card-body{padding:10px 2px 0}
+.card-title{font-size:16px;line-height:1.35;font-weight:800;margin:0 0 8px;color:#222;-webkit-line-clamp:2}
+.card-desc{display:none}
+.card-meta{display:flex;align-items:center;gap:7px;margin:0;color:#777;font-size:13px}
+.author-avatar{width:22px;height:22px;border-radius:50%;background:#f2f2f2;display:inline-flex;align-items:center;justify-content:center;overflow:hidden;color:#777;font-size:11px;flex:0 0 auto}
+.author-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-actions{padding:8px 0 0;border-top:0;background:#fff;justify-content:flex-end;gap:12px}
+.card-action{padding:0;color:#777;background:transparent;font-size:14px;border-radius:0}
+.card-action:hover{background:transparent;color:#111}
+.card-action .icon{font-size:18px}
+.comment-panel{display:none!important}
+.footer{display:none}
+.detail-overlay{position:fixed;inset:0;z-index:1200;display:none;background:rgba(0,0,0,.42);align-items:center;justify-content:center}
+.detail-overlay.show{display:flex}
+.detail-shell{width:min(1360px,calc(100vw - 64px));height:min(860px,calc(100vh - 64px));background:#fff;border-radius:20px;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.35fr) 460px;box-shadow:0 22px 70px rgba(0,0,0,.22);position:relative}
+.detail-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border:0;border-radius:50%;background:rgba(0,0,0,.36);color:#fff;font-size:24px;line-height:1;z-index:2;cursor:pointer}
+.detail-media{position:relative;background:#f8f8f8;display:flex;align-items:center;justify-content:center;min-width:0}
+.detail-media img{width:100%;height:100%;object-fit:contain;display:block}
+.detail-media .carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;border:0;background:rgba(0,0,0,.36);color:#fff;font-size:28px;cursor:pointer}
+.detail-media .prev{left:18px}.detail-media .next{right:18px}
+.detail-side{display:flex;flex-direction:column;min-height:0;border-left:1px solid #eee;background:#fff}
+.detail-author{display:flex;align-items:center;gap:12px;padding:24px 26px 14px}
+.detail-author .author-avatar{width:42px;height:42px;font-size:16px}
+.detail-author-name{font-size:16px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.follow-btn{border:0;background:#ff2f55;color:#fff;border-radius:999px;padding:9px 24px;font-size:15px;font-weight:800}
+.detail-content{padding:6px 26px 18px;border-bottom:1px solid #eee}
+.detail-title{font-size:20px;line-height:1.4;font-weight:900;margin-bottom:8px}
+.detail-desc{font-size:16px;line-height:1.75;color:#333;white-space:pre-wrap}
+.detail-time{margin-top:12px;font-size:13px;color:#999}
+.detail-comments-head{padding:18px 26px 8px;font-size:15px;color:#777}
+.detail-comments{flex:1;min-height:0;overflow:auto;padding:0 26px 18px}
+.detail-comment{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;padding:14px 0}
+.detail-comment .author-avatar{width:34px;height:34px}
+.comment-main{min-width:0}
+.comment-name{font-size:14px;color:#888;margin-bottom:3px}
+.comment-content{font-size:15px;line-height:1.55;color:#222;word-break:break-word}
+.comment-date{font-size:12px;color:#aaa;margin-top:6px}
+.detail-bottom{display:flex;align-items:center;gap:14px;padding:14px 22px;border-top:1px solid #eee;background:#fff}
+.detail-input{flex:1;border:0;background:#f5f5f5;border-radius:999px;padding:12px 18px;font-size:15px;outline:none;min-width:0}
+.detail-send{border:0;background:#111;color:#fff;border-radius:999px;padding:10px 18px;font-weight:800;cursor:pointer}
+.detail-action{border:0;background:#fff;color:#222;font-size:22px;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.detail-action span{font-size:15px;color:#444}
+.detail-action.liked{color:#ff2f55}
+
+@media(max-width:900px){
+  .navbar{padding:10px 16px}
+  .nav-title{font-size:16px}
+  .nav-user{display:none}
+  .mobile-discovery{display:flex;position:sticky;top:53px;z-index:90;background:#fff;border-bottom:1px solid #eee;align-items:center;justify-content:center;gap:38px;padding:10px 16px 8px;font-size:18px;color:#999}
+  .mobile-discovery .active{font-weight:900;color:#222;position:relative}
+  .mobile-discovery .active::after{content:'';position:absolute;left:50%;bottom:-8px;width:28px;height:3px;border-radius:99px;background:#ff2f55;transform:translateX(-50%)}
+  .sheet-bar{padding:12px 14px 0;overflow:auto}
+  .sheet-tabs{gap:24px;border-bottom:0;min-width:max-content}
+  .sheet-tab{font-size:16px;padding-bottom:8px}
+  .cards-container{padding:10px 8px 88px}
+  .masonry{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 8px}
+  .card-carousel{border-radius:8px;border:0}
+  .card-carousel .carousel-slide img,.card-fallback{aspect-ratio:3/4}
+  .card-body{padding:8px 2px 0}
+  .card-title{font-size:15px;line-height:1.38;margin-bottom:7px}
+  .card-meta{font-size:12px}
+  .author-avatar{width:20px;height:20px;font-size:10px}
+  .card-actions{padding-top:6px;gap:8px}
+  .card-action span:not(.icon){font-size:12px}
+  .card-action .icon{font-size:18px}
+  .detail-overlay{background:#fff;align-items:stretch;justify-content:stretch}
+  .detail-shell{width:100%;height:100%;border-radius:0;display:flex;flex-direction:column;box-shadow:none;overflow:hidden}
+  .detail-close{top:12px;left:10px;right:auto;background:#fff;color:#222;font-size:34px;width:38px;height:38px}
+  .detail-side{border-left:0;display:contents}
+  .detail-author{order:0;padding:12px 14px 10px 58px;border-bottom:1px solid #eee}
+  .detail-author .author-avatar{width:36px;height:36px}
+  .follow-btn{background:#fff;color:#d64255;border:1px solid #e5c7cd;padding:6px 20px}
+  .detail-media{order:1;min-height:0;display:block;background:#fff;flex:0 0 auto}
+  .detail-media img{width:100%;height:auto;max-height:46vh;object-fit:contain;background:#fff}
+  .detail-media .carousel-btn{display:none}
+  .detail-content{order:2;padding:18px 16px 14px;border-bottom:1px solid #f0f0f0}
+  .detail-title{font-size:19px}
+  .detail-desc{font-size:17px;line-height:1.7}
+  .detail-comments-head{order:3;padding:16px 16px 6px;font-size:18px;font-weight:800;color:#222}
+  .detail-comments{order:4;flex:1;padding:0 16px 94px;overflow:auto}
+  .detail-bottom{position:fixed;left:0;right:0;bottom:0;z-index:3;padding:12px 16px 18px;gap:12px}
+  .detail-input{font-size:16px;padding:12px 16px}
+  .detail-send{display:none}
+  .detail-action{font-size:30px}
+  .detail-action span{font-size:17px}
+  .modal-overlay{z-index:1300}
+}
+</style>
 </head>
 <body>
 
@@ -265,6 +381,12 @@ a{color:var(--text-secondary);text-decoration:none}
     </div>
   </nav>
 
+  <div class="mobile-discovery">
+    <span>关注</span>
+    <span class="active">发现</span>
+    <span>同城</span>
+  </div>
+
   <!-- Hero -->
   <header class="hero">
     <h1>医起AI·挑战赛</h1>
@@ -282,6 +404,39 @@ a{color:var(--text-secondary);text-decoration:none}
   <!-- 卡片瀑布流 -->
   <div class="cards-container">
     <div class="masonry" id="cards"></div>
+  </div>
+</div>
+
+<!-- 详情页 -->
+<div class="detail-overlay" id="detail-overlay" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-shell">
+    <button class="detail-close" onclick="closeDetail()" title="关闭">×</button>
+    <section class="detail-media">
+      <button class="carousel-btn prev" id="detail-prev" onclick="event.stopPropagation();detailPrev()">‹</button>
+      <img id="detail-image" alt="" />
+      <button class="carousel-btn next" id="detail-next" onclick="event.stopPropagation();detailNext()">›</button>
+    </section>
+    <aside class="detail-side">
+      <div class="detail-author">
+        <div class="author-avatar" id="detail-avatar"></div>
+        <div class="detail-author-name" id="detail-author-name"></div>
+        <button class="follow-btn">关注</button>
+      </div>
+      <article class="detail-content">
+        <div class="detail-title" id="detail-title"></div>
+        <div class="detail-desc" id="detail-desc"></div>
+        <div class="detail-time" id="detail-time"></div>
+      </article>
+      <div class="detail-comments-head" id="detail-comments-head">共 0 条评论</div>
+      <div class="detail-comments" id="detail-comments"></div>
+      <div class="detail-bottom">
+        <input class="detail-input" id="detail-input" placeholder="说点什么..." onkeydown="if(event.key==='Enter')submitDetailComment()" />
+        <button class="detail-send" onclick="submitDetailComment()">发送</button>
+        <button class="detail-action" id="detail-like" onclick="toggleLikeFromDetail()" title="点赞">♡ <span>0</span></button>
+        <button class="detail-action" id="detail-comment-action" onclick="focusDetailInput()" title="评论">☾ <span>0</span></button>
+        <button class="detail-action" id="detail-share" onclick="openShareModal(detailWorkId)" title="分享">↗ <span>0</span></button>
+      </div>
+    </aside>
   </div>
 </div>
 
@@ -978,6 +1133,305 @@ async function init() {
   showLogin();
 }
 init();
+</script>
+<script>
+// Permanent-image feed/detail override.
+var detailWorkId = '';
+var detailSlide = 0;
+var detailComments = [];
+
+function imageUrl(item) {
+  if (!item) return '';
+  if (typeof item === 'string') return item;
+  return item.url || item.tempUrl || item.tempFileURL || item.stableUrl || item.src || item.fileID || '';
+}
+
+function imageStableUrl(item) {
+  if (!item) return '';
+  if (typeof item === 'string') return item.split('?')[0];
+  return item.stableUrl || (item.url ? String(item.url).split('?')[0] : '') || item.fileID || '';
+}
+
+function normalizeImages(images, cover) {
+  let list = images;
+  if (typeof list === 'string') {
+    try { list = JSON.parse(list); } catch (e) { list = list ? [list] : []; }
+  }
+  if (!Array.isArray(list)) list = [];
+  if (!list.length && cover) list = [cover];
+  return list.map(item => {
+    if (!item) return null;
+    if (typeof item === 'string') return item;
+    return {
+      fileID: item.fileID || item.fileId || '',
+      url: item.url || item.tempUrl || item.tempFileURL || item.src || '',
+      stableUrl: item.stableUrl || ''
+    };
+  }).filter(item => imageUrl(item));
+}
+
+function normalizeWork(w) {
+  const id = String(w.id || w._id || '');
+  return {
+    ...w,
+    _id: id,
+    id: w.id || w._id,
+    category: String(w.category ?? '0'),
+    images: normalizeImages(w.images, w.cover_image),
+    like_count: Number(w.like_count || 0),
+    comment_count: Number(w.comment_count || 0),
+    share_count: Number(w.share_count || 0),
+    _stats: {
+      likes: Number(w.like_count || 0),
+      comments: Number(w.comment_count || 0),
+      shares: Number(w.share_count || 0)
+    }
+  };
+}
+
+function avatarHtml(name, avatar) {
+  if (avatar) return '<img src="' + escHtml(avatar) + '" alt="" style="width:100%;height:100%;object-fit:cover">';
+  return escHtml(String(name || '匿').slice(0, 1));
+}
+
+async function loadData() {
+  try {
+    const rows = await getRows('works', 500);
+    allWorks = rows.map(normalizeWork)
+      .filter(w => String(w.category) === String(currentTab) && Number(w.status ?? 1) === 1)
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  } catch (e) {
+    console.error('[loadData] error:', e);
+    allWorks = [];
+  }
+  loadInteractors();
+  renderWorks();
+  openHashDetailIfNeeded();
+}
+
+function renderWorks() {
+  const container = document.getElementById('cards');
+  if (!container) return;
+  if (!allWorks.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">✨</div><p>暂无作品，敬请期待</p></div>';
+    return;
+  }
+
+  container.innerHTML = allWorks.map(w => {
+    const stats = w._stats || { likes: 0, comments: 0, shares: 0 };
+    const liked = interactors[w._id] && interactors[w._id].liked;
+    const imgs = normalizeImages(w.images, w.cover_image);
+    const slide = Math.min((interactors[w._id] && interactors[w._id].slide) || 0, Math.max(0, imgs.length - 1));
+    const safeId = escHtml(w._id);
+    const slides = imgs.length ? imgs.map(img => {
+      const src = escHtml(imageUrl(img));
+      return '<div class="carousel-slide"><img src="' + src + '" alt="" loading="lazy" onerror="this.outerHTML=\'<div class=&quot;card-fallback&quot;></div>\'"></div>';
+    }).join('') : '<div class="carousel-slide"><div class="card-fallback"></div></div>';
+    const arrows = imgs.length > 1 ? '<button class="carousel-btn prev" onclick="event.stopPropagation();prevSlide(\'' + safeId + '\')">‹</button><button class="carousel-btn next" onclick="event.stopPropagation();nextSlide(\'' + safeId + '\')">›</button>' : '';
+    const dots = imgs.length > 1 ? '<div class="carousel-dots" id="dots-' + safeId + '">' + imgs.map((_, i) => '<div class="dot' + (i === slide ? ' active' : '') + '"></div>').join('') + '</div>' : '';
+    const author = w.creator_name || '匿名作者';
+
+    return '<div class="card" id="card-' + safeId + '" data-wid="' + safeId + '" onclick="openDetail(\'' + safeId + '\')">'
+      + '<div class="card-carousel"><div class="carousel-track" id="track-' + safeId + '" style="transform:translateX(-' + slide * 100 + '%)">' + slides + '</div>' + arrows + dots + '</div>'
+      + '<div class="card-body">'
+      + '<div class="card-title">' + escHtml(w.title || '未命名作品') + '</div>'
+      + '<div class="card-meta"><span class="author-avatar">' + avatarHtml(author, w.creator_avatar || '') + '</span><span class="author-name">' + escHtml(author) + '</span></div>'
+      + '</div>'
+      + '<div class="card-actions">'
+      + '<button class="card-action' + (liked ? ' liked' : '') + '" onclick="event.stopPropagation();toggleLike(\'' + safeId + '\')" title="点赞"><span class="icon">' + (liked ? '♥' : '♡') + '</span><span>' + stats.likes + '</span></button>'
+      + '<button class="card-action" onclick="event.stopPropagation();openDetail(\'' + safeId + '\', true)" title="评论"><span class="icon">☾</span><span id="comments-count-' + safeId + '">' + stats.comments + '</span></button>'
+      + '<button class="card-action" onclick="event.stopPropagation();openShareModal(\'' + safeId + '\')" title="分享"><span class="icon">↗</span><span>' + stats.shares + '</span></button>'
+      + '</div></div>';
+  }).join('');
+}
+
+function switchTab(tab) {
+  currentTab = String(tab);
+  document.querySelectorAll('.sheet-tab').forEach(el => el.classList.toggle('active', String(el.dataset.tab) === String(tab)));
+  loadData();
+}
+
+function openHashDetailIfNeeded() {
+  const id = window.location.hash.slice(1);
+  if (!id || detailWorkId === id) return;
+  if (allWorks.some(w => w._id === id)) openDetail(id);
+}
+
+function openDetail(workId, focusInput) {
+  const w = allWorks.find(x => x._id === String(workId));
+  if (!w) return;
+  detailWorkId = String(workId);
+  detailSlide = Math.min(detailSlide || 0, Math.max(0, w.images.length - 1));
+  document.body.style.overflow = 'hidden';
+  document.getElementById('detail-overlay').classList.add('show');
+  renderDetail();
+  loadDetailComments(detailWorkId).then(() => {
+    if (focusInput) focusDetailInput();
+  });
+  if (window.location.hash !== '#' + detailWorkId) history.replaceState(null, '', '#' + detailWorkId);
+}
+
+function closeDetail() {
+  detailWorkId = '';
+  detailSlide = 0;
+  detailComments = [];
+  document.body.style.overflow = '';
+  document.getElementById('detail-overlay').classList.remove('show');
+  if (window.location.hash) history.replaceState(null, '', window.location.pathname + window.location.search);
+}
+
+function renderDetail() {
+  const w = allWorks.find(x => x._id === String(detailWorkId));
+  if (!w) return;
+  const imgs = normalizeImages(w.images, w.cover_image);
+  const img = imgs[detailSlide] || imgs[0] || '';
+  const author = w.creator_name || '匿名作者';
+  const stats = w._stats || { likes: 0, comments: 0, shares: 0 };
+  const liked = interactors[w._id] && interactors[w._id].liked;
+
+  document.getElementById('detail-image').src = imageUrl(img);
+  document.getElementById('detail-prev').style.display = imgs.length > 1 ? '' : 'none';
+  document.getElementById('detail-next').style.display = imgs.length > 1 ? '' : 'none';
+  document.getElementById('detail-avatar').innerHTML = avatarHtml(author, w.creator_avatar || '');
+  document.getElementById('detail-author-name').textContent = author;
+  document.getElementById('detail-title').textContent = w.title || '未命名作品';
+  document.getElementById('detail-desc').textContent = w.description || '';
+  document.getElementById('detail-time').textContent = formatTime(w.created_at);
+  document.getElementById('detail-comments-head').textContent = '共 ' + stats.comments + ' 条评论';
+
+  const likeBtn = document.getElementById('detail-like');
+  likeBtn.classList.toggle('liked', !!liked);
+  likeBtn.innerHTML = (liked ? '♥' : '♡') + ' <span>' + stats.likes + '</span>';
+  document.getElementById('detail-comment-action').innerHTML = '☾ <span>' + stats.comments + '</span>';
+  document.getElementById('detail-share').innerHTML = '↗ <span>' + stats.shares + '</span>';
+}
+
+function detailPrev() {
+  const w = allWorks.find(x => x._id === String(detailWorkId));
+  if (!w || !w.images.length) return;
+  detailSlide = detailSlide <= 0 ? w.images.length - 1 : detailSlide - 1;
+  renderDetail();
+}
+
+function detailNext() {
+  const w = allWorks.find(x => x._id === String(detailWorkId));
+  if (!w || !w.images.length) return;
+  detailSlide = detailSlide + 1 >= w.images.length ? 0 : detailSlide + 1;
+  renderDetail();
+}
+
+function focusDetailInput() {
+  const input = document.getElementById('detail-input');
+  if (input) setTimeout(() => input.focus(), 80);
+}
+
+async function loadDetailComments(workId) {
+  const box = document.getElementById('detail-comments');
+  if (!box) return;
+  box.innerHTML = '<div class="loading"><div class="spinner"></div>加载评论中</div>';
+  try {
+    detailComments = (await getRows('comments', 1000))
+      .filter(c => String(c.work_id) === String(workId))
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    renderDetailComments();
+  } catch (e) {
+    console.error('[loadDetailComments]', e);
+    box.innerHTML = '<div style="padding:18px 0;color:#999">评论加载失败</div>';
+  }
+}
+
+function renderDetailComments() {
+  const box = document.getElementById('detail-comments');
+  if (!box) return;
+  if (!detailComments.length) {
+    box.innerHTML = '<div style="padding:18px 0;color:#999">暂无评论，来抢第一条</div>';
+    return;
+  }
+  box.innerHTML = detailComments.map(c => {
+    const name = c.user_name || c.name || '匿名用户';
+    return '<div class="detail-comment">'
+      + '<div class="author-avatar">' + avatarHtml(name, c.user_avatar || '') + '</div>'
+      + '<div class="comment-main"><div class="comment-name">' + escHtml(name) + '</div>'
+      + '<div class="comment-content">' + escHtml(c.content || '') + '</div>'
+      + '<div class="comment-date">' + escHtml(formatTime(c.created_at)) + '</div></div></div>';
+  }).join('');
+}
+
+async function submitDetailComment() {
+  const input = document.getElementById('detail-input');
+  const text = input.value.trim();
+  if (!detailWorkId) return;
+  if (!text) { showToast('请先输入评论内容'); return; }
+  if (!visitorName) { showToast('请先登录'); return; }
+  try {
+    const added = await apiCall('add', 'comments', { data: { work_id: Number(detailWorkId), user_id: Number(visitorId || 0), user_name: visitorName, user_avatar: visitorAvatar || '', content: text, _openid: currentVisitorKey(), created_at: sqlNow() } });
+    if (added.code !== 0) throw new Error(added.message || '评论写入失败');
+    input.value = '';
+    const w = allWorks.find(x => x._id === String(detailWorkId));
+    if (w) {
+      w.comment_count = Number(w.comment_count || 0) + 1;
+      w._stats.comments = w.comment_count;
+      await writeWorkCount(detailWorkId, 'comment_count', w.comment_count);
+      renderWorks();
+      renderDetail();
+    }
+    await loadDetailComments(detailWorkId);
+    showToast('评论成功');
+  } catch (e) {
+    console.error('[submitDetailComment]', e);
+    showToast('评论失败，请重试');
+  }
+}
+
+function submitComment(workId) {
+  if (String(workId) !== String(detailWorkId)) openDetail(workId, true);
+  else submitDetailComment();
+}
+
+function toggleComment(workId) {
+  openDetail(workId, true);
+}
+
+async function toggleLikeFromDetail() {
+  if (!detailWorkId) return;
+  await toggleLike(detailWorkId);
+  renderDetail();
+}
+
+function loadVisibleComments() {}
+
+function openShareModal(workId) {
+  shareWorkId = String(workId || detailWorkId || '');
+  const url = window.location.origin + window.location.pathname + '#' + shareWorkId;
+  document.getElementById('share-url').value = url;
+  document.getElementById('share-modal').classList.add('show');
+}
+
+async function recordShare(workId, platform) {
+  if (!workId) return false;
+  try {
+    const added = await apiCall('add', 'shares', { data: { work_id: Number(workId), user_id: Number(visitorId || 0), share_platform: platform || 'link', _openid: currentVisitorKey(), created_at: sqlNow() } });
+    if (added.code !== 0) throw new Error(added.message || '分享写入失败');
+    const w = allWorks.find(x => x._id === String(workId));
+    if (w) {
+      w.share_count = Number(w.share_count || 0) + 1;
+      w._stats.shares = w.share_count;
+      await writeWorkCount(workId, 'share_count', w.share_count);
+      renderWorks();
+      if (String(workId) === String(detailWorkId)) renderDetail();
+    }
+    return true;
+  } catch (e) {
+    console.error('[recordShare]', e);
+    showToast('分享计数失败，请重试');
+    return false;
+  }
+}
+
+window.addEventListener('hashchange', openHashDetailIfNeeded);
+setInterval(function renewPrivateImageUrls() {
+  if (isKnown) loadData();
+}, 45 * 60 * 1000);
 </script>
 </body>
 </html>

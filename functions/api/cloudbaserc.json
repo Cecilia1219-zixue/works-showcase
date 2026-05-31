@@ -1,0 +1,16 @@
+{
+  "envId": "works-showcase-d2giub4pr5d687848",
+  "functionRoot": ".",
+  "functions": [
+    {
+      "name": "api",
+      "runtime": "Nodejs18.15",
+      "handler": "index.main",
+      "installDependency": false,
+      "vpc": {
+        "vpcId": "vpc-rpcqdcei",
+        "subnetId": "subnet-3dvz7irj"
+      }
+    }
+  ]
+}
