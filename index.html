@@ -116,6 +116,7 @@ a{color:var(--text-secondary);text-decoration:none}
 .card-body{padding:12px}
 .card-title{font-size:.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .card-desc{font-size:.78rem;color:var(--text-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-meta{font-size:.72rem;color:var(--text-secondary);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* 卡片底部操作栏 */
 .card-actions{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid rgba(0,0,0,0.04)}
@@ -261,7 +262,7 @@ const FEISHU_APP_ID = 'cli_aa9f2a2fb6395bdf';
 const FEISHU_REDIRECT_URI = 'https://cecilia1219-zixue.github.io/works-showcase/';
 
 // ========== 状态 ==========
-let  visitorName = '', visitorDepartment = '', isKnown = false;
+let visitorName = '', visitorDepartment = '', isKnown = false, visitorId = null, visitorOpenId = '', visitorAvatar = '', deviceId = '';
 let currentTab = 0, allWorks = [], interactors = {}, shareWorkId = '';
 
 // ========== 统一 API 调用 ==========
@@ -579,6 +580,321 @@ function showToast(msg) { const t = document.getElementById('toast'); t.textCont
 function escHtml(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
 function formatTime(v) { if (v instanceof Date) return v.toLocaleString('zh-CN'); if (typeof v === 'string') { try { return new Date(v).toLocaleString('zh-CN'); } catch (e) { return v; } } if (v && v.$date) return new Date(v.$date).toLocaleString('zh-CN'); return ''; }
 
+// ========== RDB 字段适配 ==========
+function apiRows(res) {
+  if (!res || res.code !== 0) return [];
+  if (Array.isArray(res.data)) return res.data;
+  if (res.data && Array.isArray(res.data.data)) return res.data.data;
+  return [];
+}
+
+function normalizeImages(images, cover) {
+  let list = images;
+  if (typeof list === 'string') {
+    try { list = JSON.parse(list); } catch (e) { list = list ? [list] : []; }
+  }
+  if (!Array.isArray(list)) list = [];
+  if (!list.length && cover) list = [cover];
+  return list.filter(Boolean);
+}
+
+function normalizeWork(w) {
+  const id = String(w.id || w._id || '');
+  return {
+    ...w,
+    _id: id,
+    id: w.id || w._id,
+    category: String(w.category ?? '0'),
+    images: normalizeImages(w.images, w.cover_image),
+    like_count: Number(w.like_count || 0),
+    comment_count: Number(w.comment_count || 0),
+    share_count: Number(w.share_count || 0),
+    _stats: {
+      likes: Number(w.like_count || 0),
+      comments: Number(w.comment_count || 0),
+      shares: Number(w.share_count || 0)
+    }
+  };
+}
+
+function sqlNow() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+}
+
+function currentVisitorKey() {
+  return visitorOpenId || ('device_' + deviceId);
+}
+
+function findOwnRow(rows, workId) {
+  const key = currentVisitorKey();
+  return rows.find(r => String(r.work_id) === String(workId) && (String(r.user_open_id || '') === key || Number(r.user_id || 0) === Number(visitorId || -1)));
+}
+
+async function getRows(collection, limit = 1000) {
+  const res = await apiCall('get', collection, { limit });
+  return apiRows(res);
+}
+
+async function upsertVisitor(openId, name, department, avatar) {
+  const key = openId || ('device_' + deviceId);
+  visitorOpenId = key;
+  visitorAvatar = avatar || '';
+  try {
+    const rows = await getRows('visitors', 1000);
+    const old = rows.find(v => v.open_id === key);
+    const data = { open_id: key, name, avatar: avatar || '', updated_at: sqlNow() };
+    if (old) {
+      visitorId = old.id;
+      await apiCall('update', 'visitors', { docId: old.id, data });
+    } else {
+      const add = await apiCall('add', 'visitors', { data: { ...data, created_at: sqlNow() } });
+      const created = add && add.data && (add.data.id || add.data.insertId || add.data.lastInsertId);
+      visitorId = created || null;
+    }
+  } catch (e) {
+    console.warn('[upsertVisitor]', e);
+  }
+}
+
+async function autoLoginWithFeishu(openId, name, department, avatarUrl) {
+  visitorName = name;
+  visitorDepartment = department || '';
+  isKnown = true;
+  localStorage.setItem('loginInfo', JSON.stringify({ nickname: name, department: visitorDepartment, timestamp: Date.now(), openId, avatarUrl }));
+  await upsertVisitor(openId, name, visitorDepartment, avatarUrl);
+  hideLogin();
+  showToast('欢迎 ' + name + '（' + (visitorDepartment || '已登录') + '）！');
+  loadData();
+}
+
+async function doLogin() {
+  const name = document.getElementById('name-input').value.trim();
+  const dept = document.getElementById('dept-input').value.trim();
+  const errEl = document.getElementById('login-error');
+  if (!name || !dept) { if (errEl) errEl.style.display = 'block'; return; }
+  if (errEl) errEl.style.display = 'none';
+  visitorName = name;
+  visitorDepartment = dept;
+  isKnown = true;
+  localStorage.setItem('loginInfo', JSON.stringify({ nickname: name, department: dept, timestamp: Date.now(), openId: 'device_' + deviceId }));
+  await upsertVisitor('device_' + deviceId, name, dept, '');
+  hideLogin();
+  showToast('欢迎 ' + name + '（' + dept + '）！');
+  loadData();
+}
+
+async function loadData() {
+  try {
+    const rows = await getRows('works', 500);
+    allWorks = rows.map(normalizeWork)
+      .filter(w => String(w.category) === String(currentTab) && Number(w.status ?? 1) === 1)
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  } catch (e) {
+    console.error('[loadData] error:', e);
+    allWorks = [];
+  }
+  loadInteractors();
+  renderWorks();
+}
+
+function renderWorks() {
+  const container = document.getElementById('cards');
+  if (!allWorks.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">✨</div><p>暂无作品，敬请期待</p></div>';
+    return;
+  }
+  let html = '';
+  for (const w of allWorks) {
+    const stats = w._stats || { likes: 0, comments: 0, shares: 0 };
+    const liked = interactors[w._id] && interactors[w._id].liked;
+    const imgs = normalizeImages(w.images, w.cover_image);
+    const slide = interactors[w._id] && interactors[w._id].slide ? interactors[w._id].slide : 0;
+    const safeId = escHtml(w._id);
+    const slides = imgs.length ? imgs.map(src => '<div class="carousel-slide"><img src="' + escHtml(src) + '" alt="" loading="lazy" onerror="this.parentElement.innerHTML=\'<div style=\\\'aspect-ratio:3/4;background:#f0f0f0;display:flex;align-items:center;justify-content:center\\\'><span style=\\\'font-size:2rem;opacity:.4\\\'>🖼️</span></div>\'"></div>').join('') : '<div class="carousel-slide"><div style="aspect-ratio:3/4;background:linear-gradient(135deg,#f5f5f4,#e8e8e8);display:flex;align-items:center;justify-content:center"><span style="font-size:2rem;opacity:.4">🖼️</span></div></div>';
+    const dots = imgs.length > 1 ? '<div class="carousel-dots" id="dots-' + safeId + '">' + imgs.map((_, i) => '<div class="dot' + (i === slide ? ' active' : '') + '"></div>').join('') + '</div>' : '';
+    const arrows = imgs.length > 1 ? '<button class="carousel-btn prev" onclick="event.stopPropagation();prevSlide(\'' + safeId + '\')">‹</button><button class="carousel-btn next" onclick="event.stopPropagation();nextSlide(\'' + safeId + '\')">›</button>' : '';
+
+    html += '<div class="card" id="card-' + safeId + '" data-wid="' + safeId + '" onclick="openShareModal(\'' + safeId + '\')">';
+    html += '<div class="card-carousel" id="carousel-' + safeId + '" data-wid="' + safeId + '"><div class="carousel-track" id="track-' + safeId + '" style="transform:translateX(-' + slide * 100 + '%)">' + slides + '</div>';
+    if (arrows) html += arrows;
+    if (dots) html += dots;
+    html += '</div>';
+    html += '<div class="card-body"><div class="card-title">' + escHtml(w.title || '未命名作品') + '</div>';
+    if (w.description) html += '<div class="card-desc">' + escHtml(w.description) + '</div>';
+    if (w.creator_name) html += '<div class="card-meta">作者：' + escHtml(w.creator_name) + '</div>';
+    html += '</div>';
+    html += '<div class="card-actions">';
+    html += '<button class="card-action' + (liked ? ' liked' : '') + '" onclick="event.stopPropagation();toggleLike(\'' + safeId + '\')" title="点赞"><span class="icon">' + (liked ? '❤️' : '🤍') + '</span><span>' + stats.likes + '</span></button>';
+    html += '<button class="card-action" onclick="event.stopPropagation();toggleComment(\'' + safeId + '\')" title="评论"><span class="icon">💬</span><span id="comments-count-' + safeId + '">' + stats.comments + '</span></button>';
+    html += '<button class="card-action" onclick="event.stopPropagation();openShareModal(\'' + safeId + '\')" title="分享"><span class="icon">↗️</span><span>' + stats.shares + '</span></button>';
+    html += '</div>';
+    html += '<div class="comment-panel' + (interactors[w._id] && interactors[w._id].commentOpen ? ' show' : '') + '" id="comments-' + safeId + '">';
+    html += '<div class="comment-input-row"><input type="text" placeholder="写评论…" id="comment-input-' + safeId + '" onkeydown="if(event.key===\'Enter\')submitComment(\'' + safeId + '\')"><button onclick="submitComment(\'' + safeId + '\')">发送</button></div>';
+    html += '<div class="comment-list" id="comment-list-' + safeId + '"><div class="loading"><div class="spinner"></div></div></div>';
+    html += '</div></div>';
+  }
+  container.innerHTML = html;
+  loadVisibleComments();
+}
+
+async function writeWorkCount(workId, field, value) {
+  const docId = Number(workId);
+  if (!docId) return;
+  await apiCall('update', 'works', { docId, data: { [field]: Math.max(0, value), updated_at: sqlNow() } });
+}
+
+async function toggleLike(workId) {
+  if (!interactors[workId]) interactors[workId] = {};
+  const wasLiked = !!interactors[workId].liked;
+  const nextLiked = !wasLiked;
+  interactors[workId].liked = nextLiked;
+  saveInteractors();
+  const w = allWorks.find(x => x._id === String(workId));
+  if (!w) return;
+  const nextCount = Math.max(0, Number(w.like_count || 0) + (nextLiked ? 1 : -1));
+  w.like_count = nextCount;
+  w._stats.likes = nextCount;
+  renderWorks();
+  try {
+    if (nextLiked) {
+      const added = await apiCall('add', 'likes', { data: { work_id: Number(workId), user_id: Number(visitorId || 0), user_open_id: currentVisitorKey(), created_at: sqlNow() } });
+      if (added.code !== 0) throw new Error(added.message || '点赞写入失败');
+    } else {
+      const own = findOwnRow(await getRows('likes', 1000), workId);
+      if (own) {
+        const deleted = await apiCall('delete', 'likes', { docId: own.id });
+        if (deleted.code !== 0) throw new Error(deleted.message || '取消点赞失败');
+      }
+    }
+    await writeWorkCount(workId, 'like_count', nextCount);
+  } catch (e) {
+    console.error('[toggleLike]', e);
+    showToast('点赞更新失败，请重试');
+    loadData();
+  }
+}
+
+function toggleComment(workId) {
+  if (!interactors[workId]) interactors[workId] = {};
+  interactors[workId].commentOpen = !interactors[workId].commentOpen;
+  saveInteractors();
+  renderWorks();
+  if (interactors[workId].commentOpen) loadComments(workId);
+}
+
+async function loadComments(workId) {
+  const list = document.getElementById('comment-list-' + workId);
+  if (!list) return;
+  try {
+    const comments = (await getRows('comments', 1000))
+      .filter(c => String(c.work_id) === String(workId))
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    if (!comments.length) {
+      list.innerHTML = '<div style="padding:8px 0;color:var(--text-dim);font-size:.8rem">暂无评论，来抢沙发吧~</div>';
+      return;
+    }
+    list.innerHTML = comments.map(c => {
+      const time = c.created_at ? formatTime(c.created_at) : '';
+      const name = c.user_name || c.name || '匿名';
+      return '<div class="comment-item"><span class="comment-author">' + escHtml(name) + '</span><span class="comment-time">' + time + '</span><div class="comment-text">' + escHtml(c.content || '') + '</div></div>';
+    }).join('');
+  } catch (e) {
+    list.innerHTML = '<div style="padding:8px 0;color:var(--text-dim);font-size:.8rem">评论加载失败</div>';
+  }
+}
+
+async function submitComment(workId) {
+  const input = document.getElementById('comment-input-' + workId);
+  const text = input.value.trim();
+  if (!text) { showToast('请先输入评论内容'); return; }
+  if (!visitorName) { showToast('请先登录'); return; }
+  try {
+    const added = await apiCall('add', 'comments', { data: { work_id: Number(workId), user_id: Number(visitorId || 0), user_name: visitorName, user_avatar: visitorAvatar || '', content: text, _openid: currentVisitorKey(), created_at: sqlNow() } });
+    if (added.code !== 0) throw new Error(added.message || '评论写入失败');
+    input.value = '';
+    const w = allWorks.find(x => x._id === String(workId));
+    if (w) {
+      w.comment_count = Number(w.comment_count || 0) + 1;
+      w._stats.comments = w.comment_count;
+      await writeWorkCount(workId, 'comment_count', w.comment_count);
+    }
+    renderWorks();
+    loadComments(workId);
+    showToast('评论成功 🎉');
+  } catch (e) {
+    console.error('[submitComment] error:', e);
+    showToast('评论失败，请重试');
+  }
+}
+
+visibleCommentsLoaded = {};
+function loadVisibleComments() {
+  allWorks.forEach(w => {
+    if (interactors[w._id] && interactors[w._id].commentOpen && !visibleCommentsLoaded[w._id]) {
+      visibleCommentsLoaded[w._id] = true;
+      loadComments(w._id);
+    }
+  });
+}
+
+function goSlide(workId, idx) {
+  const w = allWorks.find(x => x._id === String(workId));
+  if (!w || !w.images.length) return;
+  if (!interactors[workId]) interactors[workId] = {};
+  idx = Math.max(0, Math.min(idx, w.images.length - 1));
+  interactors[workId].slide = idx;
+  saveInteractors();
+  const track = document.getElementById('track-' + workId);
+  if (track) track.style.transform = 'translateX(-' + idx * 100 + '%)';
+  const dotsWrap = document.getElementById('dots-' + workId);
+  if (dotsWrap) dotsWrap.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+}
+function nextSlide(workId) { const w = allWorks.find(x => x._id === String(workId)); if (w && w.images.length) goSlide(workId, ((interactors[workId] && interactors[workId].slide) || 0) + 1 >= w.images.length ? 0 : ((interactors[workId] && interactors[workId].slide) || 0) + 1); }
+function prevSlide(workId) { const w = allWorks.find(x => x._id === String(workId)); if (w && w.images.length) goSlide(workId, ((interactors[workId] && interactors[workId].slide) || 0) - 1 < 0 ? w.images.length - 1 : ((interactors[workId] && interactors[workId].slide) || 0) - 1); }
+
+function openShareModal(workId) {
+  shareWorkId = String(workId);
+  const url = window.location.origin + window.location.pathname + '#' + shareWorkId;
+  document.getElementById('share-url').value = url;
+  document.getElementById('share-modal').classList.add('show');
+}
+
+async function recordShare(workId, platform) {
+  if (!workId) return;
+  try {
+    const added = await apiCall('add', 'shares', { data: { work_id: Number(workId), user_id: Number(visitorId || 0), share_platform: platform || 'link', _openid: currentVisitorKey(), created_at: sqlNow() } });
+    if (added.code !== 0) throw new Error(added.message || '分享写入失败');
+    const w = allWorks.find(x => x._id === String(workId));
+    if (w) {
+      w.share_count = Number(w.share_count || 0) + 1;
+      w._stats.shares = w.share_count;
+      await writeWorkCount(workId, 'share_count', w.share_count);
+    }
+  } catch (e) {
+    console.error('[recordShare]', e);
+  }
+}
+
+function copyShareText(text, okMsg, platform) {
+  const done = () => { showToast(okMsg); recordShare(shareWorkId, platform); closeShareModal(); };
+  navigator.clipboard.writeText(text).then(done).catch(() => {
+    const input = document.getElementById('share-url');
+    input.value = text;
+    input.select();
+    document.execCommand('copy');
+    done();
+  });
+}
+function shareCopy() { copyShareText(document.getElementById('share-url').value, '链接已复制 🔗', 'link'); }
+function shareFeishu() {
+  const w = allWorks.find(x => x._id === shareWorkId);
+  const title = w ? w.title : '医起AI·挑战赛作品';
+  copyShareText('来看看「' + title + '」吧！' + document.getElementById('share-url').value, '已复制到剪贴板，请在飞书中粘贴发送', 'feishu');
+}
+function shareWechat() { copyShareText(document.getElementById('share-url').value, '链接已复制，请在微信中粘贴分享', 'wechat'); }
+
 // ========== 初始化 ==========
 async function init() {
   initDeviceId();
@@ -596,7 +912,7 @@ async function init() {
   if (feishuOk) return;
   // 检查本地缓存
   const saved = localStorage.getItem('loginInfo');
-  if (saved) { try { const info = JSON.parse(saved); const days = (Date.now() - info.timestamp) / (1000 * 60 * 60 * 24); if (days <= 30 && info.nickname) { visitorName = info.nickname; visitorDepartment = info.department || ''; isKnown = true; hideLogin(); await loadData(); return; } } catch (e) { } }
+  if (saved) { try { const info = JSON.parse(saved); const days = (Date.now() - info.timestamp) / (1000 * 60 * 60 * 24); if (days <= 30 && info.nickname) { visitorName = info.nickname; visitorDepartment = info.department || ''; visitorOpenId = info.openId || ('device_' + deviceId); visitorAvatar = info.avatarUrl || ''; isKnown = true; await upsertVisitor(visitorOpenId, visitorName, visitorDepartment, visitorAvatar); hideLogin(); await loadData(); return; } } catch (e) { } }
   showLogin();
 }
 init();

@@ -94,7 +94,7 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
   </div>
 
   <div id="p-works" class="panel">
-    <div class="fb"><select id="w-cat" onchange="rWT()"><option value="all">全部分类</option><option value="battle">"医"起打擂台</option><option value="bold">医高人胆大</option></select><span style="font-size:11px;color:var(--txt3);margin-left:auto" id="w-cnt"></span></div>
+    <div class="fb"><select id="w-cat" onchange="rWT()"><option value="all">全部分类</option><option value="0">"医"起打擂台</option><option value="1">医高人胆大</option></select><span style="font-size:11px;color:var(--txt3);margin-left:auto" id="w-cnt"></span></div>
     <div class="tw"><table><thead><tr><th>作品标题</th><th>分类</th><th>❤️ 点赞</th><th>💬 评论</th><th>🔄 分享</th><th>📈 互动总数</th></tr></thead><tbody id="w-tbody"></tbody></table></div>
   </div>
 
@@ -107,6 +107,14 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
     <div class="tw"><table><thead><tr><th>用户昵称</th><th>部门</th><th>设备ID</th><th>首次访问</th><th>最后访问</th></tr></thead><tbody id="v-tbody"></tbody></table></div>
   </div>
 
+  <div id="p-export" class="panel">
+    <div class="eg">
+      <div class="ec"><div class="i">📊</div><div><div class="h3">作品统计</div><div class="p">导出作品互动汇总</div></div><button class="btn bp" style="margin-left:auto" onclick="expWorks()">导出</button></div>
+      <div class="ec"><div class="i">👤</div><div><div class="h3">用户行为</div><div class="p">导出点赞、评论、分享明细</div></div><button class="btn bp" style="margin-left:auto" onclick="expUsers()">导出</button></div>
+      <div class="ec"><div class="i">👁️</div><div><div class="h3">访客列表</div><div class="p">导出访客登录记录</div></div><button class="btn bp" style="margin-left:auto" onclick="expVisitors()">导出</button></div>
+    </div>
+  </div>
+
   <div id="p-upload" class="panel">
     <div style="max-width:640px;margin:0 auto">
       <div style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:24px;margin-bottom:16px">
@@ -117,9 +125,9 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
           <input id="ul-title" style="background:var(--input);border:1px solid var(--bdr);border-radius:8px;padding:9px 14px;color:var(--txt);font-size:13px;outline:none" placeholder="请输入作品标题"/>
           <label style="font-size:12px;color:var(--txt2)">作品描述</label>
           <textarea id="ul-desc" rows="3" style="background:var(--input);border:1px solid var(--bdr);border-radius:8px;padding:9px 14px;color:var(--txt);font-size:13px;outline:none;resize:vertical;font-family:inherit" placeholder="请输入作品描述"></textarea>
-          <label style="font-size:12px;color:var(--txt2)">所属分类 *</label>
           <label style="font-size:12px;color:var(--txt2)">作者 *</label>
           <input id="ul-author" style="background:var(--input);border:1px solid var(--bdr);border-radius:8px;padding:9px 14px;color:var(--txt);font-size:13px;outline:none" placeholder="请输入作者姓名"/>
+          <label style="font-size:12px;color:var(--txt2)">所属分类 *</label>
           <select id="ul-cat" style="background:var(--input);border:1px solid var(--bdr);border-radius:8px;padding:9px 14px;color:var(--txt);font-size:13px;outline:none">
             <option value="0">📋 "医"起打擂台</option>
             <option value="1">📋 "医"高人胆大</option>
@@ -139,7 +147,7 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
 <div id="toast" class="toast"></div>
 
 <script>
-var EI='works-showcase-d2giub4pr5d687848',PK='eyJhbGciOiJSUzI1NiIsImtpZCI6IjlkMWRjMzFlLWI0ZDAtNDQ4Yi1hNzZmLWIwY2M2M2Q4MTQ5OCJ9.eyJpc3MiOiJodHRwczovL3dvcmtzLXNob3djYXNlLWQyZ2l1YjRwcjVkNjg3ODQ4LmFwLXNoYW5naGFpLnRjYi1hcGkudGVuY2VudGNsb3VkYXBpLmNvbSIsInN1YiI6ImFub24iLCJhdWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsImV4cCI6NDA4MzY2MDYyNiwiaWF0IjoxNzc5OTc3NDI2LCJub25jZSI6IlBSdHgtMm1GUlZ1OXFkM0p5ejU1aWciLCJhdF9oYXNoIjoiUFJ0eC0ybUZSVnU5cWQzSnl6NTVpZyIsIm5hbWUiOiJBbm9ueW1vdXMiLCJzY29wZSI6ImFub255bW91cyIsInByb2plY3RfaWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsIm1ldGEiOnsicGxhdGZvcm0iOiJQdWJsaXNoYWJsZUtleSJ9LCJ1c2VyX3R5cGUiOiIiLCJjbGllbnRfdHlwZSI6ImNsaWVudF91c2VyIiwiaXNfc3lzdGVtX2FkbWluIjpmYWxzZX0.hbLxMthyDPhSvGwtKo-PpjGfyejWQir39akNphU_pxYr5aW_MRC-crr-g2nznaTWcnvkjDLlXrJAxd8qjRQ7y5H6S_s8QOZ9LllWmEbDGU2IDV9-Z9F6R_-I3AFy80O6l-vVqEH2V3uTV7gOkGDHq9Rebf0adPIWs3Iv9Lgp-sU5MhZoXgluu-rkxDQPr3Lmaw1GL2O2t7QCp4fmfAJjBkBwgEY3hloe8LdO6_xe8fzAKRzMkc9o1D9ZgPplOARhj-lIQK6JVPjHpGYelYJmlMEq_ePQWzQ7HWKwucoPnspi11hnVP9-NQzesOYRMpjww7sIO5QWhTbyIat60TQbOw',AP='yiyao1219';
+var EI='works-showcase-d2giub4pr5d687848',PK='eyJhbGciOiJSUzI1NiIsImtpZCI6IjlkMWRjMzFlLWI0ZDAtNDQ4Yi1hNzZmLWIwY2M2M2Q4MTQ5OCJ9.eyJpc3MiOiJodHRwczovL3dvcmtzLXNob3djYXNlLWQyZ2l1YjRwcjVkNjg3ODQ4LmFwLXNoYW5naGFpLnRjYi1hcGkudGVuY2VudGNsb3VkYXBpLmNvbSIsInN1YiI6ImFub24iLCJhdWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsImV4cCI6NDA4MzY2MDYyNiwiaWF0IjoxNzc5OTc3NDI2LCJub25jZSI6IlBSdHgtMm1GUlZ1OXFkM0p5ejU1aWciLCJhdF9oYXNoIjoiUFJ0eC0ybUZSVnU5cWQzSnl6NTVpZyIsIm5hbWUiOiJBbm9ueW1vdXMiLCJzY29wZSI6ImFub255bW91cyIsInByb2plY3RfaWQiOiJ3b3Jrcy1zaG93Y2FzZS1kMmdpdWI0cHI1ZDY4Nzg0OCIsIm1ldGEiOnsicGxhdGZvcm0iOiJQdWJsaXNoYWJsZUtleSJ9LCJ1c2VyX3R5cGUiOiIiLCJjbGllbnRfdHlwZSI6ImNsaWVudF91c2VyIiwiaXNfc3lzdGVtX2FkbWluIjpmYWxzZX0.hbLxMthyDPhSvGwtKo-PpjGfyejWQir39akNphU_pxYr5aW_MRC-crr-g2nznaTWcnvkjDLlXrJAxd8qjRQ7y5H6S_s8QOZ9LllWmEbDGU2IDV9-Z9F6R_-I3AFy80O6l-vVqEH2V3uTV7gOkGDHq9Rebf0adPIWs3Iv9Lgp-sU5MhZoXgluu-rkxDQPr3Lmaw1GL2O2t7QCp4fmfAJjBkBwgEY3hloe8LdO6_xe8fzAKRzMkc9o1D9ZgPplOARhj-lIQK6JVPjHpGYelYJmlMEq_ePQWzQ7HWKwucoPnspi11hnVP9-NQzesOYRMpjww7sIO5QWhTbyIat60TQbOw',AP='yiyao1219',API_URL='https://works-showcase-d2giub4pr5d687848-1437802595.ap-shanghai.app.tcloudbase.com/api';
 var app,auth,db,W=[],Lk=[],Cm=[],Sh=[],Vi=[],UR=[];
 
 function checkPw(){if(document.getElementById('pwIn').value===AP){document.getElementById('pwOverlay').classList.add('h');localStorage.setItem('aa',JSON.stringify({t:Date.now()}));initDB().then(loadAll)}else{document.getElementById('pwErr').style.display='block'}}
@@ -338,7 +346,7 @@ async function doSubmit(){
   if(!db||typeof db.collection!=='function'){toast('数据库未就绪，请等待3秒');return}
   var title=document.getElementById('ul-title').value.trim();
   var desc=document.getElementById('ul-desc').value.trim();
-  a var author=document.getElementById("ul-author").value.trim();
+  var author=document.getElementById("ul-author").value.trim();
   if(!author){toast("请填写作者");return}
   var cat=document.getElementById('ul-cat').value;
   var msg=document.getElementById('ul-msg');
@@ -368,6 +376,175 @@ async function doSubmit(){
     msg.textContent='\u2705 作品已提交！刷新前台即可看到';msg.style.color='#00E5A0';
     toast('发布成功');
     loadAll();
+  }catch(e){
+    msg.textContent='发布失败: '+e.message;msg.style.color='var(--danger)';
+    toast('发布失败: '+e.message);
+  }
+}
+
+// ===== RDB API implementation =====
+function apiRows(res){
+  if(!res||res.code!==0)return[];
+  if(Array.isArray(res.data))return res.data;
+  if(res.data&&Array.isArray(res.data.data))return res.data.data;
+  return[];
+}
+
+async function apiCall(action,collection,params){
+  var res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:action,collection:collection,params:params||{}})});
+  return res.json();
+}
+
+async function getRows(collection,limit){
+  return apiRows(await apiCall('get',collection,{limit:limit||1000}));
+}
+
+function catLabel(c){return String(c)==='0'?"\"医\"起打擂台":"医高人胆大"}
+function catClass(c){return String(c)==='0'?'bb':'bl'}
+function wid(w){return String(w.id||w._id||'')}
+function byWork(rows,id){return rows.filter(function(r){return String(r.work_id)===String(id)})}
+function sqlNow(){var d=new Date(),p=function(n){return String(n).padStart(2,'0')};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds())}
+
+async function initDB(){
+  db={ready:true};
+}
+
+async function loadD(){
+  W=await getRows('works',1000);
+  Lk=await getRows('likes',5000);
+  Cm=await getRows('comments',5000);
+  Sh=await getRows('shares',5000);
+  Vi=await getRows('visitors',5000);
+}
+
+function rDash(){
+  el('d-works',W.length);
+  el('d-likes',Lk.length);
+  el('d-cmts',Cm.length);
+  el('d-shares',Sh.length);
+  el('d-visits',Vi.length);
+  var tb=document.getElementById('d-rec-vis');
+  var rows=Vi.slice().sort(function(a,b){return new Date(b.updated_at||b.created_at||0)-new Date(a.updated_at||a.created_at||0)}).slice(0,10);
+  tb.innerHTML=rows.map(function(v){return'<tr><td>'+esc(v.name||'-')+'</td><td>'+esc(v.department||'-')+'</td><td style="font-size:11px;color:var(--txt3)">'+esc(v.open_id||v._openid||v.id)+'</td><td>'+ft(v.updated_at||v.created_at)+'</td></tr>'}).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--txt3)">暂无数据</td></tr>';
+}
+
+function rWT(){
+  var f=document.getElementById('w-cat').value;
+  var ws=W.filter(function(w){return f==='all'||String(w.category)===f});
+  var rows=ws.map(function(w){
+    var id=wid(w);
+    var l=Number(w.like_count||byWork(Lk,id).length||0);
+    var c=Number(w.comment_count||byWork(Cm,id).length||0);
+    var s=Number(w.share_count||byWork(Sh,id).length||0);
+    return{w:w,l:l,c:c,s:s,t:l+c+s};
+  }).sort(function(a,b){return b.t-a.t});
+  var tb=document.getElementById('w-tbody');
+  tb.innerHTML=rows.map(function(r){
+    return'<tr><td>'+esc(r.w.title)+'</td><td><span class="badge '+catClass(r.w.category)+'">'+esc(catLabel(r.w.category))+'</span></td><td>'+r.l+'</td><td>'+r.c+'</td><td>'+r.s+'</td><td><strong>'+r.t+'</strong></td></tr>';
+  }).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--txt3)">暂无数据</td></tr>';
+  document.getElementById('w-cnt').textContent='共 '+rows.length+' 个作品';
+}
+
+function buildUR(){
+  var wm={},um={};
+  W.forEach(function(w){wm[wid(w)]=w.title});
+  Vi.forEach(function(v){um[String(v.id)]={n:v.name||'',d:v.department||''};if(v.open_id)um[v.open_id]={n:v.name||'',d:v.department||''}});
+  function userOf(x){return um[String(x.user_id)]||um[String(x.user_open_id||x._openid)]||{n:x.user_name||x.name||'匿名用户',d:x.department||''}}
+  UR=[];
+  Lk.forEach(function(x){var u=userOf(x);UR.push({n:u.n,d:u.d,wt:wm[String(x.work_id)]||'-',tp:'\u70b9\u8d5e',ct:'-',tm:x.created_at})});
+  Cm.forEach(function(x){var u=userOf(x);UR.push({n:x.user_name||u.n,d:u.d,wt:wm[String(x.work_id)]||'-',tp:'\u8bc4\u8bba',ct:x.content||'-',tm:x.created_at})});
+  Sh.forEach(function(x){var u=userOf(x);UR.push({n:u.n,d:u.d,wt:wm[String(x.work_id)]||'-',tp:'\u5206\u4eab',ct:x.share_platform||'-',tm:x.created_at})});
+  UR.sort(function(a,b){return new Date(b.tm||0)-new Date(a.tm||0)});
+}
+
+function rVT(){
+  var tb=document.getElementById('v-tbody');
+  var rows=Vi.slice().sort(function(a,b){return new Date(b.updated_at||b.created_at||0)-new Date(a.updated_at||a.created_at||0)});
+  tb.innerHTML=rows.map(function(v){
+    return'<tr><td>'+esc(v.name||'-')+'</td><td>'+esc(v.department||'-')+'</td><td style="font-size:11px;color:var(--txt3)">'+esc(v.open_id||v._openid||v.id)+'</td><td>'+ft(v.created_at)+'</td><td>'+ft(v.updated_at||v.created_at)+'</td></tr>';
+  }).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--txt3)">暂无数据</td></tr>';
+}
+
+function expWorks(){
+  var rows=[['作品标题','作者','分类','点赞数','评论数','分享数','互动总数']];
+  W.forEach(function(w){var id=wid(w),l=Number(w.like_count||byWork(Lk,id).length||0),c=Number(w.comment_count||byWork(Cm,id).length||0),s=Number(w.share_count||byWork(Sh,id).length||0);rows.push([w.title,w.creator_name||'',catLabel(w.category),l,c,s,l+c+s])});
+  dlCSV(rows,'作品统计_'+fd(new Date())+'.csv');
+}
+
+function expVisitors(){
+  var rows=[['用户昵称','部门','Open ID','首次访问','最后访问']];
+  Vi.forEach(function(v){rows.push([v.name||'',v.department||'',v.open_id||v._openid||v.id,ft(v.created_at),ft(v.updated_at||v.created_at)])});
+  dlCSV(rows,'访客列表_'+fd(new Date())+'.csv');
+}
+
+async function uploadImage(dataUrl){
+  var parts=dataUrl.split(','),meta=parts[0],b64=parts[1]||parts[0];
+  var mime=(meta.match(/data:([^;]+)/)||[])[1]||'image/jpeg';
+  var bin=atob(b64),buf=new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++)buf[i]=bin.charCodeAt(i);
+  var res=await fetch(API_URL+'?action=upload&collection=works',{method:'POST',headers:{'Content-Type':mime},body:new Blob([buf],{type:mime})});
+  var data=await res.json();
+  if(data.code!==0||!data.data||!data.data.url)throw new Error(data.message||'图片上传失败');
+  return data.data.url;
+}
+
+function compressForUpload(file){
+  return new Promise(function(resolve,reject){
+    var reader=new FileReader();
+    reader.onerror=function(){reject(new Error('图片读取失败'))};
+    reader.onload=function(e){
+      var img=new Image();
+      img.onerror=function(){reject(new Error('图片解析失败'))};
+      img.onload=function(){
+        var maxW=Math.min(900,img.width),quality=.72,targetLen=85000;
+        function render(){
+          var w=img.width,h=img.height;
+          if(w>maxW){h=Math.round(h*maxW/w);w=maxW}
+          var c=document.createElement('canvas');c.width=w;c.height=h;
+          var ctx=c.getContext('2d');
+          ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);
+          var data=c.toDataURL('image/jpeg',quality);
+          if(data.length<=targetLen||maxW<=360){resolve(data);return}
+          if(quality>.46){quality=Math.max(.46,quality-.12)}
+          else{maxW=Math.round(maxW*.75);quality=.68}
+          render();
+        }
+        render();
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function doSubmit(){
+  var title=document.getElementById('ul-title').value.trim();
+  var desc=document.getElementById('ul-desc').value.trim();
+  var author=document.getElementById('ul-author').value.trim();
+  var cat=document.getElementById('ul-cat').value;
+  var msg=document.getElementById('ul-msg');
+  if(!title){toast('请填写标题');return}
+  if(!author){toast('请填写作者');return}
+  if(!_ulFiles.length){toast('请选择至少一张图片');return}
+  msg.textContent='正在上传 '+_ulFiles.length+' 张图片...';msg.style.color='var(--txt2)';msg.style.display='block';
+  try{
+    var images=[];
+    for(var i=0;i<_ulFiles.length;i++){
+      msg.textContent='正在上传第 '+(i+1)+'/'+_ulFiles.length+' 张图片...';
+      images.push(await uploadImage(await compressForUpload(_ulFiles[i])));
+    }
+    var add=await apiCall('add','works',{data:{title:title,description:desc,category:cat,creator_name:author,images:images,status:1,like_count:0,comment_count:0,share_count:0,created_at:sqlNow()}});
+    if(add.code!==0)throw new Error(add.message||'作品写入失败');
+    document.getElementById('ul-title').value='';
+    document.getElementById('ul-desc').value='';
+    document.getElementById('ul-author').value='';
+    document.getElementById('ul-files').value='';
+    document.getElementById('ul-preview').innerHTML='';
+    document.getElementById('ul-status').textContent='';
+    _ulFiles=[];
+    msg.textContent='\u2705 作品已提交，前台可正常展示';msg.style.color='#00E5A0';
+    toast('发布成功');
+    await loadAll();
   }catch(e){
     msg.textContent='发布失败: '+e.message;msg.style.color='var(--danger)';
     toast('发布失败: '+e.message);
