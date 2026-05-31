@@ -97,7 +97,6 @@ a{color:var(--text-secondary);text-decoration:none}
 /* 卡片瀑布流（小红书风格） */
 .cards-container{max-width:1180px;margin:0 auto;padding:1.25rem 1.5rem 2.5rem}
 .masonry{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;align-items:start}
-@media(max-width:640px){.cards-container{padding:1rem}.masonry{grid-template-columns:1fr}}
 
 /* 卡片 */
 .card{background:#fff;border-radius:var(--card-radius);overflow:hidden;box-shadow:var(--card-shadow);border:1px solid rgba(0,0,0,0.06);transition:transform .2s,box-shadow .2s;cursor:default}
@@ -176,6 +175,56 @@ a{color:var(--text-secondary);text-decoration:none}
 .loading{display:flex;align-items:center;justify-content:center;padding:1rem;color:var(--text-dim)}
 .loading .spinner{width:20px;height:20px;border:2px solid var(--chip-bg);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:640px){
+  body{background:#f6f6f6;line-height:1.45}
+  .site-bg img{opacity:.18}
+  .navbar{padding:8px 10px;border-radius:0;background:rgba(255,255,255,.94)}
+  .nav-left{gap:8px;min-width:0}
+  .nav-sphere{width:30px;height:30px}
+  .nav-title{font-size:.92rem;max-width:8.5em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nav-admin{font-size:0;width:32px;height:32px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .nav-admin::before{content:'⚙️';font-size:15px}
+  .nav-user{display:none}
+
+  .hero{padding:12px 12px 8px}
+  .hero h1{font-size:1.45rem;line-height:1.2}
+  .hero .theme-text{font-size:.68rem;margin-top:.25rem;letter-spacing:.12em}
+
+  .sheet-bar{padding:0 10px;margin-top:4px}
+  .sheet-tabs{gap:8px;align-items:center}
+  .sheet-tab{flex:1;text-align:center;padding:7px 8px;border:1px solid var(--border);border-radius:999px;bottom:0;background:rgba(255,255,255,.72);font-size:.74rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sheet-tab.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+
+  .cards-container{padding:10px 8px 72px;max-width:none}
+  .masonry{display:block;column-count:2;column-gap:8px}
+  .card{display:inline-block;width:100%;margin:0 0 8px;border-radius:10px;border:none;box-shadow:none;vertical-align:top;overflow:hidden;background:#fff}
+  .card:hover{transform:none;box-shadow:none}
+  .card-carousel .carousel-slide img{aspect-ratio:3/4}
+  .card-carousel .carousel-btn{width:24px;height:24px;font-size:.85rem}
+  .card-carousel .carousel-btn.prev{left:5px}
+  .card-carousel .carousel-btn.next{right:5px}
+  .card-carousel .carousel-dots{padding:4px 0}
+  .card-carousel .carousel-dots .dot{width:5px;height:5px}
+  .card-carousel .carousel-dots .dot.active{width:12px}
+  .card-body{padding:8px 9px 7px}
+  .card-title{font-size:.78rem;line-height:1.35;font-weight:700;margin-bottom:4px;-webkit-line-clamp:2}
+  .card-desc{font-size:.68rem;line-height:1.35;-webkit-line-clamp:1;color:#777}
+  .card-meta{margin-top:6px;font-size:.64rem;color:#999}
+  .card-actions{padding:5px 6px;background:#fff;border-top:1px solid rgba(0,0,0,.04)}
+  .card-action{padding:4px 4px;gap:2px;font-size:.66rem;border-radius:8px;min-width:0}
+  .card-action .icon{font-size:.82rem}
+  .comment-panel{padding:8px;background:#fff}
+  .comment-input-row{gap:6px;flex-direction:column}
+  .comment-input-row input{padding:8px 9px;font-size:.74rem;border-radius:8px}
+  .comment-input-row button{padding:7px 10px;font-size:.74rem;border-radius:8px}
+  .comment-list{max-height:120px}
+  .comment-item{font-size:.68rem}
+  .comment-time{display:block;margin-left:0;margin-top:1px;font-size:.62rem}
+  .modal{width:calc(100% - 28px);padding:1.15rem;border-radius:14px}
+  .toast{bottom:1.25rem;max-width:86%;font-size:.78rem}
+  .footer{padding:1rem 1rem 1.5rem;font-size:.72rem}
+}
 </style>
 </head>
 <body>
