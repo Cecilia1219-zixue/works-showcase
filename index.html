@@ -471,7 +471,7 @@ const LOGIN_URL = 'https://works-showcase-d2giub4pr5d687848-1437802595.ap-shangh
 const FEISHU_APP_ID = 'cli_aa9f2a2fb6395bdf';
 const CANONICAL_ORIGIN = 'https://works-showcase-d2giub4pr5d687848-1437802595.tcloudbaseapp.com';
 const CANONICAL_URL = CANONICAL_ORIGIN + '/';
-const FEISHU_REDIRECT_URI = CANONICAL_URL;
+const FEISHU_REDIRECT_URI = CANONICAL_ORIGIN + '/index.html';
 
 function enforceCanonicalDomain() {
   if (window.location.origin === CANONICAL_ORIGIN) return false;
