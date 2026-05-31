@@ -843,7 +843,6 @@ function toggleComment(workId) {
   interactors[workId].commentOpen = !interactors[workId].commentOpen;
   saveInteractors();
   renderWorks();
-  if (interactors[workId].commentOpen) loadComments(workId);
 }
 
 async function loadComments(workId) {
@@ -883,7 +882,6 @@ async function submitComment(workId) {
       await writeWorkCount(workId, 'comment_count', w.comment_count);
     }
     renderWorks();
-    loadComments(workId);
     showToast('评论成功 🎉');
   } catch (e) {
     console.error('[submitComment] error:', e);
@@ -891,11 +889,9 @@ async function submitComment(workId) {
   }
 }
 
-visibleCommentsLoaded = {};
 function loadVisibleComments() {
   allWorks.forEach(w => {
-    if (interactors[w._id] && interactors[w._id].commentOpen && !visibleCommentsLoaded[w._id]) {
-      visibleCommentsLoaded[w._id] = true;
+    if (interactors[w._id] && interactors[w._id].commentOpen) {
       loadComments(w._id);
     }
   });
