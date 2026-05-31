@@ -261,7 +261,7 @@ const FEISHU_APP_ID = 'cli_aa9f2a2fb6395bdf';
 const FEISHU_REDIRECT_URI = 'https://cecilia1219-zixue.github.io/works-showcase/';
 
 // ========== 状态 ==========
-let deviceId, visitorName = '', visitorDepartment = '', isKnown = false;
+let  visitorName = '', visitorDepartment = '', isKnown = false;
 let currentTab = 0, allWorks = [], interactors = {}, shareWorkId = '';
 
 // ========== 统一 API 调用 ==========
@@ -344,7 +344,7 @@ async function autoLoginWithFeishu(openId, name, department, avatarUrl) {
   try {
     const res = await apiCall('get', 'visitors', { query: { open_id: openId }, limit: 1 });
     if (res.code === 0 && res.data && res.data.data && res.data.data.length === 0) {
-      await apiCall('add', 'visitors', { data: { name, department, deviceId, open_id: openId, avatar: avatarUrl, createdAt: new Date().toISOString() } });
+      await apiCall('add', 'visitors', { data: { name, department,  open_id: openId, avatar: avatarUrl, createdAt: new Date().toISOString() } });
     } else if (res.code === 0 && res.data && res.data.data && res.data.data.length > 0) {
       await apiCall('update', 'visitors', { docId: res.data.data[0]._id, data: { name, department, lastLoginAt: new Date().toISOString() } });
     }
@@ -369,7 +369,7 @@ async function doLogin() {
   try {
     const res = await apiCall('get', 'visitors', { query: { deviceId: deviceId }, limit: 1 });
     if (res.code === 0 && res.data && res.data.data && res.data.data.length === 0) {
-      await apiCall('add', 'visitors', { data: { name, department: dept, deviceId, createdAt: new Date().toISOString() } });
+      await apiCall('add', 'visitors', { data: { name, department: dept,  createdAt: new Date().toISOString() } });
     } else if (res.code === 0 && res.data && res.data.data && res.data.data.length > 0) {
       await apiCall('update', 'visitors', { docId: res.data.data[0]._id, data: { name, department: dept, lastLoginAt: new Date().toISOString() } });
     }
@@ -446,45 +446,45 @@ function loadInteractors() { try { const s = localStorage.getItem('works_interac
 function saveInteractors() { localStorage.setItem('works_interactors', JSON.stringify(interactors)) }
 
 // ========== 点赞 ==========
-async function toggleLike(workId) {
-  if (!interactors[workId]) interactors[workId] = {};
-  interactors[workId].liked = !interactors[workId].liked;
+async function toggleLike(work_id) {
+  if (!interactors[work_id]) interactors[work_id] = {};
+  interactors[work_id].liked = !interactors[work_id].liked;
   saveInteractors();
-  const w = allWorks.find(x => x._id === workId);
-  if (w && w._stats) { w._stats.likes += interactors[workId].liked ? 1 : -1; }
+  const w = allWorks.find(x => x._id === work_id);
+  if (w && w._stats) { w._stats.likes += interactors[work_id].liked ? 1 : -1; }
   // 写 likes 表
   try {
     await apiCall('add', 'likes', {
-      data: { workId, user_nickname: visitorName, user_department: visitorDepartment, deviceId, timestamp: new Date().toISOString() }
+      data: { work_id, user_name: visitorName,   created_at: new Date().toISOString() }
     });
   } catch (e) { }
   // 更新 work_stats
   try {
-    const sc = await apiCall('get', 'work_stats', { query: { workId: workId }, limit: 1 });
+    const sc = await apiCall('get', 'work_stats', { query: { work_id: work_id }, limit: 1 });
     if (sc.code === 0 && sc.data && sc.data.data && sc.data.data.length > 0) {
       const old = sc.data.data[0];
-      await apiCall('update', 'work_stats', { docId: old._id, data: { likes: old.likes + (interactors[workId].liked ? 1 : -1) } });
+      await apiCall('update', 'work_stats', { docId: old.id, data: { likes: old.likes + (interactors[work_id].liked ? 1 : -1) } });
     } else {
-      await apiCall('add', 'work_stats', { data: { workId, likes: interactors[workId].liked ? 1 : 0, comments: 0, shares: 0 } });
+      await apiCall('add', 'work_stats', { data: { work_id, likes: interactors[work_id].liked ? 1 : 0, comments: 0, shares: 0 } });
     }
   } catch (e) { }
   renderWorks();
 }
 
 // ========== 评论 ==========
-function toggleComment(workId) {
-  if (!interactors[workId]) interactors[workId] = {};
-  interactors[workId].commentOpen = !interactors[workId].commentOpen;
+function toggleComment(work_id) {
+  if (!interactors[work_id]) interactors[work_id] = {};
+  interactors[work_id].commentOpen = !interactors[work_id].commentOpen;
   saveInteractors();
   renderWorks();
-  if (interactors[workId].commentOpen) { loadComments(workId); }
+  if (interactors[work_id].commentOpen) { loadComments(work_id); }
 }
 
-async function loadComments(workId) {
-  const list = document.getElementById('comment-list-' + workId); if (!list) return;
+async function loadComments(work_id) {
+  const list = document.getElementById('comment-list-' + work_id); if (!list) return;
   try {
     const res = await apiCall('get', 'comments', {
-      query: { workId: workId },
+      query: { work_id: work_id },
       orderBy: 'createdAt',
       orderType: 'desc',
       limit: 50
@@ -494,29 +494,29 @@ async function loadComments(workId) {
       list.innerHTML = comments.map(c => {
         const time = c.createdAt ? formatTime(c.createdAt) : '';
         const dept = c.user_department ? '<span class="comment-dept">' + escHtml(c.user_department) + '</span>' : '';
-        return '<div class="comment-item"><span class="comment-author">' + escHtml(c.user_nickname || c.authorName || '匿名') + '</span>' + dept + '<span class="comment-time">' + time + '</span><div class="comment-text">' + escHtml(c.content || c.text) + '</div></div>';
+        return '<div class="comment-item"><span class="comment-author">' + escHtml(c.user_name || c.authorName || '匿名') + '</span>' + dept + '<span class="comment-time">' + time + '</span><div class="comment-text">' + escHtml(c.content || c.text) + '</div></div>';
       }).join('');
     } else { list.innerHTML = '<div style="padding:8px 0;color:var(--text-dim);font-size:.8rem">暂无评论，来抢沙发吧~</div>'; }
   } catch (e) { list.innerHTML = '<div style="padding:8px 0;color:var(--text-dim);font-size:.8rem">评论加载失败</div>'; }
 }
 
-async function submitComment(workId) {
-  const input = document.getElementById('comment-input-' + workId); const text = input.value.trim();
+async function submitComment(work_id) {
+  const input = document.getElementById('comment-input-' + work_id); const text = input.value.trim();
   if (!text || !visitorName) { showToast('请先输入评论内容'); return; }
   try {
     await apiCall('add', 'comments', {
-      data: { workId, user_nickname: visitorName, user_department: visitorDepartment, deviceId, content: text, timestamp: new Date().toISOString() }
+      data: { work_id, user_name: visitorName,   content: text, created_at: new Date().toISOString() }
     });
     input.value = '';
-    const sc = await apiCall('get', 'work_stats', { query: { workId: workId }, limit: 1 });
+    const sc = await apiCall('get', 'work_stats', { query: { work_id: work_id }, limit: 1 });
     if (sc.code === 0 && sc.data && sc.data.data && sc.data.data.length > 0) {
       const old = sc.data.data[0];
-      await apiCall('update', 'work_stats', { docId: old._id, data: { comments: (old.comments || 0) + 1 } });
+      await apiCall('update', 'work_stats', { docId: old.id, data: { comments: (old.comments || 0) + 1 } });
     } else {
-      await apiCall('add', 'work_stats', { data: { workId, likes: 0, comments: 1, shares: 0 } });
+      await apiCall('add', 'work_stats', { data: { work_id, likes: 0, comments: 1, shares: 0 } });
     }
-    const w = allWorks.find(x => x._id === workId); if (w && w._stats) w._stats.comments++;
-    renderWorks(); loadComments(workId); showToast('评论成功 🎉');
+    const w = allWorks.find(x => x._id === work_id); if (w && w._stats) w._stats.comments++;
+    renderWorks(); loadComments(work_id); showToast('评论成功 🎉');
   } catch (e) { console.error('[submitComment] error:', e); showToast('评论失败，请重试'); }
 }
 
@@ -524,22 +524,22 @@ let visibleCommentsLoaded = {};
 function loadVisibleComments() { allWorks.forEach(w => { if (interactors[w._id] && interactors[w._id].commentOpen && !visibleCommentsLoaded[w._id]) { visibleCommentsLoaded[w._id] = true; loadComments(w._id); } }) }
 
 // ========== 轮播 ==========
-function goSlide(workId, idx) {
-  const w = allWorks.find(x => x._id === workId); if (!w) return;
+function goSlide(work_id, idx) {
+  const w = allWorks.find(x => x._id === work_id); if (!w) return;
   const imgs = w.images || []; if (!imgs.length) return;
-  if (!interactors[workId]) interactors[workId] = {};
-  idx = Math.max(0, Math.min(idx, imgs.length - 1)); interactors[workId].slide = idx; saveInteractors();
-  const track = document.getElementById('track-' + workId); if (track) track.style.transform = 'translateX(-' + idx * 100 + '%)';
-  const dotsWrap = document.getElementById('dots-' + workId);
+  if (!interactors[work_id]) interactors[work_id] = {};
+  idx = Math.max(0, Math.min(idx, imgs.length - 1)); interactors[work_id].slide = idx; saveInteractors();
+  const track = document.getElementById('track-' + work_id); if (track) track.style.transform = 'translateX(-' + idx * 100 + '%)';
+  const dotsWrap = document.getElementById('dots-' + work_id);
   if (dotsWrap) { dotsWrap.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === idx)); }
 }
-function nextSlide(workId) { const w = allWorks.find(x => x._id === workId); if (!w) return; const idx = (interactors[workId] && interactors[workId].slide || 0) + 1; goSlide(workId, idx % (w.images || []).length); }
-function prevSlide(workId) { const w = allWorks.find(x => x._id === workId); if (!w) return; const imgs = w.images || []; const idx = (interactors[workId] && interactors[workId].slide || 0) - 1; goSlide(workId, idx < 0 ? imgs.length - 1 : idx); }
+function nextSlide(work_id) { const w = allWorks.find(x => x._id === work_id); if (!w) return; const idx = (interactors[work_id] && interactors[work_id].slide || 0) + 1; goSlide(work_id, idx % (w.images || []).length); }
+function prevSlide(work_id) { const w = allWorks.find(x => x._id === work_id); if (!w) return; const imgs = w.images || []; const idx = (interactors[work_id] && interactors[work_id].slide || 0) - 1; goSlide(work_id, idx < 0 ? imgs.length - 1 : idx); }
 
 // ========== 分享 ==========
-function openShareModal(workId) {
-  shareWorkId = workId; const w = allWorks.find(x => x._id === workId);
-  const url = w ? (window.location.origin + window.location.pathname + '#' + workId) : window.location.href;
+function openShareModal(work_id) {
+  shareWorkId = work_id; const w = allWorks.find(x => x._id === work_id);
+  const url = w ? (window.location.origin + window.location.pathname + '#' + work_id) : window.location.href;
   document.getElementById('share-url').value = url; document.getElementById('share-modal').classList.add('show');
 }
 function closeShareModal() { document.getElementById('share-modal').classList.remove('show'); shareWorkId = ''; }
@@ -555,21 +555,21 @@ function shareFeishu() {
 }
 function shareWechat() { recordShare(shareWorkId, 'wechat'); shareCopy(); showToast('链接已复制，请在微信中粘贴分享'); }
 
-async function recordShare(workId, platform) {
+async function recordShare(work_id, platform) {
   try {
     await apiCall('add', 'shares', {
-      data: { workId, user_nickname: visitorName, user_department: visitorDepartment, deviceId, platform: platform || 'link', timestamp: new Date().toISOString() }
+      data: { work_id, user_name: visitorName,   share_platform: platform || 'link', created_at: new Date().toISOString() }
     });
   } catch (e) { }
   try {
-    const sc = await apiCall('get', 'work_stats', { query: { workId: workId }, limit: 1 });
+    const sc = await apiCall('get', 'work_stats', { query: { work_id: work_id }, limit: 1 });
     if (sc.code === 0 && sc.data && sc.data.data && sc.data.data.length > 0) {
       const old = sc.data.data[0];
-      await apiCall('update', 'work_stats', { docId: old._id, data: { shares: (old.shares || 0) + 1 } });
+      await apiCall('update', 'work_stats', { docId: old.id, data: { shares: (old.shares || 0) + 1 } });
     } else {
-      await apiCall('add', 'work_stats', { data: { workId, likes: 0, comments: 0, shares: 1 } });
+      await apiCall('add', 'work_stats', { data: { work_id, likes: 0, comments: 0, shares: 1 } });
     }
-    const w = allWorks.find(x => x._id === workId); if (w && w._stats) w._stats.shares++;
+    const w = allWorks.find(x => x._id === work_id); if (w && w._stats) w._stats.shares++;
   } catch (e) { }
 }
 
