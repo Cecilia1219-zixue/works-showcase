@@ -11,8 +11,8 @@
   --bg:#F5F5F4;--bg-alt:rgba(255,255,255,0.75);--surface:rgba(255,255,255,0.92);
   --text-primary:#1A1A1A;--text-secondary:#666;--text-dim:#999;
   --accent:#1A1A1A;--accent-h:#333;
-  --card-shadow:0 2px 16px rgba(0,0,0,0.06);
-  --card-radius:16px;--chip-bg:rgba(0,0,0,0.06);
+  --card-shadow:0 10px 34px rgba(20,32,45,0.10);
+  --card-radius:12px;--chip-bg:rgba(0,0,0,0.06);
   --nav-bg:rgba(255,255,255,0.82);--nav-shadow:0 2px 12px rgba(0,0,0,0.06);
   --border:rgba(0,0,0,0.08);
   --sheet-tab:#E8E8E8;--sheet-tab-active:#fff;
@@ -62,12 +62,16 @@ a{color:var(--text-secondary);text-decoration:none}
 
 /* 导航 */
 .navbar{position:sticky;top:0;z-index:100;padding:10px 1.5rem;display:flex;align-items:center;justify-content:space-between;background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--nav-shadow);border-radius:0 0 20px 20px}
-.nav-left{display:flex;align-items:center;gap:12px}
+.nav-left,.nav-right{display:flex;align-items:center;gap:12px}
 .nav-sphere{width:36px;height:36px;border-radius:50%;flex-shrink:0;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
 .nav-sphere img{width:100%;height:100%;object-fit:cover;display:block}
 .nav-title{font-weight:700;font-size:1.1rem;color:var(--text-primary);letter-spacing:-0.01em}
+.nav-user{display:flex;flex-direction:column;align-items:flex-end;line-height:1.2;max-width:180px}
+.nav-user .name{font-size:.82rem;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.nav-user .dept{font-size:.68rem;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
 .nav-admin{font-size:.75rem;color:var(--text-dim);padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .2s}
 .nav-admin:hover{color:var(--text-primary);background:rgba(0,0,0,0.04)}
+@media(max-width:640px){.navbar{padding:9px 1rem}.nav-title{font-size:.95rem}.nav-user{display:none}}
 
 /* Hero */
 .hero{text-align:center;padding:2rem 1.5rem 1rem}
@@ -91,21 +95,19 @@ a{color:var(--text-secondary);text-decoration:none}
 .sheet-tab.active{background:var(--sheet-tab-active);color:var(--text-primary);font-weight:600;border-bottom-color:var(--sheet-tab-active)}
 
 /* 卡片瀑布流（小红书风格） */
-.cards-container{max-width:1100px;margin:0 auto;padding:1rem 1.5rem 2rem}
-.masonry{column-count:2;column-gap:14px}
-@media(max-width:640px){.masonry{column-count:1}}
-@media(min-width:900px){.masonry{column-count:3}}
-@media(min-width:1200px){.masonry{column-count:4}}
+.cards-container{max-width:1180px;margin:0 auto;padding:1.25rem 1.5rem 2.5rem}
+.masonry{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;align-items:start}
+@media(max-width:640px){.cards-container{padding:1rem}.masonry{grid-template-columns:1fr}}
 
 /* 卡片 */
-.card{break-inside:avoid;margin-bottom:14px;background:var(--surface);border-radius:var(--card-radius);overflow:hidden;box-shadow:var(--card-shadow);border:1px solid var(--border);transition:transform .2s,box-shadow .2s;cursor:pointer}
-.card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.1)}
+.card{background:#fff;border-radius:var(--card-radius);overflow:hidden;box-shadow:var(--card-shadow);border:1px solid rgba(0,0,0,0.06);transition:transform .2s,box-shadow .2s;cursor:default}
+.card:hover{transform:translateY(-2px);box-shadow:0 14px 42px rgba(20,32,45,0.14)}
 .card-image{width:100%;display:block;position:relative;overflow:hidden;background:#f0f0f0}
 .card-image img{width:100%;display:block;object-fit:cover}
 .card-carousel{position:relative;overflow:hidden}
 .card-carousel .carousel-track{display:flex;transition:transform .3s ease}
 .card-carousel .carousel-slide{min-width:100%;flex-shrink:0}
-.card-carousel .carousel-slide img{width:100%;display:block;object-fit:cover;aspect-ratio:3/4}
+.card-carousel .carousel-slide img{width:100%;display:block;object-fit:cover;aspect-ratio:4/3;background:#f1f3f5}
 .card-carousel .carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);color:#333;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:transform .15s}
 .card-carousel .carousel-btn:hover{transform:translateY(-50%) scale(1.1)}
 .card-carousel .carousel-btn.prev{left:8px}
@@ -113,14 +115,14 @@ a{color:var(--text-secondary);text-decoration:none}
 .card-carousel .carousel-dots{display:flex;justify-content:center;gap:5px;padding:6px 0}
 .card-carousel .carousel-dots .dot{width:6px;height:6px;border-radius:50%;background:var(--text-dim);transition:all .2s}
 .card-carousel .carousel-dots .dot.active{background:var(--accent);width:14px;border-radius:3px}
-.card-body{padding:12px}
-.card-title{font-size:.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.card-desc{font-size:.78rem;color:var(--text-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.card-meta{font-size:.72rem;color:var(--text-secondary);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-body{padding:14px 14px 12px}
+.card-title{font-size:1rem;font-weight:800;color:var(--text-primary);margin-bottom:6px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-desc{font-size:.82rem;color:var(--text-secondary);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-meta{font-size:.74rem;color:var(--text-dim);margin-top:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* 卡片底部操作栏 */
-.card-actions{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid rgba(0,0,0,0.04)}
-.card-action{display:flex;align-items:center;gap:4px;background:transparent;border:none;cursor:pointer;padding:4px 6px;border-radius:8px;transition:all .15s;color:var(--text-secondary);font-size:.78rem}
+.card-actions{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-top:1px solid rgba(0,0,0,0.06);background:#fbfbfb}
+.card-action{display:flex;align-items:center;gap:5px;background:transparent;border:none;cursor:pointer;padding:6px 10px;border-radius:10px;transition:all .15s;color:var(--text-secondary);font-size:.82rem}
 .card-action:hover{background:rgba(0,0,0,0.04);color:var(--text-primary)}
 .card-action.liked{color:#E53935}
 .card-action .icon{font-size:1rem}
@@ -208,7 +210,10 @@ a{color:var(--text-secondary);text-decoration:none}
       <div class="nav-sphere"><img src="logo.png" alt="logo" /></div>
       <span class="nav-title">医起AI·挑战赛</span>
     </div>
-    <button class="nav-admin" onclick="window.open('admin.html','_blank')" title="管理后台">⚙️ 管理</button>
+    <div class="nav-right">
+      <div class="nav-user" id="nav-user"><span class="name">未登录</span><span class="dept">请先登录</span></div>
+      <button class="nav-admin" onclick="window.open('admin.html','_blank')" title="管理后台">⚙️ 管理</button>
+    </div>
   </nav>
 
   <!-- Hero -->
@@ -259,7 +264,7 @@ a{color:var(--text-secondary);text-decoration:none}
 const API_URL = 'https://works-showcase-d2giub4pr5d687848-1437802595.ap-shanghai.app.tcloudbase.com/api';
 const LOGIN_URL = 'https://works-showcase-d2giub4pr5d687848-1437802595.ap-shanghai.app.tcloudbase.com/login';
 const FEISHU_APP_ID = 'cli_aa9f2a2fb6395bdf';
-const FEISHU_REDIRECT_URI = 'https://cecilia1219-zixue.github.io/works-showcase/';
+const FEISHU_REDIRECT_URI = window.location.origin + window.location.pathname;
 
 // ========== 状态 ==========
 let visitorName = '', visitorDepartment = '', isKnown = false, visitorId = null, visitorOpenId = '', visitorAvatar = '', deviceId = '';
@@ -293,6 +298,7 @@ function initDeviceId() {
 function hideLogin() {
   document.getElementById('login-overlay').classList.add('hidden');
   document.getElementById('main').classList.add('show');
+  updateNavUser();
 }
 function showLogin() {
   document.getElementById('login-overlay').classList.remove('hidden');
@@ -301,19 +307,20 @@ function showLogin() {
 
 // ========== 飞书登录 ==========
 function doFeishuLogin() {
+  const redirectUri = window.location.origin + window.location.pathname;
   const url = 'https://passport.feishu.cn/suite/passport/oauth/authorize'
     + '?client_id=' + FEISHU_APP_ID
-    + '&redirect_uri=' + encodeURIComponent(FEISHU_REDIRECT_URI)
+    + '&redirect_uri=' + encodeURIComponent(redirectUri)
     + '&response_type=code'
-    + '&state=feishu_login';
-  window.location.href = url;
+    + '&state=feishu_login_' + Date.now();
+  window.location.assign(url);
 }
 
 async function handleFeishuCallback() {
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
   const state = params.get('state');
-  if (!code || state !== 'feishu_login') return false;
+  if (!code || !state || state.indexOf('feishu_login') !== 0) return false;
   window.history.replaceState({}, document.title, window.location.pathname);
   try {
     const res = await exchangeCode(code);
@@ -399,6 +406,7 @@ function switchTab(idx) {
   currentTab = idx;
   document.querySelectorAll('.sheet-tab').forEach(t => t.classList.toggle('active', parseInt(t.dataset.tab) === idx));
   loadData();
+  updateNavUser();
 }
 
 // ========== 作品渲染 ==========
@@ -579,6 +587,11 @@ function scrollToWorkFromHash() { const hash = window.location.hash.slice(1); if
 function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('show'), 2500); }
 function escHtml(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
 function formatTime(v) { if (v instanceof Date) return v.toLocaleString('zh-CN'); if (typeof v === 'string') { try { return new Date(v).toLocaleString('zh-CN'); } catch (e) { return v; } } if (v && v.$date) return new Date(v.$date).toLocaleString('zh-CN'); return ''; }
+function updateNavUser() {
+  const box = document.getElementById('nav-user');
+  if (!box) return;
+  box.innerHTML = '<span class="name">用户：' + escHtml(visitorName || '未登录') + '</span><span class="dept">' + escHtml(visitorDepartment || '已登录') + '</span>';
+}
 
 // ========== RDB 字段适配 ==========
 function apiRows(res) {
@@ -712,11 +725,11 @@ function renderWorks() {
     const imgs = normalizeImages(w.images, w.cover_image);
     const slide = interactors[w._id] && interactors[w._id].slide ? interactors[w._id].slide : 0;
     const safeId = escHtml(w._id);
-    const slides = imgs.length ? imgs.map(src => '<div class="carousel-slide"><img src="' + escHtml(src) + '" alt="" loading="lazy" onerror="this.parentElement.innerHTML=\'<div style=\\\'aspect-ratio:3/4;background:#f0f0f0;display:flex;align-items:center;justify-content:center\\\'><span style=\\\'font-size:2rem;opacity:.4\\\'>🖼️</span></div>\'"></div>').join('') : '<div class="carousel-slide"><div style="aspect-ratio:3/4;background:linear-gradient(135deg,#f5f5f4,#e8e8e8);display:flex;align-items:center;justify-content:center"><span style="font-size:2rem;opacity:.4">🖼️</span></div></div>';
+    const slides = imgs.length ? imgs.map(src => '<div class="carousel-slide"><img src="' + escHtml(src) + '" alt="" loading="lazy" onerror="this.parentElement.innerHTML=\'<div style=\\\'aspect-ratio:4/3;background:#f0f0f0;display:flex;align-items:center;justify-content:center\\\'><span style=\\\'font-size:2rem;opacity:.4\\\'>🖼️</span></div>\'"></div>').join('') : '<div class="carousel-slide"><div style="aspect-ratio:4/3;background:linear-gradient(135deg,#f5f5f4,#e8e8e8);display:flex;align-items:center;justify-content:center"><span style="font-size:2rem;opacity:.4">🖼️</span></div></div>';
     const dots = imgs.length > 1 ? '<div class="carousel-dots" id="dots-' + safeId + '">' + imgs.map((_, i) => '<div class="dot' + (i === slide ? ' active' : '') + '"></div>').join('') + '</div>' : '';
     const arrows = imgs.length > 1 ? '<button class="carousel-btn prev" onclick="event.stopPropagation();prevSlide(\'' + safeId + '\')">‹</button><button class="carousel-btn next" onclick="event.stopPropagation();nextSlide(\'' + safeId + '\')">›</button>' : '';
 
-    html += '<div class="card" id="card-' + safeId + '" data-wid="' + safeId + '" onclick="openShareModal(\'' + safeId + '\')">';
+    html += '<div class="card" id="card-' + safeId + '" data-wid="' + safeId + '">';
     html += '<div class="card-carousel" id="carousel-' + safeId + '" data-wid="' + safeId + '"><div class="carousel-track" id="track-' + safeId + '" style="transform:translateX(-' + slide * 100 + '%)">' + slides + '</div>';
     if (arrows) html += arrows;
     if (dots) html += dots;
@@ -730,8 +743,8 @@ function renderWorks() {
     html += '<button class="card-action" onclick="event.stopPropagation();toggleComment(\'' + safeId + '\')" title="评论"><span class="icon">💬</span><span id="comments-count-' + safeId + '">' + stats.comments + '</span></button>';
     html += '<button class="card-action" onclick="event.stopPropagation();openShareModal(\'' + safeId + '\')" title="分享"><span class="icon">↗️</span><span>' + stats.shares + '</span></button>';
     html += '</div>';
-    html += '<div class="comment-panel' + (interactors[w._id] && interactors[w._id].commentOpen ? ' show' : '') + '" id="comments-' + safeId + '">';
-    html += '<div class="comment-input-row"><input type="text" placeholder="写评论…" id="comment-input-' + safeId + '" onkeydown="if(event.key===\'Enter\')submitComment(\'' + safeId + '\')"><button onclick="submitComment(\'' + safeId + '\')">发送</button></div>';
+    html += '<div class="comment-panel' + (interactors[w._id] && interactors[w._id].commentOpen ? ' show' : '') + '" id="comments-' + safeId + '" onclick="event.stopPropagation()">';
+    html += '<div class="comment-input-row"><input type="text" placeholder="写评论…" id="comment-input-' + safeId + '" onclick="event.stopPropagation()" onkeydown="if(event.key===\'Enter\'){event.stopPropagation();submitComment(\'' + safeId + '\')}"><button onclick="event.stopPropagation();submitComment(\'' + safeId + '\')">发送</button></div>';
     html += '<div class="comment-list" id="comment-list-' + safeId + '"><div class="loading"><div class="spinner"></div></div></div>';
     html += '</div></div>';
   }
@@ -871,14 +884,18 @@ async function recordShare(workId, platform) {
       w.share_count = Number(w.share_count || 0) + 1;
       w._stats.shares = w.share_count;
       await writeWorkCount(workId, 'share_count', w.share_count);
+      renderWorks();
     }
+    return true;
   } catch (e) {
     console.error('[recordShare]', e);
+    showToast('分享计数失败，请重试');
+    return false;
   }
 }
 
 function copyShareText(text, okMsg, platform) {
-  const done = () => { showToast(okMsg); recordShare(shareWorkId, platform); closeShareModal(); };
+  const done = async () => { const ok = await recordShare(shareWorkId, platform); if (ok) showToast(okMsg); closeShareModal(); };
   navigator.clipboard.writeText(text).then(done).catch(() => {
     const input = document.getElementById('share-url');
     input.value = text;
