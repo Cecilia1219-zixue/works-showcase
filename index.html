@@ -469,7 +469,16 @@ body{background:#fff;color:#222}
 const API_URL = 'https://works-showcase-d2giub4pr5d687848-1437802595.ap-shanghai.app.tcloudbase.com/api';
 const LOGIN_URL = 'https://works-showcase-d2giub4pr5d687848-1437802595.ap-shanghai.app.tcloudbase.com/login';
 const FEISHU_APP_ID = 'cli_aa9f2a2fb6395bdf';
-const FEISHU_REDIRECT_URI = window.location.origin + window.location.pathname;
+const CANONICAL_ORIGIN = 'https://works-showcase-d2giub4pr5d687848-1437802595.tcloudbaseapp.com';
+const CANONICAL_URL = CANONICAL_ORIGIN + '/';
+const FEISHU_REDIRECT_URI = CANONICAL_URL;
+
+function enforceCanonicalDomain() {
+  if (window.location.origin === CANONICAL_ORIGIN) return false;
+  const target = CANONICAL_URL + window.location.search + window.location.hash;
+  window.location.replace(target);
+  return true;
+}
 
 // ========== 状态 ==========
 let visitorName = '', visitorDepartment = '', isKnown = false, visitorId = null, visitorOpenId = '', visitorAvatar = '', deviceId = '';
@@ -512,10 +521,9 @@ function showLogin() {
 
 // ========== 飞书登录 ==========
 function doFeishuLogin() {
-  const redirectUri = window.location.origin + window.location.pathname;
   const url = 'https://passport.feishu.cn/suite/passport/oauth/authorize'
     + '?client_id=' + FEISHU_APP_ID
-    + '&redirect_uri=' + encodeURIComponent(redirectUri)
+    + '&redirect_uri=' + encodeURIComponent(FEISHU_REDIRECT_URI)
     + '&response_type=code'
     + '&state=feishu_login_' + Date.now();
   window.location.assign(url);
@@ -753,7 +761,7 @@ function prevSlide(work_id) { const w = allWorks.find(x => x._id === work_id); i
 // ========== 分享 ==========
 function openShareModal(work_id) {
   shareWorkId = work_id; const w = allWorks.find(x => x._id === work_id);
-  const url = w ? (window.location.origin + window.location.pathname + '#' + work_id) : window.location.href;
+  const url = w ? (CANONICAL_URL + '#' + work_id) : CANONICAL_URL;
   document.getElementById('share-url').value = url; document.getElementById('share-modal').classList.add('show');
 }
 function closeShareModal() { document.getElementById('share-modal').classList.remove('show'); shareWorkId = ''; }
@@ -1070,7 +1078,7 @@ function prevSlide(workId) { const w = allWorks.find(x => x._id === String(workI
 
 function openShareModal(workId) {
   shareWorkId = String(workId);
-  const url = window.location.origin + window.location.pathname + '#' + shareWorkId;
+  const url = CANONICAL_URL + '#' + shareWorkId;
   document.getElementById('share-url').value = url;
   document.getElementById('share-modal').classList.add('show');
 }
@@ -1115,6 +1123,7 @@ function shareWechat() { copyShareText(document.getElementById('share-url').valu
 
 // ========== 初始化 ==========
 async function init() {
+  if (enforceCanonicalDomain()) return;
   initDeviceId();
   const nameInput = document.getElementById('name-input');
   const deptInput = document.getElementById('dept-input');
@@ -1403,7 +1412,7 @@ function loadVisibleComments() {}
 
 function openShareModal(workId) {
   shareWorkId = String(workId || detailWorkId || '');
-  const url = window.location.origin + window.location.pathname + '#' + shareWorkId;
+  const url = CANONICAL_URL + '#' + shareWorkId;
   document.getElementById('share-url').value = url;
   document.getElementById('share-modal').classList.add('show');
 }
