@@ -76,6 +76,8 @@ a{color:var(--text-secondary);text-decoration:none}
 .nav-user .dept{font-size:.68rem;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
 .nav-admin{font-size:.75rem;color:var(--text-dim);padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .2s}
 .nav-admin:hover{color:var(--text-primary);background:rgba(0,0,0,0.04)}
+.nav-logout{display:none;font-size:.75rem;color:var(--text-dim);padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .2s}
+.nav-logout:hover{color:#e53935;background:rgba(229,57,53,.06);border-color:rgba(229,57,53,.22)}
 @media(max-width:640px){.navbar{padding:9px 1rem}.nav-title{font-size:.95rem}.nav-user{display:none}}
 
 /* Hero */
@@ -269,6 +271,9 @@ body{background:#fff;color:#222}
 .card-action{padding:0;color:#777;background:transparent;font-size:14px;border-radius:0}
 .card-action:hover{background:transparent;color:#111}
 .card-action .icon{font-size:18px}
+.card-action .icon,.detail-action .icon{display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.action-icon{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card-action.liked .action-icon-heart,.detail-action.liked .action-icon-heart{fill:currentColor}
 .comment-panel{display:none!important}
 .footer{display:none}
 .modal-overlay{z-index:1300}
@@ -306,11 +311,13 @@ body{background:#fff;color:#222}
 
 @media(max-width:900px){
   .navbar{padding:10px 16px}
+  .nav-left{gap:10px;min-width:0}
+  .nav-sphere{display:flex;width:34px;height:34px}
   .nav-title{font-size:16px}
   .nav-user{display:none}
-  .mobile-discovery{display:flex;position:sticky;top:53px;z-index:90;background:#fff;border-bottom:1px solid #eee;align-items:center;justify-content:center;gap:38px;padding:10px 16px 8px;font-size:18px;color:#999}
-  .mobile-discovery .active{font-weight:900;color:#222;position:relative}
-  .mobile-discovery .active::after{content:'';position:absolute;left:50%;bottom:-8px;width:28px;height:3px;border-radius:99px;background:#ff2f55;transform:translateX(-50%)}
+  .nav-admin{width:34px;height:34px;padding:0;font-size:0;border-radius:50%}
+  .nav-admin::before{content:'⚙';font-size:16px}
+  .nav-logout{display:none;width:44px;height:34px;padding:0;align-items:center;justify-content:center;border-radius:999px;font-size:12px;background:#fff}
   .sheet-bar{padding:12px 14px 0;overflow:auto}
   .sheet-tabs{gap:24px;border-bottom:0;min-width:max-content}
   .sheet-tab{font-size:16px;padding-bottom:8px}
@@ -331,7 +338,6 @@ body{background:#fff;color:#222}
   .detail-side{border-left:0;display:contents}
   .detail-author{order:0;padding:12px 14px 10px 58px;border-bottom:1px solid #eee}
   .detail-author .author-avatar{width:36px;height:36px}
-  .follow-btn{background:#fff;color:#d64255;border:1px solid #e5c7cd;padding:6px 20px}
   .detail-media{order:1;min-height:0;display:block;background:#fff;flex:0 0 auto}
   .detail-media img{width:100%;height:auto;max-height:46vh;object-fit:contain;background:#fff}
   .detail-media .carousel-btn{display:none}
@@ -385,14 +391,9 @@ body{background:#fff;color:#222}
     <div class="nav-right">
       <div class="nav-user" id="nav-user"><span class="name">未登录</span><span class="dept">请先登录</span></div>
       <button class="nav-admin" onclick="window.open('admin.html','_blank')" title="管理后台">⚙️ 管理</button>
+      <button class="nav-logout" id="logout-btn" onclick="logout()" title="退出登录">退出</button>
     </div>
   </nav>
-
-  <div class="mobile-discovery">
-    <span>关注</span>
-    <span class="active">发现</span>
-    <span>同城</span>
-  </div>
 
   <!-- Hero -->
   <header class="hero">
@@ -403,8 +404,8 @@ body{background:#fff;color:#222}
   <!-- Sheet Tabs -->
   <div class="sheet-bar">
     <div class="sheet-tabs" id="tab-bar">
-      <div class="sheet-tab active" data-tab="0" onclick="switchTab(0)">📋 "医"起打擂台</div>
-      <div class="sheet-tab" data-tab="1" onclick="switchTab(1)">📋 "医"高人胆大</div>
+      <div class="sheet-tab active" data-tab="0" onclick="switchTab(0)">"医"起打擂台</div>
+      <div class="sheet-tab" data-tab="1" onclick="switchTab(1)">"医"高人胆大</div>
     </div>
   </div>
 
@@ -427,7 +428,6 @@ body{background:#fff;color:#222}
       <div class="detail-author">
         <div class="author-avatar" id="detail-avatar"></div>
         <div class="detail-author-name" id="detail-author-name"></div>
-        <button class="follow-btn">关注</button>
       </div>
       <article class="detail-content">
         <div class="detail-title" id="detail-title"></div>
@@ -439,9 +439,9 @@ body{background:#fff;color:#222}
       <div class="detail-bottom">
         <input class="detail-input" id="detail-input" placeholder="说点什么..." onkeydown="if(event.key==='Enter')submitDetailComment()" />
         <button class="detail-send" onclick="submitDetailComment()">发送</button>
-        <button class="detail-action" id="detail-like" onclick="toggleLikeFromDetail()" title="点赞">♡ <span>0</span></button>
-        <button class="detail-action" id="detail-comment-action" onclick="focusDetailInput()" title="评论">☾ <span>0</span></button>
-        <button class="detail-action" id="detail-share" onclick="openShareModal(detailWorkId)" title="分享">↗ <span>0</span></button>
+        <button class="detail-action" id="detail-like" onclick="toggleLikeFromDetail()" title="点赞"></button>
+        <button class="detail-action" id="detail-comment-action" onclick="focusDetailInput()" title="评论"></button>
+        <button class="detail-action" id="detail-share" onclick="openShareModal(detailWorkId)" title="分享"></button>
       </div>
     </aside>
   </div>
@@ -478,6 +478,7 @@ const FEISHU_APP_ID = 'cli_aa9f2a2fb6395bdf';
 const CANONICAL_ORIGIN = 'https://works-showcase-d2giub4pr5d687848-1437802595.tcloudbaseapp.com';
 const CANONICAL_URL = CANONICAL_ORIGIN + '/';
 const FEISHU_REDIRECT_URI = CANONICAL_ORIGIN + '/index.html';
+const LOGIN_TTL_DAYS = 30;
 
 function enforceCanonicalDomain() {
   if (window.location.origin === CANONICAL_ORIGIN) return false;
@@ -533,6 +534,21 @@ function showLogin() {
   overlay.classList.remove('hidden');
   overlay.classList.remove('checking');
   document.getElementById('main').classList.remove('show');
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) logoutBtn.style.display = 'none';
+}
+function logout() {
+  localStorage.removeItem('loginInfo');
+  visitorName = '';
+  visitorDepartment = '';
+  visitorOpenId = '';
+  visitorAvatar = '';
+  visitorId = null;
+  isKnown = false;
+  if (typeof closeDetail === 'function') closeDetail();
+  showLogin();
+  updateNavUser();
+  showToast('已退出登录');
 }
 
 // ========== 飞书登录 ==========
@@ -665,9 +681,9 @@ function renderWorks() {
     if (w.description) html += '<div class="card-desc">' + escHtml(w.description) + '</div>';
     html += '</div>';
     html += '<div class="card-actions">';
-    html += '<button class="card-action' + (liked ? ' liked' : '') + '" onclick="event.stopPropagation();toggleLike(\'' + w._id + '\')" title="点赞"><span class="icon">' + (liked ? '❤️' : '🤍') + '</span><span>' + stats.likes + '</span></button>';
-    html += '<button class="card-action" onclick="event.stopPropagation();toggleComment(\'' + w._id + '\')" title="评论"><span class="icon">💬</span><span id="comments-count-' + w._id + '">' + stats.comments + '</span></button>';
-    html += '<button class="card-action" onclick="event.stopPropagation();openShareModal(\'' + w._id + '\')" title="分享"><span class="icon">↗️</span><span>' + stats.shares + '</span></button>';
+    html += '<button class="card-action' + (liked ? ' liked' : '') + '" onclick="event.stopPropagation();toggleLike(\'' + w._id + '\')" title="点赞">' + uiIcon('like', liked) + '<span>' + stats.likes + '</span></button>';
+    html += '<button class="card-action" onclick="event.stopPropagation();toggleComment(\'' + w._id + '\')" title="评论">' + uiIcon('comment') + '<span id="comments-count-' + w._id + '">' + stats.comments + '</span></button>';
+    html += '<button class="card-action" onclick="event.stopPropagation();openShareModal(\'' + w._id + '\')" title="分享">' + uiIcon('share') + '<span>' + stats.shares + '</span></button>';
     html += '</div>';
     html += '<div class="comment-panel' + (interactors[w._id] && interactors[w._id].commentOpen ? ' show' : '') + '" id="comments-' + w._id + '">';
     html += '<div class="comment-input-row"><input type="text" placeholder="写评论…" id="comment-input-' + w._id + '" onkeydown="if(event.key===\'Enter\')submitComment(\'' + w._id + '\')"><button onclick="submitComment(\'' + w._id + '\')">发送</button></div>';
@@ -815,11 +831,17 @@ async function recordShare(work_id, platform) {
 function scrollToWorkFromHash() { const hash = window.location.hash.slice(1); if (!hash) return; const card = document.getElementById('card-' + hash); if (card) setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); }
 function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('show'), 2500); }
 function escHtml(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
+function uiIcon(type, filled) {
+  if (type === 'like') return '<span class="icon"><svg class="action-icon action-icon-heart" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6c-1.8-1.8-4.8-1.8-6.6 0L12 6.8 9.8 4.6C8 2.8 5 2.8 3.2 4.6s-1.8 4.8 0 6.6L12 20l8.8-8.8c1.8-1.8 1.8-4.8 0-6.6Z"' + (filled ? ' fill="currentColor"' : '') + '></path></svg></span>';
+  if (type === 'comment') return '<span class="icon"><svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H7l-4 2 1.2-4.5A8.5 8.5 0 1 1 21 11.5Z"></path></svg></span>';
+  return '<span class="icon"><svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12 16 6"></path><path d="M22 12 16 18"></path><path d="M21 12H9a7 7 0 0 0-7 7v1"></path></svg></span>';
+}
 function formatTime(v) { if (v instanceof Date) return v.toLocaleString('zh-CN'); if (typeof v === 'string') { try { return new Date(v).toLocaleString('zh-CN'); } catch (e) { return v; } } if (v && v.$date) return new Date(v.$date).toLocaleString('zh-CN'); return ''; }
 function updateNavUser() {
   const box = document.getElementById('nav-user');
-  if (!box) return;
-  box.innerHTML = '<span class="name">用户：' + escHtml(visitorName || '未登录') + '</span><span class="dept">' + escHtml(visitorDepartment || '已登录') + '</span>';
+  const logoutBtn = document.getElementById('logout-btn');
+  if (box) box.innerHTML = '<span class="name">用户：' + escHtml(visitorName || '未登录') + '</span><span class="dept">' + escHtml(visitorDepartment || '已登录') + '</span>';
+  if (logoutBtn) logoutBtn.style.display = visitorName ? 'inline-flex' : 'none';
 }
 
 // ========== RDB 字段适配 ==========
@@ -968,9 +990,9 @@ function renderWorks() {
     if (w.creator_name) html += '<div class="card-meta">作者：' + escHtml(w.creator_name) + '</div>';
     html += '</div>';
     html += '<div class="card-actions">';
-    html += '<button class="card-action' + (liked ? ' liked' : '') + '" onclick="event.stopPropagation();toggleLike(\'' + safeId + '\')" title="点赞"><span class="icon">' + (liked ? '❤️' : '🤍') + '</span><span>' + stats.likes + '</span></button>';
-    html += '<button class="card-action" onclick="event.stopPropagation();toggleComment(\'' + safeId + '\')" title="评论"><span class="icon">💬</span><span id="comments-count-' + safeId + '">' + stats.comments + '</span></button>';
-    html += '<button class="card-action" onclick="event.stopPropagation();openShareModal(\'' + safeId + '\')" title="分享"><span class="icon">↗️</span><span>' + stats.shares + '</span></button>';
+    html += '<button class="card-action' + (liked ? ' liked' : '') + '" onclick="event.stopPropagation();toggleLike(\'' + safeId + '\')" title="点赞">' + uiIcon('like', liked) + '<span>' + stats.likes + '</span></button>';
+    html += '<button class="card-action" onclick="event.stopPropagation();toggleComment(\'' + safeId + '\')" title="评论">' + uiIcon('comment') + '<span id="comments-count-' + safeId + '">' + stats.comments + '</span></button>';
+    html += '<button class="card-action" onclick="event.stopPropagation();openShareModal(\'' + safeId + '\')" title="分享">' + uiIcon('share') + '<span>' + stats.shares + '</span></button>';
     html += '</div>';
     html += '<div class="comment-panel' + (interactors[w._id] && interactors[w._id].commentOpen ? ' show' : '') + '" id="comments-' + safeId + '" onclick="event.stopPropagation()">';
     html += '<div class="comment-input-row"><input type="text" placeholder="写评论…" id="comment-input-' + safeId + '" onclick="event.stopPropagation()" onkeydown="if(event.key===\'Enter\'){event.stopPropagation();submitComment(\'' + safeId + '\')}"><button onclick="event.stopPropagation();submitComment(\'' + safeId + '\')">发送</button></div>';
@@ -1156,7 +1178,7 @@ async function init() {
   if (feishuOk) return;
   // 检查本地缓存
   const saved = localStorage.getItem('loginInfo');
-  if (saved) { try { const info = JSON.parse(saved); const days = (Date.now() - info.timestamp) / (1000 * 60 * 60 * 24); if (days <= 30 && info.nickname) { visitorName = info.nickname; visitorDepartment = info.department || ''; visitorOpenId = info.openId || ('device_' + deviceId); visitorAvatar = info.avatarUrl || ''; isKnown = true; await upsertVisitor(visitorOpenId, visitorName, visitorDepartment, visitorAvatar); hideLogin(); await loadData(); return; } } catch (e) { } }
+  if (saved) { try { const info = JSON.parse(saved); const days = (Date.now() - info.timestamp) / (1000 * 60 * 60 * 24); if (days <= LOGIN_TTL_DAYS && info.nickname) { visitorName = info.nickname; visitorDepartment = info.department || ''; visitorOpenId = info.openId || ('device_' + deviceId); visitorAvatar = info.avatarUrl || ''; isKnown = true; await upsertVisitor(visitorOpenId, visitorName, visitorDepartment, visitorAvatar); hideLogin(); await loadData(); return; } } catch (e) { } }
   showLogin();
 }
 init();
@@ -1265,9 +1287,9 @@ function renderWorks() {
       + '<div class="card-meta"><span class="author-avatar">' + avatarHtml(author, w.creator_avatar || '') + '</span><span class="author-name">' + escHtml(author) + '</span></div>'
       + '</div>'
       + '<div class="card-actions">'
-      + '<button class="card-action' + (liked ? ' liked' : '') + '" onclick="event.stopPropagation();toggleLike(\'' + safeId + '\')" title="点赞"><span class="icon">' + (liked ? '♥' : '♡') + '</span><span>' + stats.likes + '</span></button>'
-      + '<button class="card-action" onclick="event.stopPropagation();openDetail(\'' + safeId + '\', true)" title="评论"><span class="icon">☾</span><span id="comments-count-' + safeId + '">' + stats.comments + '</span></button>'
-      + '<button class="card-action" onclick="event.stopPropagation();openShareModal(\'' + safeId + '\')" title="分享"><span class="icon">↗</span><span>' + stats.shares + '</span></button>'
+      + '<button class="card-action' + (liked ? ' liked' : '') + '" onclick="event.stopPropagation();toggleLike(\'' + safeId + '\')" title="点赞">' + uiIcon('like', liked) + '<span>' + stats.likes + '</span></button>'
+      + '<button class="card-action" onclick="event.stopPropagation();openDetail(\'' + safeId + '\', true)" title="评论">' + uiIcon('comment') + '<span id="comments-count-' + safeId + '">' + stats.comments + '</span></button>'
+      + '<button class="card-action" onclick="event.stopPropagation();openShareModal(\'' + safeId + '\')" title="分享">' + uiIcon('share') + '<span>' + stats.shares + '</span></button>'
       + '</div></div>';
   }).join('');
 }
@@ -1328,9 +1350,9 @@ function renderDetail() {
 
   const likeBtn = document.getElementById('detail-like');
   likeBtn.classList.toggle('liked', !!liked);
-  likeBtn.innerHTML = (liked ? '♥' : '♡') + ' <span>' + stats.likes + '</span>';
-  document.getElementById('detail-comment-action').innerHTML = '☾ <span>' + stats.comments + '</span>';
-  document.getElementById('detail-share').innerHTML = '↗ <span>' + stats.shares + '</span>';
+  likeBtn.innerHTML = uiIcon('like', liked) + ' <span>' + stats.likes + '</span>';
+  document.getElementById('detail-comment-action').innerHTML = uiIcon('comment') + ' <span>' + stats.comments + '</span>';
+  document.getElementById('detail-share').innerHTML = uiIcon('share') + ' <span>' + stats.shares + '</span>';
 }
 
 function detailPrev() {
