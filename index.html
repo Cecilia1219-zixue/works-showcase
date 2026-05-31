@@ -30,6 +30,7 @@ a{color:var(--text-secondary);text-decoration:none}
 #login-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;transition:opacity .5s,visibility .5s;overflow:hidden}
 #login-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
 .login-card{position:relative;z-index:1;background:var(--surface);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--border);border-radius:24px;padding:2.5rem 2rem;width:90%;max-width:420px;box-shadow:0 16px 48px rgba(0,0,0,0.08);text-align:center}
+#login-overlay.checking .login-card{max-width:320px;padding:2rem}
 .login-card .logo-sphere{width:80px;height:80px;margin:0 auto 1.2rem;border-radius:50%;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
 .login-card .logo-sphere img{width:100%;height:100%;object-fit:cover;display:block}
 .login-card h1{font-size:1.8rem;font-weight:900;letter-spacing:.05em;
@@ -37,6 +38,10 @@ a{color:var(--text-secondary);text-decoration:none}
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   filter:drop-shadow(0 2px 4px rgba(0,188,212,0.3));margin-bottom:.2rem}
 .login-card .theme-text{font-family:'Noto Sans SC',sans-serif;font-size:.95rem;color:rgba(26,26,26,0.4);margin-bottom:1.5rem;letter-spacing:.15em;text-transform:uppercase}
+.login-loading{display:none;align-items:center;justify-content:center;gap:10px;color:var(--text-dim);font-size:.9rem;margin-top:.5rem}
+.login-loading .spinner{width:20px;height:20px;border:2px solid var(--chip-bg);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+#login-overlay.checking .login-loading{display:flex}
+#login-overlay.checking .login-form{display:none}
 .login-card .login-form{text-align:left}
 .login-card .login-form>p{text-align:center;color:var(--text-dim);margin-bottom:1.5rem;font-size:.85rem}
 .btn-feishu{width:100%;margin-top:.5rem;background:#3370FF;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -350,11 +355,12 @@ body{background:#fff;color:#222}
 <div class="site-bg"><img src="bg.jpg" alt="" /></div>
 
 <!-- 登录页 -->
-<div id="login-overlay">
+<div id="login-overlay" class="checking">
   <div class="login-card">
     <div class="logo-sphere"><img src="logo.png" alt="logo" /></div>
     <h1>医起AI·挑战赛</h1>
     <div class="theme-text">"医"起追AI，赢在未来</div>
+    <div class="login-loading" id="login-loading"><div class="spinner"></div><span>正在进入广场...</span></div>
     <div class="login-form">
       <p>填写昵称和部门，30天内免重复登录</p>
       <button class="form-btn btn-feishu" id="feishu-login-btn" onclick="doFeishuLogin()">🔵 飞书一键登录</button>
@@ -509,13 +515,23 @@ function initDeviceId() {
 }
 
 // ========== 登录 UI ==========
+function setLoginChecking() {
+  const overlay = document.getElementById('login-overlay');
+  overlay.classList.remove('hidden');
+  overlay.classList.add('checking');
+  document.getElementById('main').classList.remove('show');
+}
 function hideLogin() {
-  document.getElementById('login-overlay').classList.add('hidden');
+  const overlay = document.getElementById('login-overlay');
+  overlay.classList.add('hidden');
+  overlay.classList.remove('checking');
   document.getElementById('main').classList.add('show');
   updateNavUser();
 }
 function showLogin() {
-  document.getElementById('login-overlay').classList.remove('hidden');
+  const overlay = document.getElementById('login-overlay');
+  overlay.classList.remove('hidden');
+  overlay.classList.remove('checking');
   document.getElementById('main').classList.remove('show');
 }
 
@@ -1124,6 +1140,7 @@ function shareWechat() { copyShareText(document.getElementById('share-url').valu
 // ========== 初始化 ==========
 async function init() {
   if (enforceCanonicalDomain()) return;
+  setLoginChecking();
   initDeviceId();
   const nameInput = document.getElementById('name-input');
   const deptInput = document.getElementById('dept-input');
