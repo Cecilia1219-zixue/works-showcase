@@ -280,11 +280,12 @@ body{background:#fff;color:#222}
 .detail-overlay.show{display:flex}
 .detail-shell{width:min(1360px,calc(100vw - 64px));height:min(860px,calc(100vh - 64px));background:#fff;border-radius:20px;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.35fr) 460px;box-shadow:0 22px 70px rgba(0,0,0,.22);position:relative}
 .detail-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border:0;border-radius:50%;background:rgba(0,0,0,.36);color:#fff;font-size:24px;line-height:1;z-index:2;cursor:pointer}
-.detail-media{position:relative;background:#f8f8f8;display:flex;align-items:center;justify-content:center;min-width:0}
-.detail-media img{width:100%;height:100%;object-fit:contain;display:block}
+.detail-media{position:relative;background:#f8f8f8;display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;padding:24px}
+.detail-media img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block}
 .detail-media .carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;border:0;background:rgba(0,0,0,.36);color:#fff;font-size:28px;cursor:pointer}
 .detail-media .prev{left:18px}.detail-media .next{right:18px}
-.detail-side{display:flex;flex-direction:column;min-height:0;border-left:1px solid #eee;background:#fff}
+.detail-side{display:flex;flex-direction:column;min-height:0;height:100%;border-left:1px solid #eee;background:#fff;overflow:hidden}
+.detail-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .detail-author{display:flex;align-items:center;gap:12px;padding:24px 26px 14px}
 .detail-author .author-avatar{width:42px;height:42px;font-size:16px}
 .detail-author-name{font-size:16px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -294,14 +295,14 @@ body{background:#fff;color:#222}
 .detail-desc{font-size:16px;line-height:1.75;color:#333;white-space:pre-wrap}
 .detail-time{margin-top:12px;font-size:13px;color:#999}
 .detail-comments-head{padding:18px 26px 8px;font-size:15px;color:#777}
-.detail-comments{flex:1;min-height:0;overflow:auto;padding:0 26px 18px}
+.detail-comments{min-height:0;padding:0 26px 22px}
 .detail-comment{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;padding:14px 0}
 .detail-comment .author-avatar{width:34px;height:34px}
 .comment-main{min-width:0}
 .comment-name{font-size:14px;color:#888;margin-bottom:3px}
 .comment-content{font-size:15px;line-height:1.55;color:#222;word-break:break-word}
 .comment-date{font-size:12px;color:#aaa;margin-top:6px}
-.detail-bottom{display:flex;align-items:center;gap:14px;padding:14px 22px;border-top:1px solid #eee;background:#fff}
+.detail-bottom{flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:14px 22px;border-top:1px solid #eee;background:#fff}
 .detail-input{flex:1;border:0;background:#f5f5f5;border-radius:999px;padding:12px 18px;font-size:15px;outline:none;min-width:0}
 .detail-send{border:0;background:#111;color:#fff;border-radius:999px;padding:10px 18px;font-weight:800;cursor:pointer}
 .detail-action{border:0;background:#fff;color:#222;font-size:22px;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
@@ -417,13 +418,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
 .action-icon{width:21px;height:21px;stroke-width:1.9}
 .detail-overlay{background:rgba(0,0,0,.22);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 .detail-shell{border-radius:30px;box-shadow:0 30px 90px rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.4)}
-.detail-side{border-left:1px solid rgba(0,0,0,.06);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.detail-side{border-left:1px solid rgba(0,0,0,.06)}
 .detail-author{padding:26px 30px 16px}
 .detail-content{padding:8px 30px 22px;border-bottom:1px solid rgba(0,0,0,.06)}
 .detail-title{font-size:24px;line-height:1.25;letter-spacing:-.01em;color:#1d1d1f}
 .detail-desc{font-size:17px;line-height:1.65;color:#515154}
-.detail-comments{flex:none;overflow:visible}
-.detail-bottom{position:sticky;bottom:0;padding:16px 24px;background:#fff;border-top:1px solid rgba(0,0,0,.06)}
+.detail-comments{overflow:visible}
+.detail-bottom{position:relative;padding:16px 24px;background:#fff;border-top:1px solid rgba(0,0,0,.06)}
 .detail-input{background:#f5f5f7;border-radius:999px;height:46px}
 .detail-send{background:#1d1d1f;border-radius:999px}
 .modal{border-radius:26px;background:#fff;border:0;box-shadow:0 24px 80px rgba(0,0,0,.18)}
@@ -462,9 +463,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
   .detail-overlay{background:#f5f5f7;backdrop-filter:none}
   .detail-shell{width:100%;height:100%;border-radius:0;border:0;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
   .detail-side{display:contents;border-left:0;overflow:visible}
+  .detail-scroll{display:contents;overflow:visible}
   .detail-author{padding:13px 16px 12px 60px;background:#fff}
-  .detail-media{height:min(58vh,520px);min-height:280px;background:#f5f5f7;flex:0 0 auto}
-  .detail-media img{width:100%;height:100%;object-fit:contain;background:#f5f5f7}
+  .detail-media{height:min(58vh,520px);min-height:280px;background:#f5f5f7;flex:0 0 auto;padding:12px}
+  .detail-media img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;background:#f5f5f7}
   .detail-content{padding:20px 18px 16px;background:#fff}
   .detail-title{font-size:22px}
   .detail-desc{font-size:16px}
@@ -557,13 +559,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
         <div class="author-avatar" id="detail-avatar"></div>
         <div class="detail-author-name" id="detail-author-name"></div>
       </div>
-      <article class="detail-content">
-        <div class="detail-title" id="detail-title"></div>
-        <div class="detail-desc" id="detail-desc"></div>
-        <div class="detail-time" id="detail-time"></div>
-      </article>
-      <div class="detail-comments-head" id="detail-comments-head">共 0 条评论</div>
-      <div class="detail-comments" id="detail-comments"></div>
+      <div class="detail-scroll">
+        <article class="detail-content">
+          <div class="detail-title" id="detail-title"></div>
+          <div class="detail-desc" id="detail-desc"></div>
+          <div class="detail-time" id="detail-time"></div>
+        </article>
+        <div class="detail-comments-head" id="detail-comments-head">共 0 条评论</div>
+        <div class="detail-comments" id="detail-comments"></div>
+      </div>
       <div class="detail-bottom">
         <input class="detail-input" id="detail-input" placeholder="说点什么..." onkeydown="if(event.key==='Enter')submitDetailComment()" />
         <button class="detail-send" onclick="submitDetailComment()">发送</button>
