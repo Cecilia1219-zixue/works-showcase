@@ -32,7 +32,7 @@ a{color:var(--text-secondary);text-decoration:none}
 .login-card{position:relative;z-index:1;background:var(--surface);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--border);border-radius:24px;padding:2.5rem 2rem;width:90%;max-width:420px;box-shadow:0 16px 48px rgba(0,0,0,0.08);text-align:center}
 #login-overlay.checking .login-card{max-width:320px;padding:2rem}
 .login-card .logo-sphere{width:80px;height:80px;margin:0 auto 1.2rem;border-radius:50%;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
-.brand-logo{width:100%;height:100%;display:block}
+.brand-logo{width:100%;height:100%;display:block;object-fit:cover}
 .login-card h1{font-size:1.8rem;font-weight:900;letter-spacing:.05em;
   background:linear-gradient(180deg,#e8e8e8 0%,#fff 15%,#a8c0d8 30%,#4a8aaa 50%,#00bcd4 65%,#0288d1 80%,#0d47a1 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
@@ -475,27 +475,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
 <!-- 登录页 -->
 <div id="login-overlay" class="checking">
   <div class="login-card">
-    <div class="logo-sphere">
-      <svg class="brand-logo" viewBox="0 0 100 100" role="img" aria-label="医起AI logo">
-        <defs>
-          <radialGradient id="loginLogoGlow" cx="34%" cy="22%" r="72%">
-            <stop offset="0%" stop-color="#ffffff" stop-opacity=".86"/>
-            <stop offset="30%" stop-color="#4f8cff"/>
-            <stop offset="64%" stop-color="#17d9d0"/>
-            <stop offset="100%" stop-color="#84f0bf"/>
-          </radialGradient>
-          <linearGradient id="loginLogoStroke" x1="18" y1="20" x2="82" y2="84">
-            <stop offset="0%" stop-color="#ffffff" stop-opacity=".95"/>
-            <stop offset="100%" stop-color="#d9fff5" stop-opacity=".68"/>
-          </linearGradient>
-        </defs>
-        <circle cx="50" cy="50" r="47" fill="url(#loginLogoGlow)"/>
-        <circle cx="50" cy="50" r="45" fill="none" stroke="#ffffff" stroke-opacity=".35" stroke-width="2"/>
-        <path d="M69 24c-21 6-32 20-33 42 8-6 17-8 29-4-7-9-7-22 4-38Z" fill="none" stroke="url(#loginLogoStroke)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M28 68c13-10 28-10 44 0" fill="none" stroke="#ffffff" stroke-opacity=".78" stroke-width="5" stroke-linecap="round"/>
-        <circle cx="72" cy="22" r="10" fill="#ffffff" opacity=".18"/>
-      </svg>
-    </div>
+    <div class="logo-sphere"><img class="brand-logo" src="logo.png?v=20260601" alt="医起AI logo" /></div>
     <h1>医起AI·挑战赛</h1>
     <div class="theme-text">"医"起追AI，赢在未来</div>
     <div class="login-loading" id="login-loading"><div class="spinner"></div><span>正在进入广场...</span></div>
@@ -517,27 +497,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
   <!-- 导航栏 -->
   <nav class="navbar">
     <div class="nav-left">
-      <div class="nav-sphere">
-        <svg class="brand-logo" viewBox="0 0 100 100" role="img" aria-label="医起AI logo">
-          <defs>
-            <radialGradient id="navLogoGlow" cx="34%" cy="22%" r="72%">
-              <stop offset="0%" stop-color="#ffffff" stop-opacity=".86"/>
-              <stop offset="30%" stop-color="#4f8cff"/>
-              <stop offset="64%" stop-color="#17d9d0"/>
-              <stop offset="100%" stop-color="#84f0bf"/>
-            </radialGradient>
-            <linearGradient id="navLogoStroke" x1="18" y1="20" x2="82" y2="84">
-              <stop offset="0%" stop-color="#ffffff" stop-opacity=".95"/>
-              <stop offset="100%" stop-color="#d9fff5" stop-opacity=".68"/>
-            </linearGradient>
-          </defs>
-          <circle cx="50" cy="50" r="47" fill="url(#navLogoGlow)"/>
-          <circle cx="50" cy="50" r="45" fill="none" stroke="#ffffff" stroke-opacity=".35" stroke-width="2"/>
-          <path d="M69 24c-21 6-32 20-33 42 8-6 17-8 29-4-7-9-7-22 4-38Z" fill="none" stroke="url(#navLogoStroke)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M28 68c13-10 28-10 44 0" fill="none" stroke="#ffffff" stroke-opacity=".78" stroke-width="5" stroke-linecap="round"/>
-          <circle cx="72" cy="22" r="10" fill="#ffffff" opacity=".18"/>
-        </svg>
-      </div>
+      <div class="nav-sphere"><img class="brand-logo" src="logo.png?v=20260601" alt="医起AI logo" /></div>
       <span class="nav-title">医起AI·挑战赛</span>
     </div>
     <div class="nav-right">

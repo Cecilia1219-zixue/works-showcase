@@ -95,7 +95,7 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
 
   <div id="p-works" class="panel">
     <div class="fb"><select id="w-cat" onchange="rWT()"><option value="all">全部分类</option><option value="0">"医"起打擂台</option><option value="1">医高人胆大</option></select><span style="font-size:11px;color:var(--txt3);margin-left:auto" id="w-cnt"></span></div>
-    <div class="tw"><table><thead><tr><th>作品标题</th><th>分类</th><th>❤️ 点赞</th><th>💬 评论</th><th>🔄 分享</th><th>📈 互动总数</th></tr></thead><tbody id="w-tbody"></tbody></table></div>
+    <div class="tw"><table><thead><tr><th>作品标题</th><th>分类</th><th>❤️ 点赞</th><th>💬 评论</th><th>🔄 分享</th><th>📈 互动总数</th><th>操作</th></tr></thead><tbody id="w-tbody"></tbody></table></div>
   </div>
 
   <div id="p-users" class="panel">
@@ -440,9 +440,35 @@ function rWT(){
   }).sort(function(a,b){return b.t-a.t});
   var tb=document.getElementById('w-tbody');
   tb.innerHTML=rows.map(function(r){
-    return'<tr><td>'+esc(r.w.title)+'</td><td><span class="badge '+catClass(r.w.category)+'">'+esc(catLabel(r.w.category))+'</span></td><td>'+r.l+'</td><td>'+r.c+'</td><td>'+r.s+'</td><td><strong>'+r.t+'</strong></td></tr>';
-  }).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--txt3)">暂无数据</td></tr>';
+    var id=wid(r.w);
+    var title=encodeURIComponent(r.w.title||'未命名作品');
+    return'<tr><td>'+esc(r.w.title)+'</td><td><span class="badge '+catClass(r.w.category)+'">'+esc(catLabel(r.w.category))+'</span></td><td>'+r.l+'</td><td>'+r.c+'</td><td>'+r.s+'</td><td><strong>'+r.t+'</strong></td><td><button class="btn bd bs" onclick="deleteWork(\''+id+'\',decodeURIComponent(\''+title+'\'))">删除</button></td></tr>';
+  }).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--txt3)">暂无数据</td></tr>';
   document.getElementById('w-cnt').textContent='共 '+rows.length+' 个作品';
+}
+
+async function deleteRowsByWork(collection,workId){
+  var res=await apiCall('delete',collection,{query:{work_id:Number(workId)}});
+  if(res.code!==0)throw new Error(res.message||collection+' 删除失败');
+  return res.data&&res.data.affectedRows||0;
+}
+
+async function deleteWork(workId,title){
+  if(!workId){toast('作品 ID 缺失');return}
+  if(!confirm('确定删除作品「'+title+'」吗？\\n会同时删除该作品的点赞、评论、分享和统计数据，操作不可恢复。'))return;
+  try{
+    toast('正在删除作品...');
+    await deleteRowsByWork('likes',workId);
+    await deleteRowsByWork('comments',workId);
+    await deleteRowsByWork('shares',workId);
+    await deleteRowsByWork('work_stats',workId);
+    var res=await apiCall('delete','works',{docId:Number(workId)});
+    if(res.code!==0)throw new Error(res.message||'作品删除失败');
+    toast('作品已删除');
+    await loadAll();
+  }catch(e){
+    toast('删除失败: '+e.message);
+  }
 }
 
 function buildUR(){
