@@ -42,7 +42,7 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
 .ec{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:20px;display:flex;align-items:center;gap:14px}
 .ec .i{font-size:32px}.ec .h3{font-size:14px;margin-bottom:2px}.ec .p{font-size:11px;color:var(--txt2)}
 .btn{padding:9px 18px;border:none;border-radius:9px;font-size:12px;cursor:pointer;font-weight:600;transition:.2s;display:inline-flex;align-items:center;gap:5px}
-.btn:hover{opacity:.85}.bp{background:linear-gradient(135deg,var(--a1),var(--a2));color:#0d0d1a}.bd{background:var(--danger);color:#fff}.bs{padding:5px 12px;font-size:11px}
+.btn:hover{opacity:.85}.bp{background:linear-gradient(135deg,var(--a1),var(--a2));color:#0d0d1a}.bd{background:var(--danger);color:#fff}.be{background:#2a2a4a;color:var(--txt)}.bs{padding:5px 12px;font-size:11px}
 .badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600}
 .bb{background:rgba(0,172,193,.12);color:var(--a1)}.bl{background:rgba(0,229,160,.1);color:var(--a2)}
 .po{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(13,13,26,.94);z-index:100;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}.po.h{display:none}
@@ -118,8 +118,8 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
   <div id="p-upload" class="panel">
     <div style="max-width:640px;margin:0 auto">
       <div style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:24px;margin-bottom:16px">
-        <h3 style="font-size:14px;margin-bottom:4px;color:var(--a1)">📤 上传作品</h3>
-        <p style="font-size:12px;color:var(--txt2);margin-bottom:20px">填写作品信息后提交到前台展示</p>
+        <h3 id="ul-heading" style="font-size:14px;margin-bottom:4px;color:var(--a1)">📤 上传作品</h3>
+        <p id="ul-help" style="font-size:12px;color:var(--txt2);margin-bottom:20px">填写作品信息后提交到前台展示</p>
         <div style="display:grid;gap:12px">
           <label style="font-size:12px;color:var(--txt2)">作品标题 *</label>
           <input id="ul-title" style="background:var(--input);border:1px solid var(--bdr);border-radius:8px;padding:9px 14px;color:var(--txt);font-size:13px;outline:none" placeholder="请输入作品标题"/>
@@ -134,9 +134,16 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
           </select>
           <label style="font-size:12px;color:var(--txt2)">📁 选择图片（支持多张，最多10张，直接上传）</label>
           <input id="ul-files" type="file" multiple accept="image/*" style="background:var(--input);border:1px solid var(--bdr);border-radius:8px;padding:10px 14px;color:var(--txt);font-size:12px" onchange="previewFiles()"/>
+          <div id="ul-existing-wrap" style="display:none">
+            <label style="font-size:12px;color:var(--txt2);display:block;margin-bottom:8px">当前图片（点击 × 可移除）</label>
+            <div id="ul-existing" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+          </div>
           <div id="ul-preview" style="display:flex;gap:8px;flex-wrap:wrap"></div>
           <div id="ul-status" style="font-size:11px;color:var(--txt2)"></div>
-          <button class="btn bp" onclick="doSubmit()" style="margin-top:8px;padding:12px 24px;font-size:14px">🚀 提交作品</button>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+            <button id="ul-submit" class="btn bp" onclick="doSubmit()" style="padding:12px 24px;font-size:14px">🚀 提交作品</button>
+            <button id="ul-cancel" class="btn be" onclick="cancelEdit()" style="display:none;padding:12px 24px;font-size:14px" type="button">取消编辑</button>
+          </div>
         </div>
       </div>
       <div id="ul-msg" style="text-align:center;font-size:12px;color:var(--txt2);display:none"></div>
@@ -294,12 +301,13 @@ function expVisitors(){
   dlCSV(rows,'访客列表_'+fd(new Date())+'.csv');
 }
 
-// ===== Upload =====
-var _ulFiles=[];
+// ===== Upload / Edit =====
+var _ulFiles=[],_editingWorkId='',_editingImages=[];
 function previewFiles(){
   var input=document.getElementById('ul-files');
   var newFiles=Array.from(input.files);
-  if(_ulFiles.length+newFiles.length>10){toast('最多10张，当前已有'+_ulFiles.length+'张');return}
+  var currentCount=_editingImages.length+_ulFiles.length;
+  if(currentCount+newFiles.length>10){toast('最多10张，当前已有'+currentCount+'张');return}
   _ulFiles=_ulFiles.concat(newFiles);renderPreview();input.value='';
 }
 
@@ -404,6 +412,17 @@ function catClass(c){return String(c)==='0'?'bb':'bl'}
 function wid(w){return String(w.id||w._id||'')}
 function byWork(rows,id){return rows.filter(function(r){return String(r.work_id)===String(id)})}
 function sqlNow(){var d=new Date(),p=function(n){return String(n).padStart(2,'0')};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds())}
+function parseImages(value){
+  if(!value)return[];
+  if(Array.isArray(value))return value;
+  if(typeof value!=='string')return[value];
+  try{var parsed=JSON.parse(value);return Array.isArray(parsed)?parsed:[parsed]}catch(e){return[value]}
+}
+function imageUrl(item){
+  if(!item)return'';
+  if(typeof item==='string')return item;
+  return item.url||item.tempUrl||item.tempFileURL||item.stableUrl||item.src||item.fileID||'';
+}
 
 async function initDB(){
   db={ready:true};
@@ -442,7 +461,7 @@ function rWT(){
   tb.innerHTML=rows.map(function(r){
     var id=wid(r.w);
     var title=encodeURIComponent(r.w.title||'未命名作品');
-    return'<tr><td>'+esc(r.w.title)+'</td><td><span class="badge '+catClass(r.w.category)+'">'+esc(catLabel(r.w.category))+'</span></td><td>'+r.l+'</td><td>'+r.c+'</td><td>'+r.s+'</td><td><strong>'+r.t+'</strong></td><td><button class="btn bd bs" onclick="deleteWork(\''+id+'\',decodeURIComponent(\''+title+'\'))">删除</button></td></tr>';
+    return'<tr><td>'+esc(r.w.title)+'</td><td><span class="badge '+catClass(r.w.category)+'">'+esc(catLabel(r.w.category))+'</span></td><td>'+r.l+'</td><td>'+r.c+'</td><td>'+r.s+'</td><td><strong>'+r.t+'</strong></td><td><button class="btn be bs" onclick="editWork(\''+id+'\')">编辑</button> <button class="btn bd bs" onclick="deleteWork(\''+id+'\',decodeURIComponent(\''+title+'\'))">删除</button></td></tr>';
   }).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--txt3)">暂无数据</td></tr>';
   document.getElementById('w-cnt').textContent='共 '+rows.length+' 个作品';
 }
@@ -519,6 +538,64 @@ async function uploadImage(dataUrl){
   };
 }
 
+function renderExistingImages(){
+  var wrap=document.getElementById('ul-existing-wrap');
+  var box=document.getElementById('ul-existing');
+  if(!wrap||!box)return;
+  wrap.style.display=_editingWorkId?'block':'none';
+  box.innerHTML='';
+  _editingImages.forEach(function(img,i){
+    var src=imageUrl(img);
+    var item=document.createElement('div');
+    item.style.cssText='position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:2px solid var(--bdr);background:var(--input)';
+    item.innerHTML='<img src="'+esc(src)+'" style="width:100%;height:100%;object-fit:cover"/>'+'<div style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:14px;line-height:20px;text-align:center;cursor:pointer">\u00d7</div>';
+    item.querySelector('div').onclick=function(){_editingImages.splice(i,1);renderExistingImages()};
+    box.appendChild(item);
+  });
+  if(!_editingImages.length)box.innerHTML='<div style="font-size:11px;color:var(--txt3);padding:8px 0">当前图片已移除，请重新选择图片</div>';
+}
+
+function resetUploadForm(keepMessage){
+  document.getElementById('ul-title').value='';
+  document.getElementById('ul-desc').value='';
+  document.getElementById('ul-author').value='';
+  document.getElementById('ul-cat').value='0';
+  document.getElementById('ul-files').value='';
+  document.getElementById('ul-preview').innerHTML='';
+  document.getElementById('ul-status').textContent='';
+  if(!keepMessage)document.getElementById('ul-msg').style.display='none';
+  _ulFiles=[];
+  _editingWorkId='';
+  _editingImages=[];
+  document.getElementById('ul-heading').textContent='📤 上传作品';
+  document.getElementById('ul-help').textContent='填写作品信息后提交到前台展示';
+  document.getElementById('ul-submit').textContent='🚀 提交作品';
+  document.getElementById('ul-cancel').style.display='none';
+  renderExistingImages();
+}
+
+function editWork(workId){
+  var w=W.find(function(item){return wid(item)===String(workId)});
+  if(!w){toast('作品不存在');return}
+  _editingWorkId=String(workId);
+  _editingImages=parseImages(w.images||w.cover_image);
+  _ulFiles=[];
+  document.getElementById('ul-title').value=w.title||'';
+  document.getElementById('ul-desc').value=w.description||'';
+  document.getElementById('ul-author').value=w.creator_name||'';
+  document.getElementById('ul-cat').value=String(w.category||'0');
+  document.getElementById('ul-heading').textContent='✏️ 编辑作品';
+  document.getElementById('ul-help').textContent='修改作品信息后保存；不重新选图会保留当前图片';
+  document.getElementById('ul-submit').textContent='保存修改';
+  document.getElementById('ul-cancel').style.display='inline-flex';
+  renderPreview();
+  renderExistingImages();
+  switchT('upload');
+  document.getElementById('ul-title').focus();
+}
+
+function cancelEdit(){resetUploadForm(false)}
+
 function compressForUpload(file){
   return new Promise(function(resolve,reject){
     var reader=new FileReader();
@@ -556,29 +633,33 @@ async function doSubmit(){
   var msg=document.getElementById('ul-msg');
   if(!title){toast('请填写标题');return}
   if(!author){toast('请填写作者');return}
-  if(!_ulFiles.length){toast('请选择至少一张图片');return}
-  msg.textContent='正在上传 '+_ulFiles.length+' 张图片...';msg.style.color='var(--txt2)';msg.style.display='block';
+  if(!_editingWorkId&&!_ulFiles.length){toast('请选择至少一张图片');return}
+  if(_editingWorkId&&!_editingImages.length&&!_ulFiles.length){toast('请至少保留或新增一张图片');return}
+  msg.textContent=_editingWorkId?'正在保存修改...':'正在上传 '+_ulFiles.length+' 张图片...';msg.style.color='var(--txt2)';msg.style.display='block';
   try{
-    var images=[];
+    var images=_editingImages.slice();
     for(var i=0;i<_ulFiles.length;i++){
       msg.textContent='正在上传第 '+(i+1)+'/'+_ulFiles.length+' 张图片...';
       images.push(await uploadImage(await compressForUpload(_ulFiles[i])));
     }
-    var add=await apiCall('add','works',{data:{title:title,description:desc,category:cat,creator_name:author,images:images,status:1,like_count:0,comment_count:0,share_count:0,created_at:sqlNow()}});
-    if(add.code!==0)throw new Error(add.message||'作品写入失败');
-    document.getElementById('ul-title').value='';
-    document.getElementById('ul-desc').value='';
-    document.getElementById('ul-author').value='';
-    document.getElementById('ul-files').value='';
-    document.getElementById('ul-preview').innerHTML='';
-    document.getElementById('ul-status').textContent='';
-    _ulFiles=[];
-    msg.textContent='\u2705 作品已提交，前台可正常展示';msg.style.color='#00E5A0';
-    toast('发布成功');
+    var payload={title:title,description:desc,category:cat,creator_name:author,images:images,status:1};
+    if(_editingWorkId){
+      var updated=await apiCall('update','works',{docId:Number(_editingWorkId),data:payload});
+      if(updated.code!==0)throw new Error(updated.message||'作品更新失败');
+      msg.textContent='\u2705 作品已更新，前台会同步展示';msg.style.color='#00E5A0';
+      toast('保存成功');
+    }else{
+      payload.like_count=0;payload.comment_count=0;payload.share_count=0;payload.created_at=sqlNow();
+      var add=await apiCall('add','works',{data:payload});
+      if(add.code!==0)throw new Error(add.message||'作品写入失败');
+      msg.textContent='\u2705 作品已提交，前台可正常展示';msg.style.color='#00E5A0';
+      toast('发布成功');
+    }
+    resetUploadForm(true);
     await loadAll();
   }catch(e){
-    msg.textContent='发布失败: '+e.message;msg.style.color='var(--danger)';
-    toast('发布失败: '+e.message);
+    msg.textContent='保存失败: '+e.message;msg.style.color='var(--danger)';
+    toast('保存失败: '+e.message);
   }
 }
 
