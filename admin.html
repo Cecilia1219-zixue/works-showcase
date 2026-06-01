@@ -62,6 +62,7 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
 .cover-controls label{font-size:11px;color:var(--txt2);display:grid;gap:6px}
 .cover-controls input[type=range]{width:100%}
 .cover-pick{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.68);color:#fff;border:0;border-radius:999px;padding:3px 8px;font-size:10px;cursor:pointer}
+.cover-pick.active{background:linear-gradient(135deg,var(--a1),var(--a2));color:#071018;font-weight:800}
 .cover-thumb{box-shadow:0 0 0 2px var(--a2)}
 @media(max-width:768px){.header{padding:12px 14px}.header h1{font-size:15px}.container{padding:14px 10px}.dash-grid{grid-template-columns:repeat(2,1fr);gap:8px}.dash-card{padding:14px}.dash-card .num{font-size:24px}.tabs{gap:2px}.tab-btn{font-size:11px;padding:7px 5px}.eg{grid-template-columns:1fr}th,td{padding:8px 10px;font-size:11px}}
 @media(max-width:768px){.cover-editor{grid-template-columns:1fr}.cover-frame{max-width:220px}}
@@ -159,6 +160,7 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
               </div>
             </div>
             <div class="cover-controls">
+              <div style="font-size:11px;color:var(--txt2);line-height:1.6">最小缩放会刚好铺满封面框，不留白；原图完整内容仍在详情页展示。</div>
               <label>缩放 <input id="cover-scale" type="range" min="1" max="2.6" step="0.01" value="1" oninput="setCoverCropValue('scale',this.value)"></label>
               <label>左右 <input id="cover-x" type="range" min="-45" max="45" step="1" value="0" oninput="setCoverCropValue('x',this.value)"></label>
               <label>上下 <input id="cover-y" type="range" min="-45" max="45" step="1" value="0" oninput="setCoverCropValue('y',this.value)"></label>
@@ -352,6 +354,7 @@ function cropFrom(item){
 
 function coverKey(kind,index){return kind+':'+index}
 function selectedCoverKey(){return coverKey(_cover.kind,_cover.index)}
+function coverButtonText(kind,index){return selectedCoverKey()===coverKey(kind,index)?'当前封面':'设为封面'}
 
 function allCoverSources(){
   var rows=[];
@@ -446,7 +449,7 @@ function renderPreview(){
       var wrap=document.createElement('div');
       wrap.className=selectedCoverKey()===coverKey('new',idx)?'cover-thumb':'';
       wrap.style.cssText='position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:2px solid var(--bdr)';
-      wrap.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover"/><button type="button" class="cover-pick">封面</button>'+'<div style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:14px;line-height:20px;text-align:center;cursor:pointer">\u00d7</div>';
+      wrap.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover"/><button type="button" class="cover-pick'+(selectedCoverKey()===coverKey('new',idx)?' active':'')+'">'+coverButtonText('new',idx)+'</button>'+'<div style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:14px;line-height:20px;text-align:center;cursor:pointer">\u00d7</div>';
       wrap.querySelector('.cover-pick').onclick=function(e){e.stopPropagation();setCover('new',idx)};
       wrap.querySelector('div').onclick=function(){removeImg(idx)};
       preview.appendChild(wrap);
@@ -676,7 +679,7 @@ function renderExistingImages(){
     var item=document.createElement('div');
     item.className=selectedCoverKey()===coverKey('existing',i)?'cover-thumb':'';
     item.style.cssText='position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:2px solid var(--bdr);background:var(--input)';
-    item.innerHTML='<img src="'+esc(src)+'" style="width:100%;height:100%;object-fit:cover"/><button type="button" class="cover-pick">封面</button>'+'<div style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:14px;line-height:20px;text-align:center;cursor:pointer">\u00d7</div>';
+    item.innerHTML='<img src="'+esc(src)+'" style="width:100%;height:100%;object-fit:cover"/><button type="button" class="cover-pick'+(selectedCoverKey()===coverKey('existing',i)?' active':'')+'">'+coverButtonText('existing',i)+'</button>'+'<div style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:14px;line-height:20px;text-align:center;cursor:pointer">\u00d7</div>';
     item.querySelector('.cover-pick').onclick=function(e){e.stopPropagation();setCover('existing',i)};
     item.querySelector('div').onclick=function(){
       _editingImages.splice(i,1);
