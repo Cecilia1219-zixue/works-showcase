@@ -58,7 +58,7 @@ No frontend build step is currently used.
     - `upload`
     - `fileUrl`
     - `exec`
-    - image URL hydration for `works`
+    - image URL hydration/proxying for `works`
 
 - `functions/api/cloudbaserc.json`
   - Active CloudBase function deployment config.
@@ -176,9 +176,13 @@ Current flow:
 1. Admin uploads image through `api?action=upload`.
 2. API stores the file in CloudBase storage.
 3. `works.images` stores file metadata.
-4. When frontend requests `works`, `functions/api/index.js` hydrates image metadata into fresh temporary URLs with `app.getTempFileURL(...)`.
+4. When frontend requests `works`, `functions/api/index.js` converts image metadata into API image proxy URLs:
 
-This is why cards can keep showing images even after temporary URL signatures expire.
+```text
+/api?action=image&fileID=...
+```
+
+The image proxy uses `app.downloadFile(...)` inside the CloudBase function and returns the image bytes. This avoids depending on public storage read rules or expiring storage URLs.
 
 ## Login Behavior
 
@@ -260,7 +264,7 @@ After admin changes:
 
 After API changes:
 
-- Verify `get works` returns image objects with fresh `url`.
+- Verify `get works` returns image objects whose `url` uses `action=image`.
 - Verify upload returns `fileID` and a readable URL.
 - Verify deleting related rows works by `query: { work_id }`.
 
@@ -276,3 +280,4 @@ After API changes:
 - The active frontend is CloudBase hosting, not GitHub Pages.
 - The API `exec` action exists for debugging; avoid using it unless absolutely necessary.
 - Admin deletion removes database rows but does not currently delete CloudBase storage files for work images.
+- Work images are served through the API image proxy because direct CloudBase storage URLs can return 403 when the bucket is private.

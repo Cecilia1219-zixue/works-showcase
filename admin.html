@@ -513,8 +513,8 @@ async function uploadImage(dataUrl){
   if(data.code!==0||!data.data||!data.data.url)throw new Error(data.message||'图片上传失败');
   return {
     fileID:data.data.fileID||'',
-    url:data.data.stableUrl||data.data.url,
-    tempUrl:data.data.url,
+    url:data.data.url,
+    stableUrl:data.data.stableUrl||'',
     fileName:data.data.fileName||''
   };
 }

@@ -1307,10 +1307,58 @@ function imageUrl(item) {
   return item.url || item.tempUrl || item.tempFileURL || item.stableUrl || item.src || item.fileID || '';
 }
 
+function imageFileId(item) {
+  if (!item || typeof item === 'string') return '';
+  return item.fileID || item.fileId || '';
+}
+
 function imageStableUrl(item) {
   if (!item) return '';
   if (typeof item === 'string') return item.split('?')[0];
   return item.stableUrl || (item.url ? String(item.url).split('?')[0] : '') || item.fileID || '';
+}
+
+function imageTagAttrs(item) {
+  return 'src="' + escHtml(imageUrl(item)) + '" data-file-id="' + escHtml(imageFileId(item)) + '" data-stable-url="' + escHtml(imageStableUrl(item)) + '" onerror="refreshImageElement(this)"';
+}
+
+async function refreshImageElement(img) {
+  if (!img || img.dataset.refreshing === '1') return;
+  img.dataset.refreshing = '1';
+  const key = img.dataset.fileId || img.dataset.stableUrl || img.currentSrc || img.src || '';
+  if (!key) return;
+  try {
+    const res = await fetch(API_URL + '?action=fileUrl&collection=works&fileID=' + encodeURIComponent(key));
+    const json = await res.json();
+    const first = json && json.code === 0 && json.data && json.data.images && json.data.images[0];
+    const nextUrl = typeof first === 'string' ? first : (first && first.url);
+    if (nextUrl) {
+      img.onerror = function () { showImageFallback(img); };
+      img.src = nextUrl;
+      return;
+    }
+  } catch (e) {
+    console.warn('Image refresh failed:', e.message);
+  }
+  showImageFallback(img);
+}
+
+function setImageElement(img, item) {
+  img.dataset.fileId = imageFileId(item);
+  img.dataset.stableUrl = imageStableUrl(item);
+  img.onerror = function () { refreshImageElement(img); };
+  img.style.display = '';
+  img.src = imageUrl(item);
+}
+
+function showImageFallback(img) {
+  if (!img) return;
+  const parent = img.parentElement;
+  if (parent && parent.classList && parent.classList.contains('carousel-slide')) {
+    parent.innerHTML = '<div class="card-fallback"></div>';
+  } else {
+    img.style.display = 'none';
+  }
 }
 
 function normalizeImages(images, cover) {
@@ -1385,8 +1433,7 @@ function renderWorks() {
     const slide = Math.min((interactors[w._id] && interactors[w._id].slide) || 0, Math.max(0, imgs.length - 1));
     const safeId = escHtml(w._id);
     const slides = imgs.length ? imgs.map(img => {
-      const src = escHtml(imageUrl(img));
-      return '<div class="carousel-slide"><img src="' + src + '" alt="" loading="lazy" onerror="this.outerHTML=\'<div class=&quot;card-fallback&quot;></div>\'"></div>';
+      return '<div class="carousel-slide"><img ' + imageTagAttrs(img) + ' alt="" loading="lazy"></div>';
     }).join('') : '<div class="carousel-slide"><div class="card-fallback"></div></div>';
     const arrows = imgs.length > 1 ? '<button class="carousel-btn prev" onclick="event.stopPropagation();prevSlide(\'' + safeId + '\')">‹</button><button class="carousel-btn next" onclick="event.stopPropagation();nextSlide(\'' + safeId + '\')">›</button>' : '';
     const dots = imgs.length > 1 ? '<div class="carousel-dots" id="dots-' + safeId + '">' + imgs.map((_, i) => '<div class="dot' + (i === slide ? ' active' : '') + '"></div>').join('') + '</div>' : '';
@@ -1450,7 +1497,7 @@ function renderDetail() {
   const stats = w._stats || { likes: 0, comments: 0, shares: 0 };
   const liked = interactors[w._id] && interactors[w._id].liked;
 
-  document.getElementById('detail-image').src = imageUrl(img);
+  setImageElement(document.getElementById('detail-image'), img);
   document.getElementById('detail-prev').style.display = imgs.length > 1 ? '' : 'none';
   document.getElementById('detail-next').style.display = imgs.length > 1 ? '' : 'none';
   document.getElementById('detail-avatar').innerHTML = avatarHtml(author, w.creator_avatar || '');

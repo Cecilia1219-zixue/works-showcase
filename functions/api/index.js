@@ -7,6 +7,7 @@ const app = cloudbase.init({
 });
 
 const RDB_BASE = 'https://works-showcase-d2giub4pr5d687848.api.tcloudbasegateway.com/v1/rdb/rest';
+const API_BASE = 'https://works-showcase-d2giub4pr5d687848-1437802595.ap-shanghai.app.tcloudbase.com/api';
 const ALLOWED_TABLES = ['visitors', 'works', 'likes', 'comments', 'shares', 'work_stats'];
 
 function corsHeaders() {
@@ -90,24 +91,14 @@ function normalizeImageItem(item) {
 
 async function refreshImageUrls(images) {
   const normalized = parseJsonList(images).map(normalizeImageItem).filter(Boolean);
-  const fileList = normalized.map(img => img.fileID).filter(Boolean);
-  if (!fileList.length) return normalized.map(img => img.url).filter(Boolean);
-
-  try {
-    const tempRes = await app.getTempFileURL({ fileList });
-    const urlByFile = {};
-    for (const file of (tempRes.fileList || [])) {
-      if (file.fileID && file.tempFileURL) urlByFile[file.fileID] = file.tempFileURL;
-    }
-    return normalized.map(img => ({
-      fileID: img.fileID || '',
-      url: urlByFile[img.fileID] || img.url || '',
-      stableUrl: img.url || ''
-    })).filter(img => img.url);
-  } catch (e) {
-    console.error('Refresh image url error:', e.message);
-    return normalized.map(img => img.url).filter(Boolean);
-  }
+  return normalized.map(img => {
+    if (!img.fileID) return img.url || '';
+    return {
+      fileID: img.fileID,
+      url: `${API_BASE}?action=image&fileID=${encodeURIComponent(img.fileID)}`,
+      stableUrl: img.url || img.fileID || ''
+    };
+  }).filter(img => typeof img === 'string' ? img : img.url);
 }
 
 async function hydrateWorksRows(rows) {
@@ -237,6 +228,36 @@ async function handleExec(event) {
   }
 }
 
+function imageContentType(fileID) {
+  const lower = String(fileID || '').toLowerCase();
+  if (lower.endsWith('.png')) return 'image/png';
+  if (lower.endsWith('.webp')) return 'image/webp';
+  if (lower.endsWith('.gif')) return 'image/gif';
+  return 'image/jpeg';
+}
+
+async function handleImageProxy(event) {
+  try {
+    const fileID = event.queryStringParameters?.fileID || '';
+    if (!fileID) return err('缺少 fileID 参数', 400);
+    const res = await app.downloadFile({ fileID });
+    const buffer = res.fileContent;
+    return {
+      statusCode: 200,
+      isBase64Encoded: true,
+      headers: {
+        ...corsHeaders(),
+        'Content-Type': imageContentType(fileID),
+        'Cache-Control': 'public, max-age=300'
+      },
+      body: Buffer.from(buffer).toString('base64')
+    };
+  } catch (e) {
+    console.error('Image proxy error:', e.message);
+    return err('图片读取失败: ' + e.message, 404);
+  }
+}
+
 exports.main = async (event, context) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: corsHeaders(), body: '' };
 
@@ -244,18 +265,24 @@ exports.main = async (event, context) => {
     return await handleUpload(event);
   }
 
-  if (event.queryStringParameters?.action === 'fileUrl') {
-    const raw = event.queryStringParameters.fileID || event.queryStringParameters.url || '';
+  if (event.queryStringParameters?.action === 'image') {
+    return await handleImageProxy(event);
+  }
+
+  const input = parseInput(event);
+
+  if (input.action === 'fileUrl') {
+    const raw = event.queryStringParameters?.fileID || event.queryStringParameters?.url || input.params.fileID || input.params.url || '';
     const image = normalizeImageItem(raw);
     return ok({ images: await refreshImageUrls([image]) });
   }
 
   // Handle SQL execution for table schema fixes
-  if (event.queryStringParameters?.action === 'exec' || (event.body && typeof event.body === 'object' && event.body.action === 'exec')) {
+  if (input.action === 'exec' || event.queryStringParameters?.action === 'exec') {
     return await handleExec(event);
   }
 
-  const { action, collection, params } = parseInput(event);
+  const { action, collection, params } = input;
   if (!action || !collection) return err('缺少 action 或 collection 参数', 400);
   if (!ALLOWED_TABLES.includes(collection)) return err('无效的表名: ' + collection, 400);
 
