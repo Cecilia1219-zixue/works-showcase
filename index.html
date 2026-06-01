@@ -1482,7 +1482,7 @@ function renderWorks() {
     const stats = w._stats || { likes: 0, comments: 0, shares: 0 };
     const liked = interactors[w._id] && interactors[w._id].liked;
     const imgs = normalizeImages(w.images, w.cover_image);
-    const slide = Math.min((interactors[w._id] && interactors[w._id].slide) || 0, Math.max(0, imgs.length - 1));
+    const slide = 0;
     const safeId = escHtml(w._id);
     const slides = imgs.length ? imgs.map(img => {
       return '<div class="carousel-slide"><img ' + imageTagAttrs(img) + ' alt="" loading="lazy"></div>';
