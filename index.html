@@ -353,6 +353,119 @@ body{background:#fff;color:#222}
   .modal-overlay{z-index:1300}
 }
 </style>
+<style>
+/* Apple-inspired minimal visual polish */
+:root{
+  --bg:#f5f5f7;
+  --surface:#ffffff;
+  --text-primary:#1d1d1f;
+  --text-secondary:#515154;
+  --text-dim:#86868b;
+  --accent:#1d1d1f;
+  --border:rgba(0,0,0,.08);
+  --card-radius:28px;
+}
+html{background:#f5f5f7}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;background:#f5f5f7;color:#1d1d1f;letter-spacing:0}
+#main{background:#f5f5f7;min-height:100vh}
+#login-overlay{background:linear-gradient(180deg,#fbfbfd 0%,#f5f5f7 100%)}
+.login-card{background:rgba(255,255,255,.82);border:1px solid rgba(0,0,0,.08);border-radius:32px;box-shadow:0 24px 80px rgba(0,0,0,.10);padding:42px 38px;max-width:450px}
+#login-overlay.checking .login-card{max-width:340px;padding:38px 32px}
+.login-card .logo-sphere{width:88px;height:88px;box-shadow:0 18px 44px rgba(37,132,203,.18)}
+.login-card h1{font-size:34px;line-height:1.08;font-weight:800;letter-spacing:0;background:none;-webkit-text-fill-color:#1d1d1f;filter:none;margin:18px 0 8px}
+.login-card .theme-text{font-size:16px;letter-spacing:0;text-transform:none;color:#86868b;margin-bottom:28px}
+.login-card .login-form>p{font-size:15px;color:#86868b;margin-bottom:22px}
+.btn-feishu,.btn-primary{height:58px;border-radius:18px;background:#1d1d1f;color:#fff;box-shadow:none;font-weight:700}
+.btn-feishu:hover,.btn-primary:hover{background:#000;box-shadow:none;transform:none}
+.form-input{height:58px;border-radius:18px;background:#fff;border:1px solid #d2d2d7;font-size:17px;padding:0 20px}
+.form-input:focus{border-color:#0071e3;box-shadow:0 0 0 4px rgba(0,113,227,.14)}
+.login-divider{color:#86868b}
+.navbar{height:60px;padding:0 clamp(18px,4vw,64px);border-radius:0;background:rgba(245,245,247,.78);border-bottom:1px solid rgba(0,0,0,.06);box-shadow:none;backdrop-filter:saturate(180%) blur(22px);-webkit-backdrop-filter:saturate(180%) blur(22px)}
+.nav-sphere{width:34px;height:34px;box-shadow:none}
+.nav-title{font-size:17px;font-weight:700;letter-spacing:0;color:#1d1d1f}
+.nav-user .name{font-size:13px;font-weight:600;color:#1d1d1f}
+.nav-user .dept{font-size:12px;color:#86868b}
+.nav-admin,.nav-logout{height:34px;padding:0 14px;border-radius:999px;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.68);color:#515154;font-size:13px}
+.nav-admin:hover,.nav-logout:hover{background:#fff;color:#1d1d1f;border-color:rgba(0,0,0,.12)}
+.hero{display:block;padding:60px 20px 26px;text-align:center}
+.hero h1{font-size:clamp(42px,6vw,76px);line-height:1.03;font-weight:800;letter-spacing:-.02em;background:none;-webkit-text-fill-color:#1d1d1f;filter:none;position:static;margin:0}
+.hero h1::after{display:none}
+.hero .theme-text{font-size:clamp(18px,2.2vw,28px);line-height:1.25;color:#515154;letter-spacing:0;text-transform:none;margin-top:14px}
+.sheet-bar{max-width:1540px;margin:0 auto;padding:14px clamp(18px,4vw,48px) 6px;overflow:visible}
+.sheet-tabs{width:max-content;max-width:100%;margin:0 auto;padding:5px;gap:4px;border:1px solid rgba(0,0,0,.08);border-radius:999px;background:rgba(255,255,255,.72);box-shadow:0 8px 28px rgba(0,0,0,.04);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px)}
+.sheet-tab{min-width:160px;border:0;background:transparent;border-radius:999px;padding:10px 20px;bottom:0;color:#6e6e73;font-size:15px;font-weight:600;text-align:center}
+.sheet-tab:hover{background:rgba(0,0,0,.035);color:#1d1d1f}
+.sheet-tab.active{background:#1d1d1f;color:#fff;border:0;font-weight:700}
+.sheet-tab.active::after{display:none}
+.cards-container{max-width:1540px;margin:0 auto;padding:28px clamp(18px,4vw,48px) 92px}
+.masonry{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:28px}
+.card{background:#fff;border:0;border-radius:28px;box-shadow:0 2px 8px rgba(0,0,0,.03),0 18px 48px rgba(0,0,0,.06);overflow:hidden;cursor:pointer;transition:transform .22s ease,box-shadow .22s ease}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 18px rgba(0,0,0,.04),0 26px 70px rgba(0,0,0,.09)}
+.card-carousel{border:0;border-radius:0;background:#f5f5f7;overflow:hidden}
+.card-carousel .carousel-slide img,.card-fallback{aspect-ratio:4/5;background:#f5f5f7}
+.card-carousel .carousel-btn{width:34px;height:34px;background:rgba(245,245,247,.72);color:#1d1d1f;box-shadow:0 4px 20px rgba(0,0,0,.12);backdrop-filter:blur(16px)}
+.card-body{padding:18px 20px 8px}
+.card-title{font-size:20px;line-height:1.18;font-weight:800;letter-spacing:-.01em;color:#1d1d1f;margin-bottom:12px}
+.card-meta{font-size:14px;color:#6e6e73;gap:8px}
+.author-avatar{width:26px;height:26px;background:#f5f5f7;color:#6e6e73}
+.card-actions{padding:10px 20px 18px;background:#fff;border-top:0;justify-content:flex-start;gap:18px}
+.card-action{font-size:14px;color:#6e6e73;gap:6px;padding:0;background:transparent;border-radius:0}
+.card-action:hover{background:transparent;color:#1d1d1f}
+.card-action.liked{color:#ff2d55}
+.action-icon{width:21px;height:21px;stroke-width:1.9}
+.detail-overlay{background:rgba(0,0,0,.22);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.detail-shell{border-radius:30px;box-shadow:0 30px 90px rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.4)}
+.detail-side{border-left:1px solid rgba(0,0,0,.06)}
+.detail-author{padding:26px 30px 16px}
+.detail-content{padding:8px 30px 22px;border-bottom:1px solid rgba(0,0,0,.06)}
+.detail-title{font-size:24px;line-height:1.25;letter-spacing:-.01em;color:#1d1d1f}
+.detail-desc{font-size:17px;line-height:1.65;color:#515154}
+.detail-bottom{padding:16px 24px;background:#fff;border-top:1px solid rgba(0,0,0,.06)}
+.detail-input{background:#f5f5f7;border-radius:999px;height:46px}
+.detail-send{background:#1d1d1f;border-radius:999px}
+.modal{border-radius:26px;background:#fff;border:0;box-shadow:0 24px 80px rgba(0,0,0,.18)}
+.toast{border-radius:999px;background:rgba(29,29,31,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+@media(max-width:900px){
+  .navbar{height:58px;padding:0 14px}
+  .nav-title{font-size:17px;max-width:9em}
+  .nav-sphere{width:34px;height:34px}
+  .nav-admin{width:36px;height:36px;padding:0;font-size:0}
+  .nav-admin::before{content:'⚙';font-size:17px}
+  .nav-logout{width:48px;height:36px;padding:0;justify-content:center;font-size:13px}
+  .hero{display:block;padding:34px 18px 16px}
+  .hero h1{font-size:38px;line-height:1.05}
+  .hero .theme-text{font-size:19px;margin-top:10px}
+  .sheet-bar{position:sticky;top:58px;z-index:80;padding:10px 12px;background:rgba(245,245,247,.86);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px)}
+  .sheet-tabs{width:100%;padding:4px}
+  .sheet-tab{flex:1;min-width:0;font-size:14px;padding:9px 10px}
+  .cards-container{padding:14px 10px 90px}
+  .masonry{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .card{border-radius:20px;box-shadow:0 1px 4px rgba(0,0,0,.03),0 10px 28px rgba(0,0,0,.06)}
+  .card:hover{transform:none;box-shadow:0 1px 4px rgba(0,0,0,.03),0 10px 28px rgba(0,0,0,.06)}
+  .card-carousel .carousel-slide img,.card-fallback{aspect-ratio:3/4}
+  .card-body{padding:12px 12px 4px}
+  .card-title{font-size:16px;line-height:1.24;margin-bottom:8px}
+  .card-meta{font-size:12px}
+  .author-avatar{width:22px;height:22px}
+  .card-actions{padding:8px 12px 14px;gap:12px}
+  .card-action span:not(.icon){font-size:12px}
+  .action-icon{width:20px;height:20px}
+  .login-card{width:calc(100% - 32px);padding:34px 28px;border-radius:28px}
+  #login-overlay.checking .login-card{max-width:320px;padding:34px 28px}
+  .login-card h1{font-size:28px}
+  .login-card .theme-text{font-size:15px}
+  .detail-overlay{background:#f5f5f7;backdrop-filter:none}
+  .detail-shell{border-radius:0;border:0}
+  .detail-author{padding:13px 16px 12px 60px;background:#fff}
+  .detail-media{background:#f5f5f7}
+  .detail-content{padding:20px 18px 16px;background:#fff}
+  .detail-title{font-size:22px}
+  .detail-desc{font-size:16px}
+  .detail-comments-head{padding:18px 18px 8px;background:#fff}
+  .detail-comments{padding:0 18px 96px;background:#fff}
+  .detail-bottom{padding:12px 14px 18px}
+}
+</style>
 </head>
 <body>
 
