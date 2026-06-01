@@ -92,11 +92,12 @@ function normalizeImageItem(item) {
 async function refreshImageUrls(images) {
   const normalized = parseJsonList(images).map(normalizeImageItem).filter(Boolean);
   return normalized.map(img => {
-    if (!img.fileID) return img.url || '';
+    if (!img.fileID) return img.url ? img : '';
     return {
+      ...img,
       fileID: img.fileID,
       url: `${API_BASE}?action=image&fileID=${encodeURIComponent(img.fileID)}`,
-      stableUrl: img.url || img.fileID || ''
+      stableUrl: img.stableUrl || img.url || img.fileID || ''
     };
   }).filter(img => typeof img === 'string' ? img : img.url);
 }
