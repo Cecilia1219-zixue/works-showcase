@@ -394,9 +394,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
 .hero .theme-text{font-size:clamp(18px,2.2vw,28px);line-height:1.25;color:#515154;letter-spacing:0;text-transform:none;margin-top:14px}
 .announcement-board{position:relative;z-index:2;max-width:1480px;margin:-54px auto 4px;padding:0 clamp(28px,6vw,86px)}
 .announcement-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-.announcement-card{position:relative;min-height:104px;border:1px solid rgba(255,255,255,.62);border-radius:28px;padding:20px 22px;display:flex;align-items:center;overflow:hidden;background:linear-gradient(135deg,rgba(255,255,255,.78),rgba(246,248,251,.36));box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 18px 58px rgba(0,0,0,.075);backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px)}
+.announcement-card{position:relative;height:104px;border:1px solid rgba(255,255,255,.62);border-radius:28px;padding:20px 22px;display:flex;align-items:center;overflow:hidden;background:linear-gradient(135deg,rgba(255,255,255,.78),rgba(246,248,251,.36));box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 18px 58px rgba(0,0,0,.075);backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px)}
 .announcement-card::before{content:'';position:absolute;inset:-35%;background:radial-gradient(circle at 18% 16%,rgba(255,255,255,.86),transparent 28%),radial-gradient(circle at 82% 16%,rgba(0,229,160,.18),transparent 30%),radial-gradient(circle at 52% 92%,rgba(0,172,193,.16),transparent 34%);opacity:.9;pointer-events:none}
-.announcement-text{position:relative;z-index:1;font-size:16px;line-height:1.65;color:#1d1d1f;white-space:pre-wrap;word-break:break-word}
+.announcement-text{position:relative;z-index:1;width:100%;max-height:100%;overflow-y:auto;padding-right:6px;font-size:16px;line-height:1.65;color:#1d1d1f;white-space:pre-wrap;word-break:break-word;-webkit-overflow-scrolling:touch}
+.announcement-text::-webkit-scrollbar{width:4px}
+.announcement-text::-webkit-scrollbar-thumb{background:rgba(0,0,0,.18);border-radius:999px}
 .sheet-bar{max-width:1540px;margin:0 auto;padding:14px clamp(18px,4vw,48px) 6px;overflow:visible}
 .sheet-tabs{width:max-content;max-width:100%;margin:0 auto;padding:5px;gap:4px;border:1px solid rgba(0,0,0,.08);border-radius:999px;background:rgba(255,255,255,.72);box-shadow:0 8px 28px rgba(0,0,0,.04);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px)}
 .sheet-tab{min-width:160px;border:0;background:transparent;border-radius:999px;padding:10px 20px;bottom:0;color:#6e6e73;font-size:15px;font-weight:600;text-align:center}
@@ -448,7 +450,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
   .hero .theme-text{font-size:19px;margin-top:10px}
   .announcement-board{padding:0 14px;margin-top:-36px}
   .announcement-grid{grid-template-columns:1fr;gap:10px}
-  .announcement-card{min-height:78px;border-radius:20px;padding:16px}
+  .announcement-card{height:78px;border-radius:20px;padding:16px}
   .announcement-text{font-size:14px;line-height:1.55}
   .sheet-bar{position:sticky;top:58px;z-index:80;padding:10px 12px;background:rgba(245,245,247,.86);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px)}
   .sheet-tabs{width:100%;padding:4px}
