@@ -44,7 +44,14 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
 .btn{padding:9px 18px;border:none;border-radius:9px;font-size:12px;cursor:pointer;font-weight:600;transition:.2s;display:inline-flex;align-items:center;gap:5px}
 .btn:hover{opacity:.85}.bp{background:linear-gradient(135deg,var(--a1),var(--a2));color:#0d0d1a}.bd{background:var(--danger);color:#fff}.be{background:#2a2a4a;color:var(--txt)}.bs{padding:5px 12px;font-size:11px}
 .badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600}
-.bb{background:rgba(0,172,193,.12);color:var(--a1)}.bl{background:rgba(0,229,160,.1);color:var(--a2)}
+.bb{background:rgba(0,172,193,.12);color:var(--a1)}.bl{background:rgba(0,229,160,.1);color:var(--a2)}.ba{background:rgba(167,139,250,.12);color:#A78BFA}
+.notice-layout{display:grid;grid-template-columns:minmax(280px,430px) 1fr;gap:16px}
+.notice-card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:24px}
+.notice-form{display:grid;gap:12px}
+.notice-form label{font-size:12px;color:var(--txt2)}
+.notice-form input,.notice-form select,.notice-form textarea{background:var(--input);border:1px solid var(--bdr);border-radius:8px;padding:9px 14px;color:var(--txt);font-size:13px;outline:none;font-family:inherit}
+.notice-checks{display:flex;gap:16px;flex-wrap:wrap}
+.notice-checks label{display:flex;align-items:center;gap:6px}
 .po{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(13,13,26,.94);z-index:100;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}.po.h{display:none}
 .pb{background:var(--card);border:1px solid var(--bdr);border-radius:20px;padding:36px 32px;width:340px;text-align:center}
 .pb h2{margin-bottom:6px;font-size:18px;background:linear-gradient(90deg,var(--a1),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -64,7 +71,7 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
 .cover-pick{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.68);color:#fff;border:0;border-radius:999px;padding:3px 8px;font-size:10px;cursor:pointer}
 .cover-pick.active{background:linear-gradient(135deg,var(--a1),var(--a2));color:#071018;font-weight:800}
 .cover-thumb{box-shadow:0 0 0 2px var(--a2)}
-@media(max-width:768px){.header{padding:12px 14px}.header h1{font-size:15px}.container{padding:14px 10px}.dash-grid{grid-template-columns:repeat(2,1fr);gap:8px}.dash-card{padding:14px}.dash-card .num{font-size:24px}.tabs{gap:2px}.tab-btn{font-size:11px;padding:7px 5px}.eg{grid-template-columns:1fr}th,td{padding:8px 10px;font-size:11px}}
+@media(max-width:768px){.header{padding:12px 14px}.header h1{font-size:15px}.container{padding:14px 10px}.dash-grid{grid-template-columns:repeat(2,1fr);gap:8px}.dash-card{padding:14px}.dash-card .num{font-size:24px}.tabs{gap:2px}.tab-btn{font-size:11px;padding:7px 5px}.eg,.notice-layout{grid-template-columns:1fr}th,td{padding:8px 10px;font-size:11px}}
 @media(max-width:768px){.cover-editor{grid-template-columns:1fr}.cover-frame{max-width:220px}}
 </style>
 </head>
@@ -92,6 +99,7 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
     <button class="tab-btn" data-t="visit" onclick="switchT('visit')">👁️ 访客列表</button>
     <button class="tab-btn" data-t="export" onclick="switchT('export')">📥 数据导出</button>
     <button class="tab-btn" data-t="upload" onclick="switchT('upload')">📤 上传作品</button>
+    <button class="tab-btn" data-t="notice" onclick="switchT('notice')">📣 公告管理</button>
   </div>
 
   <div id="p-dash" class="panel active">
@@ -107,7 +115,7 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
   </div>
 
   <div id="p-works" class="panel">
-    <div class="fb"><select id="w-cat" onchange="rWT()"><option value="all">全部分类</option><option value="0">"医"起打擂台</option><option value="1">医高人胆大</option></select><span style="font-size:11px;color:var(--txt3);margin-left:auto" id="w-cnt"></span></div>
+    <div class="fb"><select id="w-cat" onchange="rWT()"><option value="all">全部分类</option><option value="0">"医"起打擂台</option><option value="1">医高人胆大</option><option value="2">学习广场</option></select><span style="font-size:11px;color:var(--txt3);margin-left:auto" id="w-cnt"></span></div>
     <div class="tw"><table><thead><tr><th>作品标题</th><th>分类</th><th>❤️ 点赞</th><th>💬 评论</th><th>🔄 分享</th><th>📈 互动总数</th><th>操作</th></tr></thead><tbody id="w-tbody"></tbody></table></div>
   </div>
 
@@ -144,6 +152,7 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
           <select id="ul-cat" style="background:var(--input);border:1px solid var(--bdr);border-radius:8px;padding:9px 14px;color:var(--txt);font-size:13px;outline:none">
             <option value="0">📋 "医"起打擂台</option>
             <option value="1">📋 "医"高人胆大</option>
+            <option value="2">📋 学习广场</option>
           </select>
           <label style="font-size:12px;color:var(--txt2)">📁 选择图片（支持多张，最多10张，直接上传）</label>
           <input id="ul-files" type="file" multiple accept="image/*" style="background:var(--input);border:1px solid var(--bdr);border-radius:8px;padding:10px 14px;color:var(--txt);font-size:12px" onchange="previewFiles()"/>
@@ -175,6 +184,37 @@ td{color:var(--txt)}tbody tr:hover{background:var(--cardH)}
         </div>
       </div>
       <div id="ul-msg" style="text-align:center;font-size:12px;color:var(--txt2);display:none"></div>
+    </div>
+  </div>
+
+  <div id="p-notice" class="panel">
+    <div class="notice-layout">
+      <div class="notice-card">
+        <h3 style="font-size:14px;margin-bottom:4px;color:var(--a1)">📣 公告管理</h3>
+        <p style="font-size:12px;color:var(--txt2);margin-bottom:20px">维护首页标题下方的三块公告</p>
+        <div class="notice-form">
+          <input id="nt-id" type="hidden"/>
+          <label>公告位置 *</label>
+          <select id="nt-pos">
+            <option value="left">左侧模块</option>
+            <option value="center">中间模块</option>
+            <option value="right">右侧模块</option>
+          </select>
+          <label>公告内容 *</label>
+          <textarea id="nt-content" rows="5" placeholder="请输入公告内容"></textarea>
+          <label>字体颜色</label>
+          <input id="nt-color" type="color" value="#1d1d1f"/>
+          <div class="notice-checks">
+            <label><input id="nt-bold" type="checkbox"/> 加粗</label>
+            <label><input id="nt-underline" type="checkbox"/> 下划线</label>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+            <button class="btn bp" onclick="saveNotice()" type="button">保存公告</button>
+            <button class="btn be" onclick="resetNoticeForm()" type="button">清空表单</button>
+          </div>
+        </div>
+      </div>
+      <div class="tw"><table><thead><tr><th>位置</th><th>内容</th><th>样式</th><th>操作</th></tr></thead><tbody id="n-tbody"></tbody></table></div>
     </div>
   </div>
 </div>
@@ -230,7 +270,7 @@ async function initDB(){
   }
 }
 
-async function loadAll(){try{await loadD();rDash();rWT();rUT();rVT();console.log('loadAll OK')}catch(e){console.error('loadAll error:',e);toast('数据加载失败: '+e.message)}}
+async function loadAll(){try{await loadD();rDash();rWT();rUT();rVT();rNT();console.log('loadAll OK')}catch(e){console.error('loadAll error:',e);toast('数据加载失败: '+e.message)}}
 
 async function loadD(){
   var r;r=await db.collection('Work').orderBy('sort_order','asc').get();W=r.data||[];
@@ -537,11 +577,25 @@ async function getRows(collection,limit){
   return apiRows(await apiCall('get',collection,{limit:limit||1000}));
 }
 
-function catLabel(c){return String(c)==='0'?"\"医\"起打擂台":"医高人胆大"}
-function catClass(c){return String(c)==='0'?'bb':'bl'}
+function isNotice(w){return String(w&&w.category)==='notice'}
+function visibleWorks(){return W.filter(function(w){return !isNotice(w)})}
+function catLabel(c){
+  c=String(c);
+  if(c==='0')return'"医"起打擂台';
+  if(c==='1')return'"医"高人胆大';
+  if(c==='2')return'学习广场';
+  if(c==='notice')return'公告';
+  return c||'-';
+}
+function catClass(c){c=String(c);return c==='0'?'bb':(c==='1'?'bl':'ba')}
 function wid(w){return String(w.id||w._id||'')}
 function byWork(rows,id){return rows.filter(function(r){return String(r.work_id)===String(id)})}
 function sqlNow(){var d=new Date(),p=function(n){return String(n).padStart(2,'0')};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds())}
+function parseMeta(value){
+  if(!value)return{};
+  if(typeof value==='object')return value;
+  try{var parsed=JSON.parse(value);return parsed&&typeof parsed==='object'?parsed:{}}catch(e){return{}}
+}
 function parseImages(value){
   if(!value)return[];
   if(Array.isArray(value))return value;
@@ -567,7 +621,7 @@ async function loadD(){
 }
 
 function rDash(){
-  el('d-works',W.length);
+  el('d-works',visibleWorks().length);
   el('d-likes',Lk.length);
   el('d-cmts',Cm.length);
   el('d-shares',Sh.length);
@@ -579,7 +633,7 @@ function rDash(){
 
 function rWT(){
   var f=document.getElementById('w-cat').value;
-  var ws=W.filter(function(w){return f==='all'||String(w.category)===f});
+  var ws=visibleWorks().filter(function(w){return f==='all'||String(w.category)===f});
   var rows=ws.map(function(w){
     var id=wid(w);
     var l=Number(w.like_count||byWork(Lk,id).length||0);
@@ -622,7 +676,7 @@ async function deleteWork(workId,title){
 
 function buildUR(){
   var wm={},um={};
-  W.forEach(function(w){wm[wid(w)]=w.title});
+  visibleWorks().forEach(function(w){wm[wid(w)]=w.title});
   Vi.forEach(function(v){um[String(v.id)]={n:v.name||'',d:v.department||''};if(v.open_id)um[v.open_id]={n:v.name||'',d:v.department||''}});
   function userOf(x){return um[String(x.user_id)]||um[String(x.user_open_id||x._openid)]||{n:x.user_name||x.name||'匿名用户',d:x.department||''}}
   UR=[];
@@ -642,7 +696,7 @@ function rVT(){
 
 function expWorks(){
   var rows=[['作品标题','作者','分类','点赞数','评论数','分享数','互动总数']];
-  W.forEach(function(w){var id=wid(w),l=Number(w.like_count||byWork(Lk,id).length||0),c=Number(w.comment_count||byWork(Cm,id).length||0),s=Number(w.share_count||byWork(Sh,id).length||0);rows.push([w.title,w.creator_name||'',catLabel(w.category),l,c,s,l+c+s])});
+  visibleWorks().forEach(function(w){var id=wid(w),l=Number(w.like_count||byWork(Lk,id).length||0),c=Number(w.comment_count||byWork(Cm,id).length||0),s=Number(w.share_count||byWork(Sh,id).length||0);rows.push([w.title,w.creator_name||'',catLabel(w.category),l,c,s,l+c+s])});
   dlCSV(rows,'作品统计_'+fd(new Date())+'.csv');
 }
 
@@ -650,6 +704,109 @@ function expVisitors(){
   var rows=[['用户昵称','部门','Open ID','首次访问','最后访问']];
   Vi.forEach(function(v){rows.push([v.name||'',v.department||'',v.open_id||v._openid||v.id,ft(v.created_at),ft(v.updated_at||v.created_at)])});
   dlCSV(rows,'访客列表_'+fd(new Date())+'.csv');
+}
+
+function noticeMeta(w){
+  var meta=parseMeta(w.tags);
+  if(!Object.keys(meta).length){
+    var imgs=parseImages(w.images);
+    meta=imgs[0]&&typeof imgs[0]==='object'?imgs[0]:{};
+  }
+  return {
+    position:meta.position||w.title||'left',
+    color:meta.color||'#1d1d1f',
+    bold:!!meta.bold,
+    underline:!!meta.underline
+  };
+}
+
+function noticePosLabel(pos){
+  return {left:'左侧模块',center:'中间模块',right:'右侧模块'}[pos]||pos;
+}
+
+function noticeRows(){
+  var order={left:0,center:1,right:2};
+  return W.filter(isNotice).sort(function(a,b){return (order[noticeMeta(a).position]||0)-(order[noticeMeta(b).position]||0)});
+}
+
+function rNT(){
+  var tb=document.getElementById('n-tbody');
+  if(!tb)return;
+  var rows=noticeRows();
+  tb.innerHTML=rows.map(function(w){
+    var id=wid(w),meta=noticeMeta(w);
+    var style=[];
+    style.push('<span style="color:'+esc(meta.color)+'">'+esc(meta.color)+'</span>');
+    if(meta.bold)style.push('加粗');
+    if(meta.underline)style.push('下划线');
+    return '<tr><td>'+esc(noticePosLabel(meta.position))+'</td><td style="max-width:420px;white-space:pre-wrap">'+esc(w.description||'')+'</td><td>'+style.join(' / ')+'</td><td><button class="btn be bs" onclick="editNotice(\''+id+'\')">编辑</button> <button class="btn bd bs" onclick="deleteNotice(\''+id+'\')">删除</button></td></tr>';
+  }).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--txt3)">暂无公告</td></tr>';
+}
+
+function resetNoticeForm(){
+  document.getElementById('nt-id').value='';
+  document.getElementById('nt-pos').value='left';
+  document.getElementById('nt-content').value='';
+  document.getElementById('nt-color').value='#1d1d1f';
+  document.getElementById('nt-bold').checked=false;
+  document.getElementById('nt-underline').checked=false;
+}
+
+function editNotice(id){
+  var w=W.find(function(item){return wid(item)===String(id)});
+  if(!w){toast('公告不存在');return}
+  var meta=noticeMeta(w);
+  document.getElementById('nt-id').value=wid(w);
+  document.getElementById('nt-pos').value=meta.position;
+  document.getElementById('nt-content').value=w.description||'';
+  document.getElementById('nt-color').value=meta.color;
+  document.getElementById('nt-bold').checked=meta.bold;
+  document.getElementById('nt-underline').checked=meta.underline;
+  switchT('notice');
+}
+
+async function saveNotice(){
+  var id=document.getElementById('nt-id').value.trim();
+  var pos=document.getElementById('nt-pos').value;
+  var content=document.getElementById('nt-content').value.trim();
+  var color=document.getElementById('nt-color').value||'#1d1d1f';
+  var bold=document.getElementById('nt-bold').checked;
+  var underline=document.getElementById('nt-underline').checked;
+  if(!content){toast('请填写公告内容');return}
+  var meta={position:pos,color:color,bold:bold,underline:underline};
+  var existing=W.find(function(w){return isNotice(w)&&noticeMeta(w).position===pos});
+  var docId=id||(existing?wid(existing):'');
+  var payload={title:pos,description:content,category:'notice',creator_name:'公告',images:[meta],status:1};
+  try{
+    if(docId){
+      var updated=await apiCall('update','works',{docId:Number(docId),data:payload});
+      if(updated.code!==0)throw new Error(updated.message||'公告更新失败');
+      toast('公告已更新');
+    }else{
+      payload.like_count=0;payload.comment_count=0;payload.share_count=0;payload.created_at=sqlNow();
+      var added=await apiCall('add','works',{data:payload});
+      if(added.code!==0)throw new Error(added.message||'公告创建失败');
+      toast('公告已创建');
+    }
+    resetNoticeForm();
+    await loadAll();
+  }catch(e){
+    toast('保存失败: '+e.message);
+  }
+}
+
+async function deleteNotice(id){
+  if(!id){toast('公告 ID 缺失');return}
+  if(!confirm('确定删除这条公告吗？'))return;
+  try{
+    var res=await apiCall('delete','works',{docId:Number(id)});
+    if(res.code!==0)throw new Error(res.message||'公告删除失败');
+    toast('公告已删除');
+    resetNoticeForm();
+    await loadAll();
+  }catch(e){
+    toast('删除失败: '+e.message);
+  }
 }
 
 async function uploadImage(dataUrl){
